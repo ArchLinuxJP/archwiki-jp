@@ -16,7 +16,7 @@ div#column-one {
 }
 
 #p-cactions {
-	margin-left: -12.2em !important;
+	margin: -36px 0 0 -12.2em !important;
 	width: 99% !important;
 }
 
@@ -27,6 +27,7 @@ div#column-one {
 
 #p-personal ul {
 	overflow-x: scroll;
+	margin: -36px 0 0 -14em;
 }
 
 div.portlet {
