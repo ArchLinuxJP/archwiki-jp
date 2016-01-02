@@ -1,0 +1,100 @@
+div#globalWrapper {
+	margin-right: -12.2em !important;
+	width: 100% !important;
+}
+
+div#column-content {
+	float: none;
+}
+
+div#content {
+	margin-right: -12.2em !important;
+}
+
+div#column-one {
+	padding-top: 0px !important;
+}
+
+#p-cactions {
+	margin-left: -12.2em !important;
+	width: 99% !important;
+}
+
+#p-cactions div.pBody ul {
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+#p-personal ul {
+	overflow-x: scroll;
+}
+
+div.portlet {
+	width: 100%;
+	margin: 0px 10px 0.5em 0px;
+}
+
+div#footer {
+	margin: -10px 0px 0px -16em !important;
+}
+
+#p-navigation {
+	margin-top: 17px;
+}
+
+#p-navigation li, #p-tb li, #p-lang li {
+	width: 50%;
+	float: left;
+}
+
+#wikimenuicon {
+	text-align: right;
+	width: 100%;
+	position: absolute;
+	margin-left: -22px;
+}
+
+#archnavbaricon {
+	display: inline !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	line-height: 45px !important;
+	float: right;
+}
+
+#archnavbarmenu {
+	display: none;
+}
+
+#archnavbar ul {
+	float: none !important;
+	display: inline !important;
+	list-style: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+#archnavbar ul li {
+	display: inline;
+	font-size: 14px !important;
+	font-family: sans-serif !important;
+	line-height: 38px !important;
+	padding-left: 15px !important;
+	float: none !important;
+}
+
+#archnavbarlist li:last-child {
+	padding-right: 28px !important;
+}
+
+div#mw-content-text p {
+	word-wrap: break-word;
+}
+
+div.mw-content-ltr dd {
+	word-break: break-word;
+}
+
+table.wikitable tbody {
+	word-break: break-all;
+}
