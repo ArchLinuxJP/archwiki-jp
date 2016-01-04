@@ -19,6 +19,7 @@ project.index
 static*
 tags
 cache/*.cdb
+images
 images/[0-9a-f]
 images/archive
 images/deleted

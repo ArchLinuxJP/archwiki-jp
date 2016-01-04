@@ -26,7 +26,7 @@ div#column-one {
 }
 
 #p-personal ul {
-	overflow-x: scroll;
+	overflow-x: auto;
 	margin: -36px 0 0 -14em;
 }
 
@@ -96,6 +96,21 @@ div.mw-content-ltr dd {
 	word-break: break-word;
 }
 
+table.wikitable {
+	margin: 0 !important;
+}
+
 table.wikitable tbody {
+	font-size: 85%;
+	line-height: 1.3em;
 	word-break: break-all;
+}
+
+pre {
+	overflow-x: auto;
+	white-space: pre;
+}
+
+code {
+	display: inline;
 }

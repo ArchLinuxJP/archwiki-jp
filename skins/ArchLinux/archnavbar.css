@@ -7,7 +7,13 @@
 /* container for the entire bar */
 #archnavbar { height: 40px !important; padding: 10px 15px !important; background: #333 !important; border-bottom: 5px #08c solid !important; }
 #archnavbarlogo { float: left !important; margin: 0 !important; padding: 0 !important; height: 40px !important; width: 180px !important; background: url('archlogo.png') no-repeat !important; }
-@media only screen and (min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-webkit-min-device-pixel-ratio: 1.5) { #archnavbarlogo { background-image: url('archlogo.svg'); background-size: 100%; } }
+
+@media only screen and (min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-webkit-min-device-pixel-ratio: 1.5) {
+	#archnavbarlogo {
+		background-image: url('archlogo.svg') !important;
+		background-size: 100% !important;
+	}
+}
 
 /* move the heading/paragraph text offscreen */
 #archnavbarlogo p { margin: 0 !important; padding: 0 !important; text-indent: -9999px !important; }
@@ -26,4 +32,3 @@
 /* style the links */
 #archnavbar ul#archnavbarlist li a { color: #999; font-weight: bold !important; text-decoration: none !important; }
 #archnavbar ul li a:hover { color: white !important; text-decoration: underline !important; }
-
