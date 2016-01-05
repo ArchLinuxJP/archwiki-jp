@@ -176,3 +176,10 @@ div#footer {
 #archnavbar ul li.anb-selected a {
     color: white !important;
 }
+
+span:target { animation: section-fade 1s 1; }
+
+@keyframes section-fade {
+	0% { background: #f39800; }
+	100% { background: #FFF; }
+}

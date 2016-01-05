@@ -114,3 +114,15 @@ pre {
 code {
 	display: inline;
 }
+
+div#mw-search-top-table input#searchText {
+	width: 35%;
+}
+
+div.searchresult {
+	display: inline;
+}
+
+input#searchInput {
+	width: 13em;
+}
