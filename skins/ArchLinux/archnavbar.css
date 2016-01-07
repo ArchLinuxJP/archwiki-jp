@@ -8,11 +8,13 @@
 #archnavbar { height: 40px !important; padding: 10px 15px !important; background: #333 !important; border-bottom: 5px #08c solid !important; }
 #archnavbarlogo { float: left !important; margin: 0 !important; padding: 0 !important; height: 40px !important; width: 180px !important; background: url('archlogo.png') no-repeat !important; }
 
+/* icon for mobile */
+#archnavbaricon { display: none; margin: 0 !important; cursor: pointer; }
+
 @media only screen and (min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-webkit-min-device-pixel-ratio: 1.5) {
-	#archnavbarlogo {
-		background-image: url('archlogo.svg') !important;
-		background-size: 100% !important;
-	}
+    #archnavbarlogo { background-image: url('archlogo.svg') !important; background-size: 100% !important; }
+    #archnavbaricon { background-image: url('menu.svg') !important; background-size: 100% !important; width: 30px !important; height: 30px !important; margin: 5px 3px 0 0 !important; opacity: 0.8; }
+    #archnavbaricon img { display: none !important; }
 }
 
 /* move the heading/paragraph text offscreen */
@@ -21,9 +23,6 @@
 
 /* make the link the same size as the logo */
 #archnavbarlogo a { display: block !important; height: 40px !important; width: 180px !important; }
-
-/* icon for mobile */
-#archnavbaricon { display: none; }
 
 /* display the list inline, float it to the right and style it */
 #archnavbar ul { display: inline !important; float: right !important; list-style: none !important; margin: 0 !important; padding: 0 !important; }

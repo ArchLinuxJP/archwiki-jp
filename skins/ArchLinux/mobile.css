@@ -53,11 +53,11 @@ div#footer {
 	width: 100%;
 	position: absolute;
 	margin-left: -22px;
+	cursor: pointer;
 }
 
 #archnavbaricon {
 	display: inline !important;
-	margin: 0 !important;
 	padding: 0 !important;
 	line-height: 45px !important;
 	float: right;
