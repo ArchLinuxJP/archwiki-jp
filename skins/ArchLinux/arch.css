@@ -47,6 +47,7 @@ ul,
 #bodyContent table {
     border-collapse: collapse;
     padding: 2px;
+    word-break: break-all;
 }
 #bodyContent td {
     padding: 2px;
