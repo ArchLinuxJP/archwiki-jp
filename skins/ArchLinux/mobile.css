@@ -103,7 +103,6 @@ table.wikitable {
 table.wikitable tbody {
 	font-size: 85%;
 	line-height: 1.3em;
-	word-break: break-all;
 }
 
 pre {
