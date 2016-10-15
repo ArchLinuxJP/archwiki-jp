@@ -65,7 +65,7 @@ function GoogleRichCards(&$out) {
              "dateCreated": "'.$created_timestamp.'",
              "datePublished": "'.$created_timestamp.'",
              "dateModified": "'.$modified_timestamp.'",
-             "discussionUrl": "'.$wgServer.'/'.$wgTitle->getTalkPage().'",
+             "discussionUrl": "'.$wgTitle->getTalkPage()->getFullURL().'",
              "image": {
                "@type": "ImageObject",
                "url": "https://www.archlinuxjp.org/images/amplogo.png",
