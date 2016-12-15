@@ -46,7 +46,7 @@ class ArchLinuxTemplate extends BaseTemplate {
 		?>
 
 		<div id="archnavbar"><!-- Arch Linux global navigation bar -->
-			<div id="archnavbarlogo">
+		<?php $today = getdate();if($today["mon"]==12&&$today["mday"]>14){ ?><div id="archnavbarlogo" class="xmas"><?php }else{ ?><div id="archnavbarlogo"><?php } ?>
 				<p><a id="logo" href="https://www.archlinuxjp.org/" title="メインページに戻る"></a></p>
 			</div>
 			<div id="archnavbaricon"><img src="https://www.archlinuxjp.org/images/menu.png"></div>

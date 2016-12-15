@@ -7,12 +7,14 @@
 /* container for the entire bar */
 #archnavbar { height: 40px !important; padding: 10px 15px !important; background: #333 !important; border-bottom: 5px #08c solid !important; }
 #archnavbarlogo { float: left !important; margin: 0 !important; padding: 0 !important; height: 40px !important; width: 180px !important; background: url('archlogo.png') no-repeat !important; }
+#archnavbarlogo.xmas { background: url('archxmas.png') no-repeat !important; }
 
 /* icon for mobile */
 #archnavbaricon { display: none; margin: 0 !important; cursor: pointer; }
 
 @media only screen and (min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-webkit-min-device-pixel-ratio: 1.5) {
     #archnavbarlogo { background-image: url('archlogo.svg') !important; background-size: 100% !important; }
+    #archnavbarlogo.xmas { background-image: url('archxmas.svg') !important; }
     #archnavbaricon { background-image: url('menu.svg') !important; background-size: 100% !important; width: 30px !important; height: 30px !important; margin: 5px 3px 0 0 !important; opacity: 0.8; }
     #archnavbaricon img { display: none !important; }
 }
