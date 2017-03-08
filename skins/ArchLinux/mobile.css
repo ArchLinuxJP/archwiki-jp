@@ -125,3 +125,7 @@ div.searchresult {
 input#searchInput {
 	width: 13em;
 }
+
+a.extiw {
+    word-break: break-word;
+}
