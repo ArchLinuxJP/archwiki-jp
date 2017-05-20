@@ -43,7 +43,7 @@ div#footer {
 	margin-top: 17px;
 }
 
-#p-navigation li, #p-tb li, #p-lang li {
+#p-navigation li, #p-tb li, #p-lang li, div.generated-sidebar li {
 	width: 50%;
 	float: left;
 }
@@ -111,11 +111,16 @@ pre {
 }
 
 code {
-	display: inline;
+	display: inline !important;
+	word-break: break-all;
 }
 
 div#mw-search-top-table input#searchText {
-	width: 35%;
+	width: 100%;
+}
+
+ul.mw-search-results {
+	float: none;
 }
 
 div.searchresult {
