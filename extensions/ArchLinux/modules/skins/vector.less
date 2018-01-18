@@ -1,0 +1,69 @@
+@import '../arch_definitions';
+
+div#mw-head {
+  top: 65px;
+}
+
+div#mw-panel {
+  top: 65px;
+}
+
+#p-logo {
+  display: none;
+}
+
+#mw-page-base {
+  background: none;
+}
+
+/* fix vertical position of tabs */
+div.vectorTabs, div.vectorMenu {
+  margin-top: -2 * @content-border-width;
+}
+
+div.vectorTabs {
+  padding-left: 0;
+
+  /* remove background with color gradient */
+  ul, ul li {
+    background: none;
+  }
+
+  /* invisible border to align well with the selected tab */
+  ul li {
+    border: @content-border-width;
+  }
+
+  li.selected {
+    /* border around the tab matches content, at the bottom we override the
+     * content border with the background color
+     */
+    border: @content-border-style;
+    border-bottom-color: @content-background-color;
+    /* background of the selected tab should match the content */
+    background-color: @content-background-color;
+    /* remove background with the vertical separator */
+    span {
+        background: none;
+    }
+  }
+
+  /* Let the left border of the selected tab overlap with the vertical bar
+   * coming from the background image of the previous tab.
+   */
+  li:not(:first-child).selected {
+    margin-left: -2 * @content-border-width;
+  }
+}
+
+@media screen and ( max-width: @deviceWidthTablet ) {
+  /* fix position of personal navigation bar */
+  div#p-personal {
+    top: unset;
+  }
+
+  /* remove useless blank space at the bottom */
+  div#mw-panel {
+    padding-top: 0;
+  }
+}
