@@ -9,7 +9,7 @@ abstract class BaseBlacklist {
 	 *
 	 * @var array
 	 */
-	public $files = array();
+	public $files = [];
 
 	/**
 	 * Array containing regexes to test against
@@ -40,24 +40,24 @@ abstract class BaseBlacklist {
 	 *
 	 * @var array
 	 */
-	private static $blacklistTypes = array(
+	private static $blacklistTypes = [
 		'spam' => 'SpamBlacklist',
 		'email' => 'EmailBlacklist',
-	);
+	];
 
 	/**
 	 * Array of blacklist instances
 	 *
 	 * @var array
 	 */
-	private static $instances = array();
+	private static $instances = [];
 
 	/**
 	 * Constructor
 	 *
 	 * @param array $settings
 	 */
-	function __construct( $settings = array() ) {
+	function __construct( $settings = [] ) {
 		foreach ( $settings as $name => $value ) {
 			$this->$name = $value;
 		}
@@ -107,10 +107,11 @@ abstract class BaseBlacklist {
 
 			// Prevent notices
 			if ( !isset( $wgBlacklistSettings[$type] ) ) {
-				$wgBlacklistSettings[$type] = array();
+				$wgBlacklistSettings[$type] = [];
 			}
 
-			self::$instances[$type] = new self::$blacklistTypes[$type]( $wgBlacklistSettings[$type] );
+			$class = self::$blacklistTypes[$type];
+			self::$instances[$type] = new $class( $wgBlacklistSettings[$type] );
 		}
 
 		return self::$instances[$type];
@@ -132,17 +133,17 @@ abstract class BaseBlacklist {
 	public static function isLocalSource( Title $title ) {
 		global $wgDBname, $wgBlacklistSettings;
 
-		if( $title->getNamespace() == NS_MEDIAWIKI ) {
-			$sources = array();
+		if ( $title->getNamespace() == NS_MEDIAWIKI ) {
+			$sources = [];
 			foreach ( self::$blacklistTypes as $type => $class ) {
 				$type = ucfirst( $type );
-				$sources += array(
+				$sources += [
 					"$type-blacklist",
 					"$type-whitelist"
-				);
+				];
 			}
 
-			if( in_array( $title->getDBkey(), $sources ) ) {
+			if ( in_array( $title->getDBkey(), $sources ) ) {
 				return true;
 			}
 		}
@@ -150,23 +151,23 @@ abstract class BaseBlacklist {
 		$thisHttp = wfExpandUrl( $title->getFullUrl( 'action=raw' ), PROTO_HTTP );
 		$thisHttpRegex = '/^' . preg_quote( $thisHttp, '/' ) . '(?:&.*)?$/';
 
-		$files = array();
+		$files = [];
 		foreach ( self::$blacklistTypes as $type => $class ) {
 			if ( isset( $wgBlacklistSettings[$type]['files'] ) ) {
 				$files += $wgBlacklistSettings[$type]['files'];
 			}
 		}
 
-		foreach( $files as $fileName ) {
-			$matches = array();
+		foreach ( $files as $fileName ) {
+			$matches = [];
 			if ( preg_match( '/^DB: (\w*) (.*)$/', $fileName, $matches ) ) {
 				if ( $wgDBname == $matches[1] ) {
-					if( $matches[2] == $title->getPrefixedDbKey() ) {
+					if ( $matches[2] == $title->getPrefixedDbKey() ) {
 						// Local DB fetch of this page...
 						return true;
 					}
 				}
-			} elseif( preg_match( $thisHttpRegex, $fileName ) ) {
+			} elseif ( preg_match( $thisHttpRegex, $fileName ) ) {
 				// Raw view of this page
 				return true;
 			}
@@ -178,12 +179,15 @@ abstract class BaseBlacklist {
 	/**
 	 * Returns the type of blacklist from the given title
 	 *
+	 * @todo building a regex for this is pretty overkill
 	 * @param Title $title
 	 * @return bool|string
 	 */
 	public static function getTypeFromTitle( Title $title ) {
-		$types = array_map( 'preg_quote', array_keys( self::$blacklistTypes ), array( '/' ) );
-		$regex = '/(' . implode( '|', $types ).  ')-(?:Blacklist|Whitelist)/';
+		global $wgContLang;
+
+		$types = array_map( [ $wgContLang, 'ucfirst' ], array_keys( self::$blacklistTypes ) );
+		$regex = '/(' . implode( '|', $types ).  ')-(?:blacklist|whitelist)/';
 
 		if ( preg_match( $regex, $title->getDBkey(), $m ) ) {
 			return strtolower( $m[1] );
@@ -198,7 +202,7 @@ abstract class BaseBlacklist {
 	 * @return array set of regular expressions, potentially empty.
 	 */
 	function getBlacklists() {
-		if( $this->regexes === false ) {
+		if ( $this->regexes === false ) {
 			$this->regexes = array_merge(
 				$this->getLocalBlacklists(),
 				$this->getSharedBlacklists() );
@@ -217,10 +221,10 @@ abstract class BaseBlacklist {
 
 		return ObjectCache::getMainWANInstance()->getWithSetCallback(
 			wfMemcKey( 'spamblacklist', $type, 'blacklist-regex' ),
+			$this->expiryTime,
 			function () use ( $that, $type ) {
 				return SpamRegexBatch::regexesFromMessage( "{$type}-blacklist", $that );
-			},
-			$this->expiryTime
+			}
 		);
 	}
 
@@ -235,10 +239,10 @@ abstract class BaseBlacklist {
 
 		return ObjectCache::getMainWANInstance()->getWithSetCallback(
 			wfMemcKey( 'spamblacklist', $type, 'whitelist-regex' ),
+			$this->expiryTime,
 			function () use ( $that, $type ) {
 				return SpamRegexBatch::regexesFromMessage( "{$type}-whitelist", $that );
-			},
-			$this->expiryTime
+			}
 		);
 	}
 
@@ -251,10 +255,10 @@ abstract class BaseBlacklist {
 
 		wfDebugLog( 'SpamBlacklist', "Loading $listType regex..." );
 
-		if ( count( $this->files ) == 0 ){
+		if ( count( $this->files ) == 0 ) {
 			# No lists
 			wfDebugLog( 'SpamBlacklist', "no files specified\n" );
-			return array();
+			return [];
 		}
 
 		$miss = false;
@@ -264,11 +268,11 @@ abstract class BaseBlacklist {
 			// This used to be cached per-site, but that could be bad on a shared
 			// server where not all wikis have the same configuration.
 			wfMemcKey( 'spamblacklist', $listType, 'shared-blacklist-regex' ),
+			$this->expiryTime,
 			function () use ( $that, &$miss ) {
 				$miss = true;
 				return $that->buildSharedBlacklists();
-			},
-			$this->expiryTime
+			}
 		);
 
 		if ( !$miss ) {
@@ -295,12 +299,12 @@ abstract class BaseBlacklist {
 	}
 
 	function buildSharedBlacklists() {
-		$regexes = array();
+		$regexes = [];
 		$listType = $this->getBlacklistType();
 		# Load lists
 		wfDebugLog( 'SpamBlacklist', "Constructing $listType blacklist\n" );
 		foreach ( $this->files as $fileName ) {
-			$matches = array();
+			$matches = [];
 			if ( preg_match( '/^DB: ([\w-]*) (.*)$/', $fileName, $matches ) ) {
 				$text = $this->getArticleText( $matches[1], $matches[2] );
 			} elseif ( preg_match( '/^(https?:)?\/\//', $fileName ) ) {
@@ -330,7 +334,6 @@ abstract class BaseBlacklist {
 		# To keep requests to a minimum, we save results into $messageMemc, which is
 		# similar to $wgMemc except almost certain to exist. By default, it is stored
 		# in the database
-		#
 		# There are two keys, when the warning key expires, a random thread will refresh
 		# the real key. This reduces the chance of multiple requests under high traffic
 		# conditions.
@@ -342,7 +345,7 @@ abstract class BaseBlacklist {
 		if ( !is_string( $httpText ) || ( !$warning && !mt_rand( 0, $this->warningChance ) ) ) {
 			wfDebugLog( 'SpamBlacklist', "Loading $listType blacklist from $fileName\n" );
 			$httpText = Http::get( $fileName );
-			if( $httpText === false ) {
+			if ( $httpText === false ) {
 				wfDebugLog( 'SpamBlacklist', "Error loading $listType blacklist from $fileName\n" );
 			}
 			$messageMemc->set( $warningKey, 1, $this->warningTime );
@@ -369,23 +372,25 @@ abstract class BaseBlacklist {
 		// Load all the relevant tables from the correct DB.
 		// This assumes that old_text is the actual text or
 		// that the external store system is at least unified.
-		$row = wfGetDB( DB_SLAVE, array(), $wiki )->selectRow(
-			array( 'page', 'revision', 'text' ),
+		$row = wfGetDB( DB_SLAVE, [], $wiki )->selectRow(
+			[ 'page', 'revision', 'text' ],
 			array_merge(
 				Revision::selectFields(),
 				Revision::selectPageFields(),
 				Revision::selectTextFields()
 			),
-			array(
+			[
 				'page_namespace' => $title->getNamespace(), // assume NS IDs match
 				'page_title' => $title->getDBkey(), // assume same case rules
 				'rev_id=page_latest',
 				'old_id=rev_text_id'
-			),
+			],
 			__METHOD__
 		);
 
-		return $row ? Revision::newFromRow( $row )->getText() : false;
+		return $row
+			? ContentHandler::getContentText( Revision::newFromRow( $row )->getContent() )
+			: false;
 	}
 
 	/**
@@ -404,6 +409,14 @@ abstract class BaseBlacklist {
 	 * @return string
 	 */
 	public function getRegexEnd( $batchSize ) {
-		return ($batchSize > 0 ) ? '/Sim' : '/im';
+		return ( $batchSize > 0 ) ? '/Sim' : '/im';
+	}
+
+	/**
+	 * @param Title $title
+	 * @param string[] $entries
+	 */
+	public function warmCachesForFilter( Title $title, array $entries ) {
+		// subclass this
 	}
 }

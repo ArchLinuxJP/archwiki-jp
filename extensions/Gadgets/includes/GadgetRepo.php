@@ -10,6 +10,9 @@ abstract class GadgetRepo {
 	/**
 	 * Get the ids of the gadgets provided by this repository
 	 *
+	 * It's possible this could be out of sync with what
+	 * getGadget() will return due to caching
+	 *
 	 * @return string[]
 	 */
 	abstract public function getGadgetIds();
@@ -26,12 +29,16 @@ abstract class GadgetRepo {
 	/**
 	 * Get a list of gadgets sorted by category
 	 *
-	 * @return array array( 'category' => array( 'name' => $gadget ) )
+	 * @return array [ 'category' => [ 'name' => $gadget ] ]
 	 */
 	public function getStructuredList() {
-		$list = array();
+		$list = [];
 		foreach ( $this->getGadgetIds() as $id ) {
-			$gadget = $this->getGadget( $id );
+			try {
+				$gadget = $this->getGadget( $id );
+			} catch ( InvalidArgumentException $e ) {
+				continue;
+			}
 			$list[$gadget->getCategory()][$gadget->getName()] = $gadget;
 		}
 
@@ -39,15 +46,14 @@ abstract class GadgetRepo {
 	}
 
 	/**
-	 * Get the configured default GadgetRepo. Currently
-	 * this hardcodes MediaWikiGadgetsDefinitionRepo since
-	 * that is the only implementation
+	 * Get the configured default GadgetRepo.
 	 *
 	 * @return GadgetRepo
 	 */
 	public static function singleton() {
 		if ( self::$instance === null ) {
-			self::$instance = new MediaWikiGadgetsDefinitionRepo();
+			global $wgGadgetsRepoClass; // @todo use Config here
+			self::$instance = new $wgGadgetsRepoClass();
 		}
 		return self::$instance;
 	}

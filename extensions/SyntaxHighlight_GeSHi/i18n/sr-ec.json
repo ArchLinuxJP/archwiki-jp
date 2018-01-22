@@ -3,8 +3,11 @@
 		"authors": [
 			"Millosh",
 			"Rancher",
-			"Sasa Stefanovic"
+			"Sasa Stefanovic",
+			"Сербијана",
+			"Obsuser"
 		]
 	},
-	"syntaxhighlight-desc": "Омогућава визуелно означавање синтаксе <code>&lt;syntaxhighlight&gt;</code> коришћењем [http://pygments.org/ GeSHi хајлајтера]."
+	"syntaxhighlight-desc": "Омогућава визуелно означавање синтаксе <code>&lt;syntaxhighlight&gt;</code> коришћењем [http://pygments.org/ Pygments хајлајтера].",
+	"syntaxhighlight-visualeditor-mwsyntaxhighlightinspector-startingline": "Број почетне линије"
 }

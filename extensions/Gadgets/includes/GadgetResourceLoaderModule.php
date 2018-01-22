@@ -1,61 +1,95 @@
 <?php
 
 /**
- * Class representing a list of resources for one gadget
+ * Class representing a list of resources for one gadget, basically a wrapper
+ * around the Gadget class.
  */
 class GadgetResourceLoaderModule extends ResourceLoaderWikiModule {
-	private $pages, $dependencies, $messages;
+	/**
+	 * @var string
+	 */
+	private $id;
+
+	/**
+	 * @var Gadget
+	 */
+	private $gadget;
 
 	/**
 	 * Creates an instance of this class
 	 *
-	 * @param $pages Array: Associative array of pages in ResourceLoaderWikiModule-compatible
-	 * format, for example:
-	 * array(
-	 *        'MediaWiki:Gadget-foo.js'  => array( 'type' => 'script' ),
-	 *        'MediaWiki:Gadget-foo.css' => array( 'type' => 'style' ),
-	 * )
-	 * @param $dependencies Array: Names of resources this module depends on
-	 * @param $targets Array: List of targets this module support
-	 * @param $position String: 'bottom' or 'top'
-	 * @param $messages Array
+	 * @param array $options
 	 */
-	public function __construct( $pages, $dependencies, $targets, $position, $messages ) {
-		$this->pages = $pages;
-		$this->dependencies = $dependencies;
-		$this->targets = $targets;
-		$this->position = $position;
-		$this->isPositionDefined = true;
-		$this->messages = $messages;
+	public function __construct( array $options ) {
+		$this->id = $options['id'];
 	}
 
 	/**
-	 * Overrides the abstract function from ResourceLoaderWikiModule class
-	 * @param $context ResourceLoaderContext
-	 * @return Array: $pages passed to __construct()
+	 * @return Gadget instance this module is about
+	 */
+	private function getGadget() {
+		if ( !$this->gadget ) {
+			try {
+				$this->gadget = GadgetRepo::singleton()->getGadget( $this->id );
+			} catch ( InvalidArgumentException $e ) {
+				// Fallback to a placeholder object...
+				$this->gadget = Gadget::newEmptyGadget( $this->id );
+			}
+		}
+
+		return $this->gadget;
+	}
+
+	/**
+	 * Overrides the function from ResourceLoaderWikiModule class
+	 * @param ResourceLoaderContext $context
+	 * @return array
 	 */
 	protected function getPages( ResourceLoaderContext $context ) {
-		return $this->pages;
+		$gadget = $this->getGadget();
+		$pages = [];
+
+		foreach ( $gadget->getStyles() as $style ) {
+			$pages[$style] = [ 'type' => 'style' ];
+		}
+
+		if ( $gadget->supportsResourceLoader() ) {
+			foreach ( $gadget->getScripts() as $script ) {
+				$pages[$script] = [ 'type' => 'script' ];
+			}
+		}
+
+		return $pages;
 	}
 
 	/**
 	 * Overrides ResourceLoaderModule::getDependencies()
-	 * @param $context ResourceLoaderContext
-	 * @return Array: Names of resources this module depends on
+	 * @param ResourceLoaderContext $context
+	 * @return string[] Names of resources this module depends on
 	 */
 	public function getDependencies( ResourceLoaderContext $context = null ) {
-		return $this->dependencies;
+		return $this->getGadget()->getDependencies();
 	}
 
 	/**
-	 * Overrides ResourceLoaderModule::getPosition()
-	 * @return String: 'bottom' or 'top'
+	 * Overrides ResourceLoaderWikiModule::getType()
+	 * @return string ResourceLoaderModule::LOAD_STYLES or ResourceLoaderModule::LOAD_GENERAL
 	 */
-	public function getPosition() {
-		return $this->position;
+	public function getType() {
+		return $this->getGadget()->getType() === 'styles'
+			? ResourceLoaderModule::LOAD_STYLES
+			: ResourceLoaderModule::LOAD_GENERAL;
 	}
 
 	public function getMessages() {
-		return $this->messages;
+		return $this->getGadget()->getMessages();
+	}
+
+	public function getTargets() {
+		return $this->getGadget()->getTargets();
+	}
+
+	public function getGroup() {
+		return 'site';
 	}
 }

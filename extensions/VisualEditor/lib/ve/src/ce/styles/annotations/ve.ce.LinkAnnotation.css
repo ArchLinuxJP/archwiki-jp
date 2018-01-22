@@ -1,0 +1,18 @@
+/*!
+ * VisualEditor ContentEditable LanguageAnnotation styles.
+ *
+ * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ */
+
+.ve-ce-linkAnnotation-active {
+	box-shadow: 0 0 0 1px #c6e0ff;
+	border-radius: 0.2em;
+	padding: 2px;
+	margin: -2px;
+	background-color: #e6f1ff;
+}
+
+.ve-ce-nail:not( .ve-ce-nail-debug ) {
+	width: 0;
+	height: 0;
+}

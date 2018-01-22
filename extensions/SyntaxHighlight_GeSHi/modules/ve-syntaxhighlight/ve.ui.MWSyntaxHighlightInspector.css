@@ -5,6 +5,10 @@
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
-.ve-ui-mwSyntaxHighlightInspector-content .ve-ui-mwExtensionInspector-input textarea {
-	font-family: monospace, Courier;
+.ve-ui-mwSyntaxHighlightInspector-content .ve-ui-mwExtensionWindow-input textarea {
+	font-family: monospace, 'Courier';
+}
+
+.ve-ui-mwSyntaxHighlightInspector-content .oo-ui-numberInputWidget {
+	width: 10em;
 }

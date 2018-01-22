@@ -27,13 +27,12 @@ foo
 !! test
 No language specified (no wellformed xml)
 !! config
-wgWellFormedXml=false
 !! wikitext
 <source>
 bar
 </source>
 !! html
-<div class="mw-highlight mw-content-ltr" dir=ltr><pre>bar</pre></div>
+<div class="mw-highlight mw-content-ltr" dir="ltr"><pre>bar</pre></div>
 
 !! end
 
@@ -87,7 +86,7 @@ Default behaviour (inner is pre)
 var a;
 </source>
 !! result
-<div class="mw-highlight mw-content-ltr" dir="ltr"><pre><span class="kd">var</span> <span class="nx">a</span><span class="p">;</span>
+<div class="mw-highlight mw-content-ltr" dir="ltr"><pre><span></span><span class="kd">var</span> <span class="nx">a</span><span class="p">;</span>
 </pre></div>
 
 !! end
@@ -132,7 +131,7 @@ Custom attributes
 !!input
 <source lang="javascript" id="foo" class="bar" dir="rtl" style="font-size: larger;">var a;</source>
 !! result
-<div id="foo" class="bar mw-highlight mw-content-rtl" dir="rtl" style="font-size: larger;"><pre><span class="kd">var</span> <span class="nx">a</span><span class="p">;</span>
+<div id="foo" class="bar mw-highlight mw-content-rtl" dir="rtl" style="font-size: larger;"><pre><span></span><span class="kd">var</span> <span class="nx">a</span><span class="p">;</span>
 </pre></div>
 
 !! end
@@ -152,5 +151,14 @@ Enclose none (inline code)
 Text <source lang="javascript" enclose="none">var a;</source>.
 !! result
 <p>Text <code class="mw-highlight" dir="ltr"><span class="kd">var</span> <span class="nx">a</span><span class="p">;</span></code>.
+</p>
+!! end
+
+!! test
+Enclose with nowiki
+!! input
+{{#tag:syntaxhighlight|<nowiki>foo</nowiki>|lang="text"|inline=none}}
+!! result
+<p><code class="mw-highlight" dir="ltr">foo</code>
 </p>
 !! end

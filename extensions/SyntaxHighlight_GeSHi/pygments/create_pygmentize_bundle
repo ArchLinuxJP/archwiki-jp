@@ -36,14 +36,14 @@ pypi = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
 latest_version = pypi.package_releases('Pygments')[0]
 for release in pypi.release_urls('Pygments', latest_version):
     if (release['packagetype'] == 'bdist_wheel' and
-            release['python_version'].startswith('2')):
+            release['python_version'].startswith('py2')):
         url = release['url']
         md5_digest = release['md5_digest']
         break
     else:
         raise RuntimeError('No suitable package found.')
 
-print('Retreiving version %s (%s)...' % (latest_version, url))
+print('Retrieving version %s (%s)...' % (latest_version, url))
 req = urllib2.urlopen(url)
 buf = io.BytesIO(req.read())
 
@@ -64,5 +64,8 @@ with open(file_path, 'w') as f:
 
 file_st = os.stat(file_path)
 os.chmod(file_path, file_st.st_mode | stat.S_IEXEC)
+
+with open(os.path.join(script_dir, 'VERSION'), 'w') as f:
+    f.write(latest_version + '\n')
 
 print('Done. Wrote %s bytes to %s' % (len(data), file_path))
