@@ -153,3 +153,12 @@ a.new:visited,
     background: url(/resources/src/mediawiki.skinning/images/external-ltr.png) center right no-repeat;
     padding-right: 13px;
 }
+
+span:target {
+    animation: section-fade 1s 1;
+}
+
+@keyframes section-fade {
+    0% { background: #f39800; }
+    100% { background: #FFF; }
+}
