@@ -22,11 +22,11 @@
   #archnavbarlist li:last-child {
     padding-right: 28px !important;
   }
-  
+
   div.title-shortlink-container {
     display: none;
   }
-  
+
   div.read-more-container {
     margin-left: 0 !important;
   }
@@ -37,5 +37,14 @@
   
   div.vectorMenu div.menu {
     right: 0 !important;
+  }
+  
+  #archnavbarcheck:checked ~ #archnavbarlogo,
+  #archnavbarcheck:checked ~ #archnavbaricon {
+    display: none !important;
+  }
+  
+  #archnavbarcheck:checked ~ #archnavbarmenu {
+    display: block !important;
   }
 }

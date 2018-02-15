@@ -11,6 +11,7 @@ namespace MediaWiki\Extensions\ArchLinux;
  */
 ?>
 <div id="archnavbar" class="noprint">
+    <input id="archnavbarcheck" type="checkbox" value="off">
     <?php $today = getdate();if($today["mon"]==12&&$today["mday"]>14){ ?>
     <div id="archnavbarlogo" class="xmas">
     <?php }else{ ?>
@@ -18,7 +19,7 @@ namespace MediaWiki\Extensions\ArchLinux;
     <?php } ?>
         <p><a id="logo" href="<?= $archHome ?>"></a></p>
     </div>
-    <div id="archnavbaricon"></div>
+    <label id="archnavbaricon" for="archnavbarcheck"></label>
     <div id="archnavbarmenu">
         <ul id="archnavbarlist">
             <?php
