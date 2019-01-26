@@ -1,8 +1,0 @@
-{
-	"@metadata": {
-		"authors": [
-			"Hamilton Abreu"
-		]
-	},
-	"navigationtiming-desc": "Adiciona um registo de medições de latência no lado do cliente"
-}
