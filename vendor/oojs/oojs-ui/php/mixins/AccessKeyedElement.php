@@ -11,7 +11,8 @@ namespace OOUI;
  *
  * @abstract
  */
-class AccessKeyedElement extends ElementMixin {
+trait AccessKeyedElement {
+
 	/**
 	 * Accesskey
 	 *
@@ -19,40 +20,49 @@ class AccessKeyedElement extends ElementMixin {
 	 */
 	protected $accessKey = null;
 
-	public static $targetPropertyName = 'accessKeyed';
+	/**
+	 * @var Tag
+	 */
+	protected $accessKeyed;
 
 	/**
-	 * @param Element $element Element being mixed into
 	 * @param array $config Configuration options
 	 * @param string $config['accessKey'] AccessKey. If not provided, no accesskey will be added
 	 */
-	public function __construct( Element $element, array $config = array() ) {
-		// Parent constructor
-		$target = isset( $config['accessKeyed'] ) ? $config['accessKeyed'] : $element;
-		parent::__construct( $element, $target, $config );
+	public function initializeAccessKeyedElement( array $config = [] ) {
+		// Properties
+		$this->accessKeyed = $config['accessKeyed'] ?? $element;
 
 		// Initialization
-		$this->setAccessKey(
-			isset( $config['accessKey'] ) ? $config['accessKey'] : null
-		);
+		$this->setAccessKey( $config['accessKey'] ?? null );
+		$this->registerConfigCallback( function ( &$config ) {
+			if ( $this->accessKey !== null ) {
+				$config['accessKey'] = $this->accessKey;
+			}
+		} );
 	}
 
 	/**
 	 * Set access key.
 	 *
 	 * @param string $accessKey Tag's access key, use empty string to remove
-	 * @chainable
+	 * @return $this
 	 */
 	public function setAccessKey( $accessKey ) {
 		$accessKey = is_string( $accessKey ) && strlen( $accessKey ) ? $accessKey : null;
 
 		if ( $this->accessKey !== $accessKey ) {
 			if ( $accessKey !== null ) {
-				$this->target->setAttributes( array( 'accesskey' => $accessKey ) );
+				$this->accessKeyed->setAttributes( [ 'accesskey' => $accessKey ] );
 			} else {
-				$this->target->removeAttributes( array( 'accesskey' ) );
+				$this->accessKeyed->removeAttributes( [ 'accesskey' ] );
 			}
 			$this->accessKey = $accessKey;
+
+			// Only if this is a TitledElement
+			if ( method_exists( $this, 'updateTitle' ) ) {
+				$this->updateTitle();
+			}
 		}
 
 		return $this;
@@ -67,10 +77,18 @@ class AccessKeyedElement extends ElementMixin {
 		return $this->accessKey;
 	}
 
-	public function getConfig( &$config ) {
-		if ( $this->accessKey !== null ) {
-			$config['accessKey'] = $this->accessKey;
+	/**
+	 * Add information about the access key to the element's tooltip label.
+	 * (This is only public for hacky usage in FieldLayout.)
+	 *
+	 * @param string $title Tooltip label for `title` attribute
+	 * @return string
+	 */
+	public function formatTitleWithAccessKey( $title ) {
+		$accessKey = $this->getAccessKey();
+		if ( $accessKey ) {
+			$title .= " [$accessKey]";
 		}
-		return parent::getConfig( $config );
+		return $title;
 	}
 }

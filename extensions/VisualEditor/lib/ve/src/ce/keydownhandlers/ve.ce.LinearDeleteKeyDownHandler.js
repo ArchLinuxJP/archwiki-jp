@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable linear delete key down handler
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -204,7 +204,7 @@ ve.ce.LinearDeleteKeyDownHandler.static.execute = function ( surface, e ) {
 		}
 
 		offset = rangeToRemove.start;
-		docLength = documentModel.getInternalList().getListNode().getOuterRange().start;
+		docLength = documentModel.getDocumentRange().getLength();
 		if ( offset < docLength - 1 ) {
 			while ( offset < docLength - 1 && data.isCloseElementData( offset ) ) {
 				offset++;
@@ -230,7 +230,7 @@ ve.ce.LinearDeleteKeyDownHandler.static.execute = function ( surface, e ) {
 			if (
 				// The node is not unwrappable (e.g. table cells, text nodes)
 				!startNode.isUnwrappable() ||
-				// content item at the start / end?
+				// Content item at the start / end?
 				(
 					( startNode.canContainContent() || documentModel.getDocumentNode() === startNode ) &&
 					( nodeRange.start === 0 || nodeRange.end === docLength )
@@ -239,10 +239,10 @@ ve.ce.LinearDeleteKeyDownHandler.static.execute = function ( surface, e ) {
 				e.preventDefault();
 				return true;
 			} else {
-				// expand our removal to reflect what we actually need to remove
+				// Expand our removal to reflect what we actually need to remove
 				switch ( startNode.getType() ) {
 					case 'list':
-						// if this is an empty list, we wind up with the list node instead of the list item
+						// If this is an empty list, we wind up with the list node instead of the list item
 						// to make the unwrapping work, we need to remove the list and the item
 						rangeToRemove = new ve.Range( nodeRange.start, nodeRange.start + 2 );
 						break;

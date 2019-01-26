@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ElementLinearData tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.dm.ElementLinearData' );
@@ -101,9 +101,9 @@ QUnit.test( 'getAnnotationsFromOffset', function ( assert ) {
 		doc = new ve.dm.Document( data );
 		if ( i === 0 ) {
 			assert.notStrictEqual(
-				doc.data.getAnnotationsFromOffset( 0, cases[ i ].ignoreClose ).getIndexes(),
-				doc.data.getAnnotationsFromOffset( 0, cases[ i ].ignoreClose ).getIndexes(),
-				'annotation set indexes are not equal by reference'
+				doc.data.getAnnotationsFromOffset( 0, cases[ i ].ignoreClose ).getHashes(),
+				doc.data.getAnnotationsFromOffset( 0, cases[ i ].ignoreClose ).getHashes(),
+				'annotation set hashes are not equal by reference'
 			);
 		}
 		for ( j = 0; j < doc.getData().length; j++ ) {
@@ -365,8 +365,8 @@ QUnit.test( 'getAnnotationsFromRange', function ( assert ) {
 		data = ve.dm.example.preprocessAnnotations( cases[ i ].data );
 		doc = new ve.dm.Document( data );
 		assert.deepEqual(
-			doc.data.getAnnotationsFromRange( new ve.Range( 0, cases[ i ].data.length ), cases[ i ].all ).getIndexes(),
-			ve.dm.example.createAnnotationSet( doc.getStore(), cases[ i ].expected ).getIndexes(),
+			doc.data.getAnnotationsFromRange( new ve.Range( 0, cases[ i ].data.length ), cases[ i ].all ).getHashes(),
+			ve.dm.example.createAnnotationSet( doc.getStore(), cases[ i ].expected ).getHashes(),
 			cases[ i ].msg
 		);
 	}
@@ -622,7 +622,7 @@ QUnit.test( 'trimOuterSpaceFromRange', function ( assert ) {
 
 QUnit.test( 'isContentOffset', function ( assert ) {
 	var i, left, right,
-		data = new ve.dm.ElementLinearData( new ve.dm.IndexValueStore(), [
+		data = new ve.dm.ElementLinearData( new ve.dm.HashValueStore(), [
 			{ type: 'heading' },
 			'a',
 			{ type: 'inlineImage' },
@@ -695,7 +695,7 @@ QUnit.test( 'isContentOffset', function ( assert ) {
 
 QUnit.test( 'isStructuralOffset', function ( assert ) {
 	var i, left, right,
-		data = new ve.dm.ElementLinearData( new ve.dm.IndexValueStore(), [
+		data = new ve.dm.ElementLinearData( new ve.dm.HashValueStore(), [
 			{ type: 'heading' },
 			'a',
 			{ type: 'inlineImage' },
@@ -775,7 +775,7 @@ QUnit.test( 'getCharacterData', function ( assert ) {
 	var i,
 		data = [ { type: 'paragraph' }, 'a', [ 'b', [ 0 ] ], { type: '/paragraph' } ],
 		expected = [ '', 'a', 'b', '' ],
-		linearData = new ve.dm.ElementLinearData( new ve.dm.IndexValueStore(), data );
+		linearData = new ve.dm.ElementLinearData( new ve.dm.HashValueStore(), data );
 
 	for ( i = 0; i < data.length; i++ ) {
 		assert.strictEqual(
@@ -834,7 +834,7 @@ QUnit.test( 'isContentData', function ( assert ) {
 		];
 
 	for ( i = 0; i < cases.length; i++ ) {
-		data = new ve.dm.ElementLinearData( new ve.dm.IndexValueStore(), cases[ i ].data );
+		data = new ve.dm.ElementLinearData( new ve.dm.HashValueStore(), cases[ i ].data );
 		assert.strictEqual(
 			data.isContentData(), cases[ i ].expected, cases[ i ].msg
 		);
@@ -885,7 +885,7 @@ QUnit.test( 'getRelativeOffset', function ( assert ) {
 		];
 
 	for ( i = 0; i < cases.length; i++ ) {
-		data = new ve.dm.ElementLinearData( new ve.dm.IndexValueStore(), cases[ i ].data );
+		data = new ve.dm.ElementLinearData( new ve.dm.HashValueStore(), cases[ i ].data );
 		if ( 'expected' in cases[ i ] ) {
 			assert.strictEqual(
 				data.getRelativeOffset(
@@ -1334,7 +1334,7 @@ QUnit.test( 'getNearestStructuralOffset', function ( assert ) {
 
 QUnit.test( 'getWordRange', function ( assert ) {
 	var i, data, elementLinearData, range, word,
-		store = new ve.dm.IndexValueStore(),
+		store = new ve.dm.HashValueStore(),
 		cases = [
 			{
 				phrase: 'visual editor test',
@@ -1694,40 +1694,44 @@ QUnit.test( 'sanitize', function ( assert ) {
 				msg: 'Breaks split content branch nodes'
 			},
 			{
-				html: '<p>Foo\nBar\n <b>Baz \nQuux</b></p>',
+				html: '<p>Foo\nBar\n <b>Baz \nQu&nbsp;ux</b></p>',
 				data: [
 					{ type: 'paragraph' },
 					'F', 'o', 'o', ' ', 'B', 'a', 'r', ' ',
-					[ 'B', [ ve.dm.example.annIndex( 'b' ) ] ],
-					[ 'a', [ ve.dm.example.annIndex( 'b' ) ] ],
-					[ 'z', [ ve.dm.example.annIndex( 'b' ) ] ],
-					[ ' ', [ ve.dm.example.annIndex( 'b' ) ] ],
-					[ 'Q', [ ve.dm.example.annIndex( 'b' ) ] ],
-					[ 'u', [ ve.dm.example.annIndex( 'b' ) ] ],
-					[ 'u', [ ve.dm.example.annIndex( 'b' ) ] ],
-					[ 'x', [ ve.dm.example.annIndex( 'b' ) ] ],
+					[ 'B', [ ve.dm.example.annHash( 'b' ) ] ],
+					[ 'a', [ ve.dm.example.annHash( 'b' ) ] ],
+					[ 'z', [ ve.dm.example.annHash( 'b' ) ] ],
+					[ ' ', [ ve.dm.example.annHash( 'b' ) ] ],
+					[ 'Q', [ ve.dm.example.annHash( 'b' ) ] ],
+					[ 'u', [ ve.dm.example.annHash( 'b' ) ] ],
+					[ ' ', [ ve.dm.example.annHash( 'b' ) ] ],
+					[ 'u', [ ve.dm.example.annHash( 'b' ) ] ],
+					[ 'x', [ ve.dm.example.annHash( 'b' ) ] ],
 					{ type: '/paragraph' },
 					{ type: 'internalList' },
 					{ type: '/internalList' }
 				],
-				msg: 'Newline characters are stripped and replaced with spaces where necessary'
+				msg: 'Newline characters and NBSPs are replaced with spaces and/or stripped where necessary'
 			},
 			{
-				html: '<p>Foo\nBar\n </p><pre>Baz \nQuux<!--comment-->\nWhee</pre>',
+				html: '<p>Foo\nBar\n </p><pre>Baz \nQu&nbsp;ux<!--comment-->\nWhee</pre><p>A&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;C</p>',
 				data: [
 					{ type: 'paragraph' },
 					'F', 'o', 'o', ' ', 'B', 'a', 'r',
 					{ type: '/paragraph' },
 					{ type: 'preformatted' },
-					'B', 'a', 'z', ' ', '\n', 'Q', 'u', 'u', 'x',
+					'B', 'a', 'z', ' ', '\n', 'Q', 'u', '\u00a0', 'u', 'x',
 					{ type: 'comment', attributes: { text: 'comment' } },
 					{ type: '/comment' },
 					'\n', 'W', 'h', 'e', 'e',
 					{ type: '/preformatted' },
+					{ type: 'paragraph' },
+					'A', ' ', '\u00a0', 'B', ' ', '\u00a0', ' ', 'C',
+					{ type: '/paragraph' },
 					{ type: 'internalList' },
 					{ type: '/internalList' }
 				],
-				msg: 'Newline characters are not stripped when they are meaningful'
+				msg: 'Newline characters and NBSPs are not stripped when they are meaningful'
 			},
 			{
 				html: '<p>Foo</p> \n\t <p>Bar</p>',
@@ -1791,6 +1795,38 @@ QUnit.test( 'sanitize', function ( assert ) {
 				],
 				rules: { keepEmptyContentBranches: true },
 				msg: 'Blank line (Firefox style) preserved with keepEmptyContentBranches'
+			},
+			{
+				html: '<p>A<meta foo="bar" />B</p>',
+				data: [
+					{ type: 'paragraph' },
+					'A', 'B',
+					{ type: '/paragraph' },
+					{ type: 'internalList' },
+					{ type: '/internalList' }
+				],
+				rules: {},
+				msg: 'Metadata is sanitized if allowMetadata is false'
+			},
+			{
+				html: '<p>A<meta foo="bar" />B</p>',
+				data: [
+					{ type: 'paragraph' },
+					'A', 'B',
+					{ type: '/paragraph' },
+					{
+						type: 'alienMeta',
+						internal: {
+							loadMetaParentHash: 'h069d094b1fb89d8a',
+							loadMetaParentOffset: 1
+						}
+					},
+					{ type: '/alienMeta' },
+					{ type: 'internalList' },
+					{ type: '/internalList' }
+				],
+				rules: { allowMetadata: true },
+				msg: 'Metadata is not sanitized if allowMetadata is true'
 			}
 		];
 
@@ -1842,7 +1878,7 @@ QUnit.test( 'countNonInternalElements', function ( assert ) {
 		];
 
 	for ( i = 0; i < cases.length; i++ ) {
-		data = new ve.dm.ElementLinearData( new ve.dm.IndexValueStore(), cases[ i ].data );
+		data = new ve.dm.ElementLinearData( new ve.dm.HashValueStore(), cases[ i ].data );
 		assert.strictEqual( data.countNonInternalElements(), cases[ i ].expected, cases[ i ].msg );
 	}
 } );
@@ -1912,12 +1948,12 @@ QUnit.test( 'hasContent', function ( assert ) {
 		];
 
 	for ( i = 0; i < cases.length; i++ ) {
-		data = new ve.dm.ElementLinearData( new ve.dm.IndexValueStore(), cases[ i ].data );
+		data = new ve.dm.ElementLinearData( new ve.dm.HashValueStore(), cases[ i ].data );
 		assert.strictEqual( data.hasContent(), cases[ i ].expected, cases[ i ].msg );
 	}
 } );
 
-QUnit.test( 'getAnnotationIndexesFromOffset', function ( assert ) {
+QUnit.test( 'getAnnotationHashesFromOffset', function ( assert ) {
 	var i,
 		boldHash = 'h49981eab0f8056ff',
 		italicHash = 'hefd27ef3bf2041dd',
@@ -1960,7 +1996,7 @@ QUnit.test( 'getAnnotationIndexesFromOffset', function ( assert ) {
 
 	for ( i = 0; i < cases.length; i++ ) {
 		assert.deepEqual(
-			elementData.getAnnotationIndexesFromOffset( cases[ i ].offset, cases[ i ].ignoreClose ),
+			elementData.getAnnotationHashesFromOffset( cases[ i ].offset, cases[ i ].ignoreClose ),
 			cases[ i ].expected,
 			cases[ i ].msg
 		);
@@ -1970,7 +2006,7 @@ QUnit.test( 'getAnnotationIndexesFromOffset', function ( assert ) {
 		assert.throws(
 			// eslint-disable-next-line no-loop-func
 			function () {
-				elementData.getAnnotationIndexesFromOffset( errorCases[ i ].offset, errorCases[ i ].ignoreClose );
+				elementData.getAnnotationHashesFromOffset( errorCases[ i ].offset, errorCases[ i ].ignoreClose );
 			}, new Error( 'offset ' + errorCases[ i ].offset + ' out of bounds' ),
 			errorCases[ i ].msg
 		);
@@ -2036,7 +2072,7 @@ QUnit.test( 'getUsedStoreValues', function ( assert ) {
 
 QUnit.test( 'compareElements and compareElementsUnannotated', function ( assert ) {
 	var i,
-		store = new ve.dm.IndexValueStore(),
+		store = new ve.dm.HashValueStore(),
 		cases = [
 			{
 				a: '母',
@@ -2051,27 +2087,27 @@ QUnit.test( 'compareElements and compareElementsUnannotated', function ( assert 
 				msg: 'Non-identical unannotated characters'
 			},
 			{
-				a: [ 'F', [ ve.dm.example.boldIndex ] ],
-				b: [ 'F', [ ve.dm.example.boldIndex ] ],
+				a: [ 'F', [ ve.dm.example.boldHash ] ],
+				b: [ 'F', [ ve.dm.example.boldHash ] ],
 				comparison: true,
 				msg: 'Identically-annotated identical characters'
 			},
 			{
-				a: [ 'F', [ ve.dm.example.boldIndex ] ],
-				b: [ 'F', [ ve.dm.example.italicIndex ] ],
+				a: [ 'F', [ ve.dm.example.boldHash ] ],
+				b: [ 'F', [ ve.dm.example.italicHash ] ],
 				comparison: false,
 				comparisonUnannotated: true,
 				msg: 'Identical characters, non-identically-annotated'
 			},
 			{
-				a: [ 'F', [ ve.dm.example.boldIndex ] ],
-				b: [ 'F', [ ve.dm.example.strongIndex ] ],
+				a: [ 'F', [ ve.dm.example.boldHash ] ],
+				b: [ 'F', [ ve.dm.example.strongHash ] ],
 				comparison: true,
 				msg: 'Identical characters, comparably-annotated'
 			},
 			{
 				a: 'F',
-				b: [ 'F', [ ve.dm.example.boldIndex ] ],
+				b: [ 'F', [ ve.dm.example.boldHash ] ],
 				comparison: false,
 				comparisonUnannotated: true,
 				msg: 'Identical characters, one annotated, one not'
@@ -2114,9 +2150,9 @@ QUnit.test( 'compareElements and compareElementsUnannotated', function ( assert 
 			}
 		];
 
-	store.index( new ve.dm.BoldAnnotation( ve.dm.example.bold ) );
-	store.index( new ve.dm.BoldAnnotation( ve.dm.example.strong ) );
-	store.index( new ve.dm.ItalicAnnotation( ve.dm.example.italic ) );
+	store.hash( new ve.dm.BoldAnnotation( ve.dm.example.bold ) );
+	store.hash( new ve.dm.BoldAnnotation( ve.dm.example.strong ) );
+	store.hash( new ve.dm.ItalicAnnotation( ve.dm.example.italic ) );
 
 	for ( i = 0; i < cases.length; i++ ) {
 		assert.equal(

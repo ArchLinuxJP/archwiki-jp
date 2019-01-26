@@ -1,7 +1,7 @@
 /*!
  * VisualEditor user interface MWSettingsPage class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -14,7 +14,7 @@
  * @constructor
  * @param {string} name Unique symbolic name of page
  * @param {Object} [config] Configuration options
- * @param {jQuery} [$overlay] Overlay to render dropdowns in
+ * @cfg {jQuery} [$overlay] Overlay to render dropdowns in
  */
 ve.ui.MWSettingsPage = function VeUiMWSettingsPage( name, config ) {
 	var settingsPage = this;
@@ -305,7 +305,7 @@ ve.ui.MWSettingsPage.prototype.teardown = function ( data ) {
 
 	// Table of Contents items
 	currentTableOfContents = this.getMetaItem( 'mwTOC' );
-	newTableOfContentsData = this.tableOfContents.getField().getSelectedItem();
+	newTableOfContentsData = this.tableOfContents.getField().findSelectedItem();
 
 	// Redirect items
 	currentRedirectTargetItem = this.getMetaItem( 'mwRedirect' );
@@ -354,8 +354,8 @@ ve.ui.MWSettingsPage.prototype.teardown = function ( data ) {
 		} else {
 			if ( newRedirectData ) {
 				// There's no existing redirect but there is a new one, so create
-				// HACK: Putting this at index 0, offset 0 so that it works – bug 61862
-				this.metaList.insertMeta( newRedirectItemData, 0, 0 );
+				// HACK: Putting this at position 0 so that it works – T63862
+				this.metaList.insertMeta( newRedirectItemData, 0 );
 			}
 		}
 

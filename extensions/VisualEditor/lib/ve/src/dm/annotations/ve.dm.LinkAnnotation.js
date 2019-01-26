@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel LinkAnnotation class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -30,6 +30,9 @@ ve.dm.LinkAnnotation.static.name = 'link';
 ve.dm.LinkAnnotation.static.matchTagNames = [ 'a' ];
 
 ve.dm.LinkAnnotation.static.toDataElement = function ( domElements ) {
+	if ( !domElements[ 0 ].hasAttribute( 'href' ) ) {
+		return ve.dm.SpanAnnotation.static.toDataElement.apply( ve.dm.SpanAnnotation.static, arguments );
+	}
 	return {
 		type: this.name,
 		attributes: {

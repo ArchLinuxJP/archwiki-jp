@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel BranchNode tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.dm.BranchNode' );
@@ -18,6 +18,14 @@ OO.inheritClass( ve.dm.BranchNodeStub, ve.dm.BranchNode );
 ve.dm.BranchNodeStub.static.name = 'branch-stub';
 
 ve.dm.BranchNodeStub.static.matchTagNames = [];
+
+// Throw in nodeAttached so BranchNodeStub better passes duck type scrutiny as a Document
+// (e.g. for setDocument test below)
+ve.dm.BranchNodeStub.prototype.nodeAttached = ve.Document.prototype.nodeAttached;
+
+// Throw in nodeDetached so BranchNodeStub better passes duck type scrutiny as a Document
+// (e.g. for setDocument test below)
+ve.dm.BranchNodeStub.prototype.nodeDetached = ve.Document.prototype.nodeDetached;
 
 ve.dm.nodeFactory.register( ve.dm.BranchNodeStub );
 

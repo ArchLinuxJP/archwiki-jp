@@ -6,78 +6,63 @@
  */
 class BlockTest extends MediaWikiLangTestCase {
 
-	/** @var Block */
-	private $block;
-	private $madeAt;
-
-	/* variable used to save up the blockID we insert in this test suite */
-	private $blockId;
-
-	protected function setUp() {
-		parent::setUp();
-		$this->setMwGlobals( array(
-			'wgLanguageCode' => 'en',
-			'wgContLang' => Language::factory( 'en' )
-		) );
+	/**
+	 * @return User
+	 */
+	private function getUserForBlocking() {
+		$testUser = $this->getMutableTestUser();
+		$user = $testUser->getUser();
+		$user->addToDatabase();
+		TestUser::setPasswordForUser( $user, 'UTBlockeePassword' );
+		$user->saveSettings();
+		return $user;
 	}
 
-	function addDBData() {
-
-		$user = User::newFromName( 'UTBlockee' );
-		if ( $user->getID() == 0 ) {
-			$user->addToDatabase();
-			$user->setPassword( 'UTBlockeePassword' );
-
-			$user->saveSettings();
-		}
-
+	/**
+	 * @param User $user
+	 *
+	 * @return Block
+	 * @throws MWException
+	 */
+	private function addBlockForUser( User $user ) {
 		// Delete the last round's block if it's still there
-		$oldBlock = Block::newFromTarget( 'UTBlockee' );
+		$oldBlock = Block::newFromTarget( $user->getName() );
 		if ( $oldBlock ) {
 			// An old block will prevent our new one from saving.
 			$oldBlock->delete();
 		}
 
-		$blockOptions = array(
-			'address' => 'UTBlockee',
-			'user' => $user->getID(),
+		$blockOptions = [
+			'address' => $user->getName(),
+			'user' => $user->getId(),
+			'by' => $this->getTestSysop()->getUser()->getId(),
 			'reason' => 'Parce que',
 			'expiry' => time() + 100500,
-		);
-		$this->block = new Block( $blockOptions );
-		$this->madeAt = wfTimestamp( TS_MW );
+		];
+		$block = new Block( $blockOptions );
 
-		$this->block->insert();
+		$block->insert();
 		// save up ID for use in assertion. Since ID is an autoincrement,
 		// its value might change depending on the order the tests are run.
 		// ApiBlockTest insert its own blocks!
-		$newBlockId = $this->block->getId();
-		if ( $newBlockId ) {
-			$this->blockId = $newBlockId;
-		} else {
+		if ( !$block->getId() ) {
 			throw new MWException( "Failed to insert block for BlockTest; old leftover block remaining?" );
 		}
 
 		$this->addXffBlocks();
-	}
 
-	/**
-	 * debug function : dump the ipblocks table
-	 */
-	function dumpBlocks() {
-		$v = $this->db->select( 'ipblocks', '*' );
-		print "Got " . $v->numRows() . " rows. Full dump follow:\n";
-		foreach ( $v as $row ) {
-			print_r( $row );
-		}
+		return $block;
 	}
 
 	/**
 	 * @covers Block::newFromTarget
 	 */
 	public function testINewFromTargetReturnsCorrectBlock() {
+		$user = $this->getUserForBlocking();
+		$block = $this->addBlockForUser( $user );
+
 		$this->assertTrue(
-			$this->block->equals( Block::newFromTarget( 'UTBlockee' ) ),
+			$block->equals( Block::newFromTarget( $user->getName() ) ),
 			"newFromTarget() returns the same block as the one that was made"
 		);
 	}
@@ -86,18 +71,26 @@ class BlockTest extends MediaWikiLangTestCase {
 	 * @covers Block::newFromID
 	 */
 	public function testINewFromIDReturnsCorrectBlock() {
+		$user = $this->getUserForBlocking();
+		$block = $this->addBlockForUser( $user );
+
 		$this->assertTrue(
-			$this->block->equals( Block::newFromID( $this->blockId ) ),
+			$block->equals( Block::newFromID( $block->getId() ) ),
 			"newFromID() returns the same block as the one that was made"
 		);
 	}
 
 	/**
-	 * per bug 26425
+	 * per T28425
+	 * @covers Block::__construct
 	 */
-	public function testBug26425BlockTimestampDefaultsToTime() {
+	public function testT28425BlockTimestampDefaultsToTime() {
+		$user = $this->getUserForBlocking();
+		$block = $this->addBlockForUser( $user );
+		$madeAt = wfTimestamp( TS_MW );
+
 		// delta to stop one-off errors when things happen to go over a second mark.
-		$delta = abs( $this->madeAt - $this->block->mTimestamp );
+		$delta = abs( $madeAt - $block->mTimestamp );
 		$this->assertLessThan(
 			2,
 			$delta,
@@ -108,26 +101,29 @@ class BlockTest extends MediaWikiLangTestCase {
 	/**
 	 * CheckUser since being changed to use Block::newFromTarget started failing
 	 * because the new function didn't accept empty strings like Block::load()
-	 * had. Regression bug 29116.
+	 * had. Regression T31116.
 	 *
-	 * @dataProvider provideBug29116Data
+	 * @dataProvider provideT31116Data
 	 * @covers Block::newFromTarget
 	 */
-	public function testBug29116NewFromTargetWithEmptyIp( $vagueTarget ) {
-		$block = Block::newFromTarget( 'UTBlockee', $vagueTarget );
+	public function testT31116NewFromTargetWithEmptyIp( $vagueTarget ) {
+		$user = $this->getUserForBlocking();
+		$initialBlock = $this->addBlockForUser( $user );
+		$block = Block::newFromTarget( $user->getName(), $vagueTarget );
+
 		$this->assertTrue(
-			$this->block->equals( $block ),
+			$initialBlock->equals( $block ),
 			"newFromTarget() returns the same block as the one that was made when "
 				. "given empty vagueTarget param " . var_export( $vagueTarget, true )
 		);
 	}
 
-	public static function provideBug29116Data() {
-		return array(
-			array( null ),
-			array( '' ),
-			array( false )
-		);
+	public static function provideT31116Data() {
+		return [
+			[ null ],
+			[ '' ],
+			[ false ]
+		];
 	}
 
 	/**
@@ -136,9 +132,10 @@ class BlockTest extends MediaWikiLangTestCase {
 	public function testBlockedUserCanNotCreateAccount() {
 		$username = 'BlockedUserToCreateAccountWith';
 		$u = User::newFromName( $username );
-		$u->setPassword( 'NotRandomPass' );
-		$u->setId( 14146 );
 		$u->addToDatabase();
+		$userId = $u->getId();
+		$this->assertNotEquals( 0, $userId, 'sanity' );
+		TestUser::setPasswordForUser( $u, 'NotRandomPass' );
 		unset( $u );
 
 		// Sanity check
@@ -155,9 +152,9 @@ class BlockTest extends MediaWikiLangTestCase {
 		);
 
 		// Foreign perspective (blockee not on current wiki)...
-		$blockOptions = array(
+		$blockOptions = [
 			'address' => $username,
-			'user' => 14146,
+			'user' => $userId,
 			'reason' => 'crosswiki block...',
 			'timestamp' => wfTimestampNow(),
 			'expiry' => $this->db->getInfinity(),
@@ -165,8 +162,8 @@ class BlockTest extends MediaWikiLangTestCase {
 			'enableAutoblock' => true,
 			'hideName' => true,
 			'blockEmail' => true,
-			'byText' => 'MetaWikiUser',
-		);
+			'byText' => 'm>MetaWikiUser',
+		];
 		$block = new Block( $blockOptions );
 		$block->insert();
 
@@ -178,7 +175,7 @@ class BlockTest extends MediaWikiLangTestCase {
 		);
 
 		$this->assertInstanceOf(
-			'Block',
+			Block::class,
 			$userBlock,
 			"'$username' block block object should be existent"
 		);
@@ -205,13 +202,13 @@ class BlockTest extends MediaWikiLangTestCase {
 		// Local perspective (blockee on current wiki)...
 		$user = User::newFromName( 'UserOnForeignWiki' );
 		$user->addToDatabase();
-		// Set user ID to match the test value
-		$this->db->update( 'user', array( 'user_id' => 14146 ), array( 'user_id' => $user->getId() ) );
+		$userId = $user->getId();
+		$this->assertNotEquals( 0, $userId, 'sanity' );
 
 		// Foreign perspective (blockee not on current wiki)...
-		$blockOptions = array(
+		$blockOptions = [
 			'address' => 'UserOnForeignWiki',
-			'user' => 14146,
+			'user' => $user->getId(),
 			'reason' => 'crosswiki block...',
 			'timestamp' => wfTimestampNow(),
 			'expiry' => $this->db->getInfinity(),
@@ -219,8 +216,8 @@ class BlockTest extends MediaWikiLangTestCase {
 			'enableAutoblock' => true,
 			'hideName' => true,
 			'blockEmail' => true,
-			'byText' => 'MetaWikiUser',
-		);
+			'byText' => 'Meta>MetaWikiUser',
+		];
 		$block = new Block( $blockOptions );
 
 		$res = $block->insert( $this->db );
@@ -234,9 +231,10 @@ class BlockTest extends MediaWikiLangTestCase {
 			$block->getTarget()->getName(),
 			'Correct blockee name'
 		);
-		$this->assertEquals( '14146', $block->getTarget()->getId(), 'Correct blockee id' );
-		$this->assertEquals( 'MetaWikiUser', $block->getBlocker(), 'Correct blocker name' );
-		$this->assertEquals( 'MetaWikiUser', $block->getByName(), 'Correct blocker name' );
+		$this->assertEquals( $userId, $block->getTarget()->getId(), 'Correct blockee id' );
+		$this->assertEquals( 'Meta>MetaWikiUser', $block->getBlocker()->getName(),
+			'Correct blocker name' );
+		$this->assertEquals( 'Meta>MetaWikiUser', $block->getByName(), 'Correct blocker name' );
 		$this->assertEquals( 0, $block->getBy(), 'Correct blocker id' );
 	}
 
@@ -249,44 +247,45 @@ class BlockTest extends MediaWikiLangTestCase {
 
 		$inited = true;
 
-		$blockList = array(
-			array( 'target' => '70.2.0.0/16',
+		$blockList = [
+			[ 'target' => '70.2.0.0/16',
 				'type' => Block::TYPE_RANGE,
 				'desc' => 'Range Hardblock',
 				'ACDisable' => false,
 				'isHardblock' => true,
 				'isAutoBlocking' => false,
-			),
-			array( 'target' => '2001:4860:4001::/48',
+			],
+			[ 'target' => '2001:4860:4001::/48',
 				'type' => Block::TYPE_RANGE,
 				'desc' => 'Range6 Hardblock',
 				'ACDisable' => false,
 				'isHardblock' => true,
 				'isAutoBlocking' => false,
-			),
-			array( 'target' => '60.2.0.0/16',
+			],
+			[ 'target' => '60.2.0.0/16',
 				'type' => Block::TYPE_RANGE,
 				'desc' => 'Range Softblock with AC Disabled',
 				'ACDisable' => true,
 				'isHardblock' => false,
 				'isAutoBlocking' => false,
-			),
-			array( 'target' => '50.2.0.0/16',
+			],
+			[ 'target' => '50.2.0.0/16',
 				'type' => Block::TYPE_RANGE,
 				'desc' => 'Range Softblock',
 				'ACDisable' => false,
 				'isHardblock' => false,
 				'isAutoBlocking' => false,
-			),
-			array( 'target' => '50.1.1.1',
+			],
+			[ 'target' => '50.1.1.1',
 				'type' => Block::TYPE_IP,
 				'desc' => 'Exact Softblock',
 				'ACDisable' => false,
 				'isHardblock' => false,
 				'isAutoBlocking' => false,
-			),
-		);
+			],
+		];
 
+		$blocker = $this->getTestUser()->getUser();
 		foreach ( $blockList as $insBlock ) {
 			$target = $insBlock['target'];
 
@@ -298,7 +297,7 @@ class BlockTest extends MediaWikiLangTestCase {
 
 			$block = new Block();
 			$block->setTarget( $target );
-			$block->setBlocker( 'testblocker@global' );
+			$block->setBlocker( $blocker );
 			$block->mReason = $insBlock['desc'];
 			$block->mExpiry = 'infinity';
 			$block->prevents( 'createaccount', $insBlock['ACDisable'] );
@@ -309,48 +308,48 @@ class BlockTest extends MediaWikiLangTestCase {
 	}
 
 	public static function providerXff() {
-		return array(
-			array( 'xff' => '1.2.3.4, 70.2.1.1, 60.2.1.1, 2.3.4.5',
+		return [
+			[ 'xff' => '1.2.3.4, 70.2.1.1, 60.2.1.1, 2.3.4.5',
 				'count' => 2,
 				'result' => 'Range Hardblock'
-			),
-			array( 'xff' => '1.2.3.4, 50.2.1.1, 60.2.1.1, 2.3.4.5',
+			],
+			[ 'xff' => '1.2.3.4, 50.2.1.1, 60.2.1.1, 2.3.4.5',
 				'count' => 2,
 				'result' => 'Range Softblock with AC Disabled'
-			),
-			array( 'xff' => '1.2.3.4, 70.2.1.1, 50.1.1.1, 2.3.4.5',
+			],
+			[ 'xff' => '1.2.3.4, 70.2.1.1, 50.1.1.1, 2.3.4.5',
 				'count' => 2,
 				'result' => 'Exact Softblock'
-			),
-			array( 'xff' => '1.2.3.4, 70.2.1.1, 50.2.1.1, 50.1.1.1, 2.3.4.5',
+			],
+			[ 'xff' => '1.2.3.4, 70.2.1.1, 50.2.1.1, 50.1.1.1, 2.3.4.5',
 				'count' => 3,
 				'result' => 'Exact Softblock'
-			),
-			array( 'xff' => '1.2.3.4, 70.2.1.1, 50.2.1.1, 2.3.4.5',
+			],
+			[ 'xff' => '1.2.3.4, 70.2.1.1, 50.2.1.1, 2.3.4.5',
 				'count' => 2,
 				'result' => 'Range Hardblock'
-			),
-			array( 'xff' => '1.2.3.4, 70.2.1.1, 60.2.1.1, 2.3.4.5',
+			],
+			[ 'xff' => '1.2.3.4, 70.2.1.1, 60.2.1.1, 2.3.4.5',
 				'count' => 2,
 				'result' => 'Range Hardblock'
-			),
-			array( 'xff' => '50.2.1.1, 60.2.1.1, 2.3.4.5',
+			],
+			[ 'xff' => '50.2.1.1, 60.2.1.1, 2.3.4.5',
 				'count' => 2,
 				'result' => 'Range Softblock with AC Disabled'
-			),
-			array( 'xff' => '1.2.3.4, 50.1.1.1, 60.2.1.1, 2.3.4.5',
+			],
+			[ 'xff' => '1.2.3.4, 50.1.1.1, 60.2.1.1, 2.3.4.5',
 				'count' => 2,
 				'result' => 'Exact Softblock'
-			),
-			array( 'xff' => '1.2.3.4, <$A_BUNCH-OF{INVALID}TEXT\>, 60.2.1.1, 2.3.4.5',
+			],
+			[ 'xff' => '1.2.3.4, <$A_BUNCH-OF{INVALID}TEXT\>, 60.2.1.1, 2.3.4.5',
 				'count' => 1,
 				'result' => 'Range Softblock with AC Disabled'
-			),
-			array( 'xff' => '1.2.3.4, 50.2.1.1, 2001:4860:4001:802::1003, 2.3.4.5',
+			],
+			[ 'xff' => '1.2.3.4, 50.2.1.1, 2001:4860:4001:802::1003, 2.3.4.5',
 				'count' => 2,
 				'result' => 'Range6 Hardblock'
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -359,6 +358,9 @@ class BlockTest extends MediaWikiLangTestCase {
 	 * @covers Block::chooseBlock
 	 */
 	public function testBlocksOnXff( $xff, $exCount, $exResult ) {
+		$user = $this->getUserForBlocking();
+		$this->addBlockForUser( $user );
+
 		$list = array_map( 'trim', explode( ',', $xff ) );
 		$xffblocks = Block::getBlocksForIPList( $list, true );
 		$this->assertEquals( $exCount, count( $xffblocks ), 'Number of blocks for ' . $xff );
@@ -366,6 +368,9 @@ class BlockTest extends MediaWikiLangTestCase {
 		$this->assertEquals( $exResult, $block->mReason, 'Correct block type for XFF header ' . $xff );
 	}
 
+	/**
+	 * @covers Block::__construct
+	 */
 	public function testDeprecatedConstructor() {
 		$this->hideDeprecated( 'Block::__construct with multiple arguments' );
 		$username = 'UnthinkablySecretRandomUsername';
@@ -373,9 +378,9 @@ class BlockTest extends MediaWikiLangTestCase {
 
 		# Set up the target
 		$u = User::newFromName( $username );
-		if ( $u->getID() == 0 ) {
-			$u->setPassword( 'TotallyObvious' );
+		if ( $u->getId() == 0 ) {
 			$u->addToDatabase();
+			TestUser::setPasswordForUser( $u, 'TotallyObvious' );
 		}
 		unset( $u );
 
@@ -389,7 +394,7 @@ class BlockTest extends MediaWikiLangTestCase {
 		$block = new Block(
 			/* address */ $username,
 			/* user */ 0,
-			/* by */ 0,
+			/* by */ $this->getTestSysop()->getUser()->getId(),
 			/* reason */ $reason,
 			/* timestamp */ 0,
 			/* auto */ false,
@@ -417,4 +422,42 @@ class BlockTest extends MediaWikiLangTestCase {
 			"Account creation should not be blocked by default"
 		);
 	}
+
+	/**
+	 * @covers Block::getSystemBlockType
+	 * @covers Block::insert
+	 * @covers Block::doAutoblock
+	 */
+	public function testSystemBlocks() {
+		$user = $this->getUserForBlocking();
+		$this->addBlockForUser( $user );
+
+		$blockOptions = [
+			'address' => $user->getName(),
+			'reason' => 'test system block',
+			'timestamp' => wfTimestampNow(),
+			'expiry' => $this->db->getInfinity(),
+			'byText' => 'MediaWiki default',
+			'systemBlock' => 'test',
+			'enableAutoblock' => true,
+		];
+		$block = new Block( $blockOptions );
+
+		$this->assertSame( 'test', $block->getSystemBlockType() );
+
+		try {
+			$block->insert();
+			$this->fail( 'Expected exception not thrown' );
+		} catch ( MWException $ex ) {
+			$this->assertSame( 'Cannot insert a system block into the database', $ex->getMessage() );
+		}
+
+		try {
+			$block->doAutoblock( '192.0.2.2' );
+			$this->fail( 'Expected exception not thrown' );
+		} catch ( MWException $ex ) {
+			$this->assertSame( 'Cannot autoblock from a system block', $ex->getMessage() );
+		}
+	}
+
 }

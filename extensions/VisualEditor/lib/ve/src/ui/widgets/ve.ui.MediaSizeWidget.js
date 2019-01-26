@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MediaSizeWidget class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -159,7 +159,7 @@ OO.inheritClass( ve.ui.MediaSizeWidget, OO.ui.Widget );
 ve.ui.MediaSizeWidget.prototype.onScalableOriginalSizeChange = function ( dimensions ) {
 	var disabled = !dimensions || $.isEmptyObject( dimensions );
 	this.fullSizeButton.setDisabled( disabled );
-	this.sizeTypeSelectWidget.getItemFromData( 'default' ).setDisabled( disabled );
+	this.sizeTypeSelectWidget.findItemFromData( 'default' ).setDisabled( disabled );
 	// Revalidate current dimensions
 	this.validateDimensions();
 };
@@ -310,7 +310,7 @@ ve.ui.MediaSizeWidget.prototype.setSizeType = function ( sizeType ) {
 		Number( this.dimensionsWidget.getHeight() ) === 0
 	) {
 		this.sizeTypeSelectWidget.chooseItem(
-			this.sizeTypeSelectWidget.getItemFromData( sizeType )
+			this.sizeTypeSelectWidget.findItemFromData( sizeType )
 		);
 	}
 };
@@ -320,7 +320,7 @@ ve.ui.MediaSizeWidget.prototype.setSizeType = function ( sizeType ) {
  * @return {string} The size type
  */
 ve.ui.MediaSizeWidget.prototype.getSizeType = function () {
-	return this.sizeTypeSelectWidget.getSelectedItem() ? this.sizeTypeSelectWidget.getSelectedItem().getData() : '';
+	return this.sizeTypeSelectWidget.findSelectedItem() ? this.sizeTypeSelectWidget.findSelectedItem().getData() : '';
 };
 
 /**
@@ -350,10 +350,10 @@ ve.ui.MediaSizeWidget.prototype.setScalable = function ( scalable ) {
 	// If we don't have original dimensions, disable the full size button
 	if ( !this.scalable.getOriginalDimensions() ) {
 		this.fullSizeButton.setDisabled( true );
-		this.sizeTypeSelectWidget.getItemFromData( 'default' ).setDisabled( true );
+		this.sizeTypeSelectWidget.findItemFromData( 'default' ).setDisabled( true );
 	} else {
 		this.fullSizeButton.setDisabled( false );
-		this.sizeTypeSelectWidget.getItemFromData( 'default' ).setDisabled( false );
+		this.sizeTypeSelectWidget.findItemFromData( 'default' ).setDisabled( false );
 
 		// Call for the set size type according to default or custom settings of the scalable
 		this.setSizeType( this.scalable.isDefault() ? 'default' : 'custom' );
@@ -377,7 +377,7 @@ ve.ui.MediaSizeWidget.prototype.getScalable = function () {
  */
 ve.ui.MediaSizeWidget.prototype.onFullSizeButtonClick = function () {
 	this.sizeTypeSelectWidget.chooseItem(
-		this.sizeTypeSelectWidget.getItemFromData( 'custom' )
+		this.sizeTypeSelectWidget.findItemFromData( 'custom' )
 	);
 	this.setCurrentDimensions( this.scalable.getOriginalDimensions() );
 	this.dimensionsWidget.setDisabled( false );
@@ -541,7 +541,7 @@ ve.ui.MediaSizeWidget.prototype.updateDefaultDimensions = function () {
 	} else {
 		this.dimensionsWidget.removeDefaults();
 	}
-	this.sizeTypeSelectWidget.getItemFromData( 'default' ).setDisabled(
+	this.sizeTypeSelectWidget.findItemFromData( 'default' ).setDisabled(
 		$.isEmptyObject( defaultDimensions )
 	);
 	this.validateDimensions();
@@ -593,8 +593,8 @@ ve.ui.MediaSizeWidget.prototype.isEmpty = function () {
  * @return {boolean} Valid or invalid dimension values
  */
 ve.ui.MediaSizeWidget.prototype.isValid = function () {
-	var itemType = this.sizeTypeSelectWidget.getSelectedItem() ?
-		this.sizeTypeSelectWidget.getSelectedItem().getData() : 'custom';
+	var itemType = this.sizeTypeSelectWidget.findSelectedItem() ?
+		this.sizeTypeSelectWidget.findSelectedItem().getData() : 'custom';
 
 	// TODO: when upright is supported by Parsoid add validation for scale
 

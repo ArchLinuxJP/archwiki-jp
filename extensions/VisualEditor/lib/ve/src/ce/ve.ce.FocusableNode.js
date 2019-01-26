@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable FocusableNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -23,6 +23,8 @@
  * @constructor
  * @param {jQuery} [$focusable=this.$element] Primary element user is focusing on
  * @param {Object} [config] Configuration options
+ * @param {jQuery} [$bounding=$focusable] Element to consider for bounding box calculations (e.g.
+ *   attaching inspectors)
  * @cfg {string[]} [classes] CSS classes to be added to the highlight container
  */
 ve.ce.FocusableNode = function VeCeFocusableNode( $focusable, config ) {
@@ -34,6 +36,7 @@ ve.ce.FocusableNode = function VeCeFocusableNode( $focusable, config ) {
 	this.isFocusableSetup = false;
 	this.$highlights = $( '<div>' ).addClass( 've-ce-focusableNode-highlights' );
 	this.$focusable = $focusable || this.$element;
+	this.$bounding = config.$bounding || this.$focusable;
 	this.focusableSurface = null;
 	this.rects = null;
 	this.boundingRect = null;
@@ -320,6 +323,10 @@ ve.ce.FocusableNode.prototype.updateInvisibleIcon = function () {
 		return;
 	}
 
+	// Make sure any existing icon is detached before measuring
+	if ( this.$icon ) {
+		this.$icon.detach();
+	}
 	showIcon = !this.hasRendering();
 
 	// Defer updating the DOM. If we don't do this, the hasRendering() call for the next
@@ -579,7 +586,7 @@ ve.ce.FocusableNode.prototype.onFocusableResizeEnd = function () {
 ve.ce.FocusableNode.prototype.onFocusableRerender = function () {
 	if ( this.focused && this.focusableSurface ) {
 		this.redrawHighlightsDebounced();
-		// reposition menu
+		// Reposition menu
 		this.focusableSurface.getSurface().getContext().updateDimensions( true );
 	}
 };
@@ -752,6 +759,12 @@ ve.ce.FocusableNode.prototype.getRects = function () {
  * @return {Object|null} Top, left, bottom & right positions of the focusable node relative to the surface
  */
 ve.ce.FocusableNode.prototype.getBoundingRect = function () {
+	var surfaceOffset, allRects;
+	if ( !this.$bounding.is( this.$focusable ) ) {
+		surfaceOffset = this.focusableSurface.getSurface().getBoundingClientRect();
+		allRects = this.constructor.static.getRectsForElement( this.$bounding, surfaceOffset );
+		return allRects.boundingRect;
+	}
 	if ( !this.highlighted ) {
 		this.calculateHighlights();
 	}
@@ -788,15 +801,9 @@ ve.ce.FocusableNode.prototype.hasRendering = function () {
 		return true;
 	}
 	this.$element.each( function () {
-		var $this = $( this );
 		if (
-			( $this.width() >= 8 && $this.height() >= 8 ) ||
-			// jQuery handles disparate cases, but is prone to elements which
-			// haven't experienced layout yet having 0 width / height. So,
-			// check the raw DOM width / height properties as well. If it's an
-			// image or other thing-with-width, this will work slightly more
-			// reliably. If it's not, this will be undefined and the
-			// comparison will thus just be false.
+			( this.offsetWidth >= 8 && this.offsetHeight >= 8 ) ||
+			// Check width/height attribute as well. (T125767)
 			( this.width >= 8 && this.height >= 8 )
 		) {
 			visible = true;

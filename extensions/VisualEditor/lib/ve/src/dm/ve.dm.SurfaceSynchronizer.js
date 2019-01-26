@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel SurfaceSynchronizer class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 /* global io */
 
@@ -31,6 +31,7 @@ ve.dm.SurfaceSynchronizer = function VeDmSurfaceSynchronizer( surface, documentI
 	this.store = this.doc.getStore();
 	this.authorSelections = {};
 	this.authorNames = {};
+	this.authorColors = {};
 	this.documentId = documentId;
 
 	// Whether the document has been initialized
@@ -44,8 +45,10 @@ ve.dm.SurfaceSynchronizer = function VeDmSurfaceSynchronizer( surface, documentI
 	this.socket.on( 'initDoc', this.onInitDoc.bind( this ) );
 	this.socket.on( 'newChange', this.onNewChange.bind( this ) );
 	this.socket.on( 'nameChange', this.onNameChange.bind( this ) );
+	this.socket.on( 'colorChange', this.onColorChange.bind( this ) );
 	this.socket.on( 'authorDisconnect', this.onAuthorDisconnect.bind( this ) );
-	this.tryUsurp();
+	// TODO: unbreak then re-enable usurp
+	// this.tryUsurp();
 
 	// Events
 	this.doc.connect( this, {
@@ -75,20 +78,6 @@ OO.mixinClass( ve.dm.SurfaceSynchronizer, ve.dm.RebaseClient );
  * @event authorNameChange
  * @param {number} authorId The author whose name has changed
  */
-
-/* Static methods */
-
-/**
- * TODO: Let authors choose color
- *
- * @param {number} authorId
- * @return {string} Color, RRGGBB
- */
-ve.dm.SurfaceSynchronizer.static.getAuthorColor = function ( authorId ) {
-	return ( 8 * ( 1 - Math.sin( 5 * authorId ) ) ).toString( 16 ).slice( 0, 1 ) +
-		( 6 * ( 1 - Math.cos( 3 * authorId ) ) ).toString( 16 ).slice( 0, 1 ) +
-		'0';
-};
 
 /* Methods */
 
@@ -140,6 +129,11 @@ ve.dm.SurfaceSynchronizer.prototype.applyChange = function ( change ) {
 		delete this.authorSelections[ authorId ];
 	}
 	change.applyTo( this.surface );
+	// HACK: After applyTo(), the selections are wrong and applying them could crash.
+	// The only reason this doesn't happen is because everything that tries to do that uses setTimeout().
+	// Translate the selections that aren't going to be overwritten by change.selections
+	this.applyNewSelections( this.authorSelections, change );
+	// Apply the overwrites from change.selections
 	this.applyNewSelections( change.selections );
 };
 
@@ -148,6 +142,10 @@ ve.dm.SurfaceSynchronizer.prototype.applyChange = function ( change ) {
  */
 ve.dm.SurfaceSynchronizer.prototype.unapplyChange = function ( change ) {
 	change.unapplyTo( this.surface );
+	// Translate all selections for what we just unapplied
+	// HACK: After unapplyTo(), the selections are wrong and applying them could crash.
+	// The only reason this doesn't happen is because everything that tries to do that uses setTimeout().
+	this.applyNewSelections( this.authorSelections, change.reversed() );
 };
 
 /**
@@ -169,19 +167,22 @@ ve.dm.SurfaceSynchronizer.prototype.removeFromHistory = function ( change ) {
  */
 ve.dm.SurfaceSynchronizer.prototype.logEvent = function ( event ) {
 	// Serialize the event data and pass it on to the server for logging
-	var key;
+	var key,
+		ob = {};
 	if ( !this.initialized ) {
 		// Do not log before initialization is complete; this prevents us from logging the entire
 		// document history during initialization
 		return;
 	}
+	ob.sendTimestamp = Date.now();
 	for ( key in event ) {
 		if ( event[ key ] instanceof ve.dm.Change ) {
-			event[ key ] = event[ key ].serialize();
+			ob[ key ] = event[ key ].serialize();
+		} else {
+			ob[ key ] = event[ key ];
 		}
 	}
-
-	this.socket.emit( 'logEvent', event );
+	this.socket.emit( 'logEvent', ob );
 };
 
 /**
@@ -235,6 +236,7 @@ ve.dm.SurfaceSynchronizer.prototype.applyNewSelections = function ( newSelection
 			translatedSelection = newSelections[ authorId ];
 		}
 		if ( !translatedSelection.equals( this.authorSelections[ authorId ] ) ) {
+			// This works correctly even if newSelections === this.authorSelections
 			this.authorSelections[ authorId ] = translatedSelection;
 			this.emit( 'authorSelect', authorId );
 		}
@@ -246,8 +248,17 @@ ve.dm.SurfaceSynchronizer.prototype.onNameChange = function ( data ) {
 	this.emit( 'authorNameChange', data.authorId );
 };
 
+ve.dm.SurfaceSynchronizer.prototype.onColorChange = function ( data ) {
+	this.authorColors[ data.authorId ] = data.authorColor;
+	this.emit( 'authorColorChange', data.authorId );
+};
+
 ve.dm.SurfaceSynchronizer.prototype.changeName = function ( newName ) {
 	this.socket.emit( 'changeName', newName );
+};
+
+ve.dm.SurfaceSynchronizer.prototype.changeColor = function ( newColor ) {
+	this.socket.emit( 'changeColor', newColor );
 };
 
 ve.dm.SurfaceSynchronizer.prototype.onAuthorDisconnect = function ( authorId ) {

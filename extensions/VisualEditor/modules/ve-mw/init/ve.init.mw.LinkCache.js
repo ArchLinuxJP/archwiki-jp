@@ -1,7 +1,7 @@
 /*!
  * VisualEditor MediaWiki Initialization LinkCache class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -118,14 +118,14 @@ ve.init.mw.LinkCache.prototype.styleParsoidElements = function ( $elements, doc 
 
 	// TODO: Remove when fixed upstream in Parsoid (T58756)
 	$elements
-		.find( 'a[rel="mw:ExtLink"]' ).addBack( 'a[rel="mw:ExtLink"]' )
+		.find( 'a[rel~="mw:ExtLink"]' ).addBack( 'a[rel~="mw:ExtLink"]' )
 		.addClass( 'external' );
 
 	// TODO: Remove when moved upstream into Parsoid or another service (T64803)
 	// If the element isn't attached, doc will be null, so we don't know how to normalise titles
 	if ( doc ) {
 		$elements
-			.find( 'a[rel="mw:WikiLink"]' ).addBack( 'a[rel="mw:WikiLink"]' )
+			.find( 'a[rel~="mw:WikiLink"]' ).addBack( 'a[rel~="mw:WikiLink"]' )
 			.each( function () {
 				var title,
 					href = this.href || mw.config.get( 'wgArticlePath' );

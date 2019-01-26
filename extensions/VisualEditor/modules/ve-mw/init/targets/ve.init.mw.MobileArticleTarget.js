@@ -1,7 +1,7 @@
 /*!
  * VisualEditor MediaWiki Initialization MobileArticleTarget class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -107,12 +107,33 @@ ve.init.mw.MobileArticleTarget.prototype.onSurfaceFocus = function () {
 /**
  * @inheritdoc
  */
-ve.init.mw.MobileArticleTarget.prototype.getSaveButtonLabel = function () {
+ve.init.mw.MobileArticleTarget.prototype.getSaveButtonLabel = function ( startProcess ) {
+	var suffix = startProcess ? '-start' : '';
+	// The following messages can be used here:
+	// * visualeditor-savedialog-label-publish-short
+	// * visualeditor-savedialog-label-publish-short-start
+	// * visualeditor-savedialog-label-save-short
+	// * visualeditor-savedialog-label-save-short-start
 	if ( mw.config.get( 'wgEditSubmitButtonLabelPublish' ) ) {
-		return OO.ui.deferMsg( 'visualeditor-savedialog-label-publish-short' );
+		return OO.ui.deferMsg( 'visualeditor-savedialog-label-publish-short' + suffix );
 	}
 
-	return OO.ui.deferMsg( 'visualeditor-savedialog-label-save-short' );
+	return OO.ui.deferMsg( 'visualeditor-savedialog-label-save-short' + suffix );
+};
+
+/**
+ * @inheritdoc
+ */
+ve.init.mw.MobileArticleTarget.prototype.createTargetWidget = function ( config ) {
+	// Parent method
+	var targetWidget = ve.init.mw.MobileArticleTarget.super.prototype.createTargetWidget.call( this, config );
+
+	targetWidget.once( 'setup', function () {
+		// Append the context to the toolbar
+		targetWidget.getToolbar().$bar.append( targetWidget.getSurface().getContext().$element );
+	} );
+
+	return targetWidget;
 };
 
 /**
@@ -207,12 +228,6 @@ ve.init.mw.MobileArticleTarget.prototype.scrollToHeading = function ( headingNod
 };
 
 /**
- * Close the mobile editor
- */
-ve.init.mw.MobileArticleTarget.prototype.close = function () {
-};
-
-/**
  * Done with the editing toolbar
  */
 ve.init.mw.MobileArticleTarget.prototype.done = function () {
@@ -258,7 +273,7 @@ ve.ui.MWBackCommand = function VeUiMWBackCommand() {
 };
 OO.inheritClass( ve.ui.MWBackCommand, ve.ui.Command );
 ve.ui.MWBackCommand.prototype.execute = function () {
-	ve.init.target.close();
+	ve.init.target.tryTeardown();
 };
 ve.ui.commandRegistry.register( new ve.ui.MWBackCommand() );
 

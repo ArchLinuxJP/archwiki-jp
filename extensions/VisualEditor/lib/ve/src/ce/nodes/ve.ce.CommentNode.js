@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable CommentNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -95,11 +95,19 @@ ve.ce.CommentNode.prototype.onAttributeChange = function ( key, from, to ) {
  * @inheritdoc
  */
 ve.ce.CommentNode.prototype.createInvisibleIcon = function () {
-	var icon = new OO.ui.ButtonWidget( {
+	var icon;
+	// Check the node hasn't been destroyed, as this method is
+	// called after an rAF in ve.ce.FocusableNode
+	if ( !this.getModel() ) {
+		return;
+	}
+	icon = new OO.ui.ButtonWidget( {
 		classes: [ 've-ce-focusableNode-invisibleIcon' ],
 		framed: false,
 		icon: this.constructor.static.iconWhenInvisible,
-		label: this.constructor.static.getTextPreview( this.getModel().getAttribute( 'text' ) )
+		// If the label is empty, it's most likely because we've just inserted
+		// this; use a zero-width space for consistent rendering
+		label: this.constructor.static.getTextPreview( this.getModel().getAttribute( 'text' ) ) || new OO.ui.HtmlSnippet( '&#8203;' )
 	} );
 	this.icon = icon;
 	return icon.$element;

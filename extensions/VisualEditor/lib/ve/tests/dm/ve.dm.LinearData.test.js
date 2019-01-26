@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel LinearData tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.dm.LinearData' );
@@ -9,7 +9,7 @@ QUnit.module( 've.dm.LinearData' );
 /* Tests */
 
 QUnit.test( 'basic usage', function ( assert ) {
-	var store = new ve.dm.IndexValueStore(),
+	var store = new ve.dm.HashValueStore(),
 		data = new ve.dm.LinearData( store, ve.copy( ve.dm.example.data ) );
 
 	assert.strictEqual( data.getData(), data.data, 'getData: with no arguments returns data by reference' );
@@ -26,7 +26,7 @@ QUnit.test( 'basic usage', function ( assert ) {
 QUnit.test( 'slice(Object)/splice(Object)/batchSplice', function ( assert ) {
 	var dataSlice, expectedDataSlice,
 		dataSplice, expectedDataSplice,
-		store = new ve.dm.IndexValueStore(),
+		store = new ve.dm.HashValueStore(),
 		data = new ve.dm.LinearData( store, ve.copy( ve.dm.example.data ) ),
 		expectedData = ve.copy( ve.dm.example.data );
 
@@ -47,7 +47,7 @@ QUnit.test( 'slice(Object)/splice(Object)/batchSplice', function ( assert ) {
 		'slice: store equal by reference to original object'
 	);
 
-	// reset data
+	// Reset data
 	data = new ve.dm.LinearData( store, ve.copy( ve.dm.example.data ) );
 	expectedData = ve.copy( ve.dm.example.data );
 
@@ -68,7 +68,7 @@ QUnit.test( 'slice(Object)/splice(Object)/batchSplice', function ( assert ) {
 		'splice: store equal by reference to original object'
 	);
 
-	// reset data
+	// Reset data
 	data = new ve.dm.LinearData( store, ve.copy( ve.dm.example.data ) );
 	expectedData = ve.copy( ve.dm.example.data );
 

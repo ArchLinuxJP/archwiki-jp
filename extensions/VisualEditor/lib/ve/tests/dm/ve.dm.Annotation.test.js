@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Annotation tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.dm.Annotation' );
@@ -25,12 +25,12 @@ QUnit.test( 'getHashObject', function ( assert ) {
 				annotation: new ve.dm.ItalicAnnotation( {
 					type: 'textStyle/italic',
 					attributes: { nodeName: 'i' },
-					originalDomElementsIndex: 1
+					originalDomElementsHash: 1
 				} ),
 				expected: {
 					type: 'textStyle/italic',
 					attributes: { nodeName: 'i' },
-					originalDomElementsIndex: 1
+					originalDomElementsHash: 1
 				}
 			}
 		];

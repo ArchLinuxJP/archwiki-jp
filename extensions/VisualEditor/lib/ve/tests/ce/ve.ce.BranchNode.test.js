@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable BranchNode tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.ce.BranchNode' );
@@ -68,8 +68,51 @@ QUnit.test( 'updateTagName', function ( assert ) {
 	assert.strictEqual( node.$element.text(), 'hello', 'contents are added to new wrapper' );
 } );
 
+QUnit.test( 'getDomPosition', function ( assert ) {
+	var expectedOffsets, i, len, position,
+		ceParent = new ve.ce.BranchNodeStub( new ve.dm.BranchNodeStub() );
+
+	// Create prior state by attaching manually, to avoid circular dependence on onSplice
+	ceParent.$element = $( '<p>' );
+	ceParent.children.push(
+		// Node with two DOM nodes
+		// TODO: The use of BranchNodeStub below is dissonant
+		new ve.ce.LeafNode( new ve.dm.BranchNodeStub() ),
+		// Node with no DOM nodes
+		new ve.ce.LeafNode( new ve.dm.BranchNodeStub() ),
+		new ve.ce.LeafNode( new ve.dm.BranchNodeStub() ),
+		// TextNode with no annotation
+		new ve.ce.TextNode( new ve.dm.BranchNodeStub() ),
+		// Node with one DOM node
+		new ve.ce.LeafNode( new ve.dm.BranchNodeStub() ),
+		// TextNode with some annotation
+		new ve.ce.TextNode( new ve.dm.BranchNodeStub() )
+	);
+	expectedOffsets = [ 0, 2, 2, 2, 3, 4, 7 ];
+	ceParent.children[ 0 ].$element = $( '<img><img>' );
+	ceParent.children[ 1 ].$element = $();
+	ceParent.children[ 2 ].$element = $();
+	ceParent.children[ 3 ].$element = undefined;
+	ceParent.children[ 4 ].$element = $( '<img>' );
+	ceParent.children[ 5 ].$element = undefined;
+	ceParent.$element.empty()
+		.append( ceParent.children[ 0 ].$element )
+		.append( 'foo' )
+		.append( ceParent.children[ 4 ].$element )
+		.append( 'bar<b>baz</b>qux' );
+
+	assert.expect( 2 * ceParent.children.length + 2 );
+
+	for ( i = 0, len = ceParent.children.length + 1; i < len; i++ ) {
+		position = ceParent.getDomPosition( i );
+		assert.strictEqual( position.node, ceParent.$element.last()[ 0 ], 'i=' + i + ' node' );
+		assert.strictEqual( position.offset, expectedOffsets[ i ], 'i=' + i + ' position' );
+	}
+} );
+
 QUnit.test( 'onSplice', function ( assert ) {
-	var modelA = new ve.dm.BranchNodeStub(),
+	var viewB, viewC,
+		modelA = new ve.dm.BranchNodeStub(),
 		modelB = new ve.dm.BranchNodeStub(),
 		modelC = new ve.dm.BranchNodeStub(),
 		viewA = new ve.ce.BranchNodeStub( modelA );
@@ -78,18 +121,21 @@ QUnit.test( 'onSplice', function ( assert ) {
 	modelA.splice( 0, 0, modelB, modelC );
 
 	assert.strictEqual( viewA.getChildren().length, 2 );
-	assert.deepEqual( viewA.getChildren()[ 0 ].getModel(), modelB );
-	assert.deepEqual( viewA.getChildren()[ 1 ].getModel(), modelC );
+	viewB = viewA.getChildren()[ 0 ];
+	viewC = viewA.getChildren()[ 1 ];
+	assert.deepEqual( viewB.getModel(), modelB, 'First view child matches model tree' );
+	assert.deepEqual( viewC.getModel(), modelC, 'Second view child matches model tree' );
 
 	// Removal tests
 	modelA.splice( 0, 1 );
-
 	assert.strictEqual( viewA.getChildren().length, 1 );
-	assert.deepEqual( viewA.getChildren()[ 0 ].getModel(), modelC );
+	assert.deepEqual( viewA.getChildren()[ 0 ].getModel(), modelC, 'Only view child matches model tree' );
+	assert.strictEqual( !viewB.getModel(), true, 'Removed view node was destroyed' );
 
 	// Removal and insertion tests
 	modelA.splice( 0, 1, modelB );
 
 	assert.strictEqual( viewA.getChildren().length, 1 );
-	assert.deepEqual( viewA.getChildren()[ 0 ].getModel(), modelB );
+	assert.deepEqual( viewA.getChildren()[ 0 ].getModel(), modelB, 'Replaced view child matches model tree' );
+	assert.strictEqual( !viewC.getModel(), true, 'Replaced view node was destroyed' );
 } );

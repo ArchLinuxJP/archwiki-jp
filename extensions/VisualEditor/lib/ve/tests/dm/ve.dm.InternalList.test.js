@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel InternalList tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.dm.InternalList' );
@@ -51,12 +51,12 @@ QUnit.test( 'convertToData', function ( assert ) {
 		expectedData = [
 			{ type: 'internalList' },
 			{ type: 'internalItem', attributes: { originalHtml: 'Bar' } },
-			{ type: 'paragraph', internal: { generated: 'wrapper' } },
+			{ type: 'paragraph', internal: { generated: 'wrapper', metaItems: [] } },
 			'B', 'a', 'r',
 			{ type: '/paragraph' },
 			{ type: '/internalItem' },
 			{ type: 'internalItem', attributes: { originalHtml: 'Baz' } },
-			{ type: 'paragraph', internal: { generated: 'wrapper' } },
+			{ type: 'paragraph', internal: { generated: 'wrapper', metaItems: [] } },
 			'B', 'a', 'z',
 			{ type: '/paragraph' },
 			{ type: '/internalItem' },

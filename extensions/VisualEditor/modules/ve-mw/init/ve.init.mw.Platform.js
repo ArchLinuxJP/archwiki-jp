@@ -1,7 +1,7 @@
 /*!
  * VisualEditor MediaWiki Initialization Platform class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -133,7 +133,30 @@ ve.init.mw.Platform.prototype.setUserConfig = function ( keyOrValueMap, value ) 
 	}
 };
 
-/** @inheritdoc */
+/**
+ * @inheritdoc
+ */
+ve.init.mw.Platform.prototype.getSession = function ( key ) {
+	return mw.storage.session.get( key );
+};
+
+/**
+ * @inheritdoc
+ */
+ve.init.mw.Platform.prototype.setSession = function ( key, value ) {
+	return mw.storage.session.set( key, value );
+};
+
+/**
+ * @inheritdoc
+ */
+ve.init.mw.Platform.prototype.removeSession = function ( key ) {
+	return mw.storage.session.remove( key );
+};
+
+/**
+ * @inheritdoc
+ */
 ve.init.mw.Platform.prototype.addParsedMessages = function ( messages ) {
 	var key;
 	for ( key in messages ) {
@@ -198,12 +221,15 @@ ve.init.mw.Platform.prototype.fetchSpecialCharList = function () {
 		var characters = {},
 			otherGroupName = mw.msg( 'visualeditor-special-characters-group-other' ),
 			otherMsg = mw.message( 'visualeditor-quick-access-characters.json' ).plain(),
+			// TODO: This information should be available upstream in mw.language.specialCharacters
+			rtlGroups = [ 'arabic', 'arabicextended', 'hebrew' ],
 			other, groupObject;
 
 		try {
 			other = JSON.parse( otherMsg );
 			if ( other ) {
 				characters[ otherGroupName ] = other;
+				other.attributes = { dir: mw.config.get( 'wgVisualEditorConfig' ).pageLanguageDir };
 			}
 		} catch ( err ) {
 			ve.log( 've.init.mw.Platform: Could not parse the Special Character list.' );
@@ -223,6 +249,7 @@ ve.init.mw.Platform.prototype.fetchSpecialCharList = function () {
 				}
 			} );
 			characters[ mw.msg( 'special-characters-group-' + groupName ) ] = groupObject;
+			groupObject.attributes = { dir: rtlGroups.indexOf( groupName ) !== -1 ? 'rtl' : 'ltr' };
 		} );
 
 		return characters;

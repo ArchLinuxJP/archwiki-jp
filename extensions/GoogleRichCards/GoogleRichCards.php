@@ -68,7 +68,7 @@ function GoogleRichCards(&$out) {
              "discussionUrl": "'.$wgTitle->getTalkPage()->getFullURL().'",
              "image": {
                "@type": "ImageObject",
-               "url": "https://www.archlinuxjp.org/images/amplogo.png",
+               "url": "https://www.archlinux.jp/images/amplogo.png",
                "height": 1024,
                "width": 1024
              },
@@ -77,13 +77,13 @@ function GoogleRichCards(&$out) {
                "name": "Arch Linux JP Project",
                "logo": {
                  "@type": "ImageObject",
-                 "url": "https://www.archlinuxjp.org/images/archlogo.png"
+                 "url": "https://www.archlinux.jp/images/archlogo.png"
                }
              },
              "description": "'.$wgTitle->getText().'",
              "potentialAction": {
                "@type": "SearchAction",
-               "target": "https://wiki.archlinuxjp.org/index.php?title=%E7%89%B9%E5%88%A5:%E6%A4%9C%E7%B4%A2&search={search_term}",
+               "target": "https://wiki.archlinux.jp/index.php?title=%E7%89%B9%E5%88%A5:%E6%A4%9C%E7%B4%A2&search={search_term}",
                "query-input": "required name=search_term"
              }
            }

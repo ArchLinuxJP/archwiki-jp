@@ -3,10 +3,14 @@
 		"authors": [
 			"Danmichaelo",
 			"Event",
-			"Nghtwlkr"
+			"Nghtwlkr",
+			"Jon Harald Søby"
 		]
 	},
+	"skinname-vector": "Vector",
 	"vector-skin-desc": "Moderne versjon av MonoBook med et friskt utseende og mange bruksforbedringer",
+	"vector.css": "/* CSS i denne fila vil gjelde alle som bruker drakta Vector */",
+	"vector.js": "/* Javascript i denne fila vil gjelde for brukere av drakta Vector */",
 	"vector-action-addsection": "Nytt emne",
 	"vector-action-delete": "Slett",
 	"vector-action-move": "Flytt",
@@ -18,5 +22,7 @@
 	"vector-view-history": "Vis historikk",
 	"vector-view-view": "Les",
 	"vector-view-viewsource": "Vis kilden",
+	"vector-jumptonavigation": "Hopp til navigering",
+	"vector-jumptosearch": "Hopp til søk",
 	"vector-more-actions": "Mer"
 }

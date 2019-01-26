@@ -1,7 +1,7 @@
 /*!
  * VisualEditor utilities.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -37,6 +37,12 @@ ve.getProp = OO.getProp;
  * @inheritdoc OO#setProp
  */
 ve.setProp = OO.setProp;
+
+/**
+ * @method
+ * @inheritdoc OO#deleteProp
+ */
+ve.deleteProp = OO.deleteProp;
 
 /**
  * @method
@@ -400,7 +406,7 @@ ve.batchPush = function ( arr, data ) {
  * @param {...Mixed} [args] Data to log
  */
 ve.log = ve.log || function () {
-	// don't do anything, this is just a stub
+	// Don't do anything, this is just a stub
 };
 
 /**
@@ -411,7 +417,7 @@ ve.log = ve.log || function () {
  * @param {...Mixed} [args] Data to log
  */
 ve.error = ve.error || function () {
-	// don't do anything, this is just a stub
+	// Don't do anything, this is just a stub
 };
 
 /**
@@ -422,7 +428,7 @@ ve.error = ve.error || function () {
  * @param {Object} obj
  */
 ve.dir = ve.dir || function () {
-	// don't do anything, this is just a stub
+	// Don't do anything, this is just a stub
 };
 
 /**
@@ -719,16 +725,16 @@ ve.isVoidElement = function ( element ) {
 ve.elementTypes = {
 	block: [
 		'div', 'p',
-		// tables
+		// Tables
 		'table', 'tbody', 'thead', 'tfoot', 'caption', 'th', 'tr', 'td',
-		// lists
+		// Lists
 		'ul', 'ol', 'li', 'dl', 'dt', 'dd',
 		// HTML5 heading content
 		'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hgroup',
 		// HTML5 sectioning content
 		'article', 'aside', 'body', 'nav', 'section', 'footer', 'header', 'figure',
 		'figcaption', 'fieldset', 'details', 'blockquote',
-		// other
+		// Other
 		'hr', 'button', 'canvas', 'center', 'col', 'colgroup', 'embed',
 		'map', 'object', 'pre', 'progress', 'video'
 	],
@@ -832,7 +838,7 @@ ve.createDocumentFromHtmlUsingDomParser = function ( html ) {
  * @return {HTMLDocument|undefined} Document constructed from the HTML string or undefined if it failed
  */
 ve.createDocumentFromHtmlUsingIframe = function ( html ) {
-	var newDocument, $iframe, iframe;
+	var newDocument, iframe;
 
 	// Here's what this fallback code should look like:
 	//
@@ -866,8 +872,10 @@ ve.createDocumentFromHtmlUsingIframe = function ( html ) {
 	html = html || '<body></body>';
 
 	// Create an invisible iframe
-	$iframe = $( '<iframe frameborder="0" width="0" height="0" />' );
-	iframe = $iframe.get( 0 );
+	iframe = document.createElement( 'iframe' );
+	iframe.setAttribute( 'frameborder', '0' );
+	iframe.setAttribute( 'width', '0' );
+	iframe.setAttribute( 'height', '0' );
 	// Attach it to the document. We have to do this to get a new document out of it
 	document.documentElement.appendChild( iframe );
 	// Write the HTML to it
@@ -1043,8 +1051,30 @@ ve.fixBase = function ( targetDoc, sourceDoc, fallbackBase ) {
 ve.targetLinksToNewWindow = function ( container ) {
 	// Make all links open in a new window
 	Array.prototype.forEach.call( container.querySelectorAll( 'a[href]' ), function ( el ) {
+		ve.appendToRel( el, 'noopener' );
 		el.setAttribute( 'target', '_blank' );
 	} );
+};
+
+/**
+ * Add a value to an element's rel attribute if it's not already present
+ *
+ * Rel is like class: it's actually a set, represented as a string. We don't
+ * want to add the same value to the attribute if this function is called
+ * repeatedly. This is mostly a placeholder for the relList property someday
+ * becoming widely supported.
+ *
+ * @param  {HTMLElement} element DOM element whose attribute should be checked
+ * @param  {string} value New rel value to be added
+ */
+ve.appendToRel = function ( element, value ) {
+	var rel = element.getAttribute( 'rel' );
+	if ( !rel ) {
+		// Avoid all that string-creation if it's not needed
+		element.setAttribute( 'rel', value );
+	} else if ( ( ' ' + rel + ' ' ).indexOf( ' ' + value + ' ' ) === -1 ) {
+		element.setAttribute( 'rel', rel + ' ' + value );
+	}
 };
 
 /**
@@ -1379,6 +1409,8 @@ ve.translateRect = function ( rect, x, y ) {
 /**
  * Get the start and end rectangles (in a text flow sense) from a list of rectangles
  *
+ * The start rectangle is the top-most, and the end rectangle is the bottom-most.
+ *
  * @param {Array} rects Full list of rectangles
  * @return {Object|null} Object containing two rectangles: start and end, or null if there are no rectangles
  */
@@ -1474,7 +1506,7 @@ ve.getCommonAncestor = function () {
 			return null;
 		}
 		if ( i > 0 && chain[ 0 ] !== chains[ chains.length - 1 ][ 0 ] ) {
-			// no common ancestor (different documents or unattached branches)
+			// No common ancestor (different documents or unattached branches)
 			return null;
 		}
 		if ( minHeight === null || minHeight > chain.length ) {

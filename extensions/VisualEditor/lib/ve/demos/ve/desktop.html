@@ -4,16 +4,13 @@
 	/*!
 	 * VisualEditor standalone demo
 	 *
-	 * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+	 * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
 	 */
 	-->
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<title>VisualEditor Standalone Demo</title>
-
-		<!-- visualEditor.standalone.build -->
-		<link rel=stylesheet href="../../src/ui/styles/ve.ui.DebugBar.css">
 
 		<!-- oojs-ui-apex -->
 		<link rel=stylesheet href="../../lib/oojs-ui/oojs-ui-apex.css" class="stylesheet-ltr">
@@ -79,22 +76,23 @@
 		<link rel=stylesheet href="../../src/ui/styles/contextitems/ve.ui.LanguageContextItem.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ui/styles/contextitems/ve.ui.LinkContextItem.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ui/styles/contextitems/ve.ui.ToolContextItem.css" class="stylesheet-ve">
-		<link rel=stylesheet href="../../src/ui/styles/ve.ui.Icons.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ui/styles/ve.ui.Overlay.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ui/styles/ve.ui.Surface.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ui/styles/widgets/ve.ui.TargetWidget.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ui/styles/ve.ui.TableLineContext.css" class="stylesheet-ve">
 		<link rel=stylesheet href="../../src/ui/styles/ve.ui.Toolbar.css" class="stylesheet-ve">
 
+		<!-- visualEditor.diffing -->
+		<link rel=stylesheet href="../../src/ui/styles/elements/ve.ui.DiffElement.css">
+
+		<!-- visualEditor.standalone.build -->
+		<link rel=stylesheet href="../../src/ui/styles/ve.ui.DebugBar.css">
+
 		<!-- visualEditor.desktop.build -->
 		<link rel=stylesheet href="../../src/ui/styles/ve.ui.DesktopContext.css">
 
 		<!-- visualEditor.theme.apex -->
-		<link rel=stylesheet href="../../src/themes/apex/dialogs.css">
-		<link rel=stylesheet href="../../src/themes/apex/widgets.css">
-
-		<!-- visualEditor.diffing -->
-		<link rel=stylesheet href="../../src/ui/styles/elements/ve.ui.DiffElement.css">
+		<link rel=stylesheet href="../../src/themes/apex.css">
 
 		<!-- visualEditor.standalone.read -->
 		<link rel=stylesheet href="../../src/init/sa/styles/ve.init.sa.css" class="stylesheet-read">
@@ -122,6 +120,9 @@
 		<script src="../../lib/oojs-ui/oojs-ui-widgets.js"></script>
 		<script src="../../lib/oojs-ui/oojs-ui-toolbars.js"></script>
 		<script src="../../lib/oojs-ui/oojs-ui-windows.js"></script>
+
+		<!-- oojs-ui-apex -->
+		<script src="../../lib/oojs-ui/oojs-ui-apex.js"></script>
 
 		<!-- CLDRPluralRuleParser -->
 		<script src="../../lib/jquery.i18n/libs/CLDRPluralRuleParser/src/CLDRPluralRuleParser.js"></script>
@@ -181,14 +182,6 @@
 		<script src="../../src/init/ve.init.Platform.js"></script>
 		<script src="../../src/init/ve.init.Target.js"></script>
 
-		<!-- visualEditor.standalone.build -->
-		<script src="../../src/init/sa/ve.init.sa.js"></script>
-		<script src="../../src/init/sa/ve.init.sa.Platform.js"></script>
-		<script src="../../src/init/sa/ve.init.sa.Target.js"></script>
-
-		<!-- oojs-ui-apex -->
-		<script src="../../lib/oojs-ui/oojs-ui-apex.js"></script>
-
 		<!-- visualEditor.core.build -->
 		<script src="../../src/ve.Range.js"></script>
 		<script src="../../src/ve.SelectionState.js"></script>
@@ -207,7 +200,6 @@
 		<script src="../../src/dm/ve.dm.NodeFactory.js"></script>
 		<script src="../../src/dm/ve.dm.AnnotationFactory.js"></script>
 		<script src="../../src/dm/ve.dm.AnnotationSet.js"></script>
-		<script src="../../src/dm/ve.dm.MetaItemFactory.js"></script>
 		<script src="../../src/dm/ve.dm.ClassAttributeNode.js"></script>
 		<script src="../../src/dm/ve.dm.AlignableNode.js"></script>
 		<script src="../../src/dm/ve.dm.FocusableNode.js"></script>
@@ -240,14 +232,13 @@
 		<script src="../../src/dm/ve.dm.DocumentSlice.js"></script>
 		<script src="../../src/dm/ve.dm.TableSlice.js"></script>
 		<script src="../../src/dm/ve.dm.LinearData.js"></script>
-		<script src="../../src/dm/ve.dm.IndexValueStore.js"></script>
+		<script src="../../src/dm/ve.dm.HashValueStore.js"></script>
 		<script src="../../src/dm/ve.dm.Converter.js"></script>
 		<script src="../../src/dm/selections/ve.dm.LinearSelection.js"></script>
 		<script src="../../src/dm/selections/ve.dm.NullSelection.js"></script>
 		<script src="../../src/dm/selections/ve.dm.TableSelection.js"></script>
 		<script src="../../src/dm/lineardata/ve.dm.FlatLinearData.js"></script>
 		<script src="../../src/dm/lineardata/ve.dm.ElementLinearData.js"></script>
-		<script src="../../src/dm/lineardata/ve.dm.MetaLinearData.js"></script>
 		<script src="../../src/dm/nodes/ve.dm.GeneratedContentNode.js"></script>
 		<script src="../../src/dm/nodes/ve.dm.AlienNode.js"></script>
 		<script src="../../src/dm/nodes/ve.dm.ArticleNode.js"></script>
@@ -319,6 +310,7 @@
 		<script src="../../src/ce/ve.ce.BranchNode.js"></script>
 		<script src="../../src/ce/ve.ce.ContentBranchNode.js"></script>
 		<script src="../../src/ce/ve.ce.LeafNode.js"></script>
+		<script src="../../src/ce/ve.ce.MetaItem.js"></script>
 		<script src="../../src/ce/ve.ce.ClassAttributeNode.js"></script>
 		<script src="../../src/ce/ve.ce.AlignableNode.js"></script>
 		<script src="../../src/ce/ve.ce.FocusableNode.js"></script>
@@ -503,10 +495,6 @@
 		<script src="../../src/ui/inspectors/ve.ui.LanguageInspector.js"></script>
 		<script src="../../src/ui/pages/ve.ui.SpecialCharacterPage.js"></script>
 
-		<!-- visualEditor.desktop.build -->
-		<script src="../../src/ui/contexts/ve.ui.DesktopContext.js"></script>
-		<script src="../../src/ui/windowmanagers/ve.ui.DesktopInspectorWindowManager.js"></script>
-
 		<!-- treeDiffer -->
 		<script src="../../lib/treeDiffer/treeDiffer-dist.js"></script>
 
@@ -523,13 +511,24 @@
 		<!-- visualEditor.diffing.standalone -->
 		<script src="../../src/ui/dialogs/ve.ui.DiffDialog.js"></script>
 
+		<!-- visualEditor.standalone.build -->
+		<script src="../../src/init/sa/ve.init.sa.js"></script>
+		<script src="../../src/init/sa/ve.init.sa.Platform.js"></script>
+		<script src="../../src/init/sa/ve.init.sa.Target.js"></script>
+
+		<!-- visualEditor.desktop.build -->
+		<script src="../../src/ui/contexts/ve.ui.DesktopContext.js"></script>
+		<script src="../../src/ui/windowmanagers/ve.ui.DesktopInspectorWindowManager.js"></script>
+
 		<!-- visualEditor.desktop.standalone -->
 		<script src="../../src/init/sa/ve.init.sa.DesktopTarget.js"></script>
 
 		<script>
+			/* eslint-disable */
 			ve.messagePaths = ["../../i18n/","../../lib/oojs-ui/i18n/"];
-			ve.availableLanguages = ["ace","af","ais","am","ang","ar","arc","arq","as","ast","av","az","azb","ba","bcc","bcl","be-tarask","be","bg","bho","bn","bqi","br","bs","ca","cdo","ce","cjy-hant","ckb","co","cs","cu","cy","da","de","diq","dsb","dty","egl","el","eml","en-ca","en-gb","en","eo","es","et","eu","fa","fi","fo","fr","frp","frr","fur","fy","ga","gd","gl","glk","gn","gom-latn","gor","gsw","gu","gv","he","hi","hr","hrx","hsb","hu-formal","hu","hy","ia","id","ie","ilo","inh","io","is","it","ja","jv","ka","kab","khw","kk-cyrl","km","kn","ko-kp","ko","krc","kri","krl","ksh","ku-latn","kw","ky","la","lb","lez","li","lki","lmo","lrc","lt","luz","lv","lzh","lzz","mg","min","mk","ml","mn","mr","ms","mt","nan","nap","nb","nds-nl","nds","ne","nl","nn","oc","olo","om","or","os","pa","pam","pfl","pl","pms","ps","pt-br","pt","qqq","qu","rm","ro","roa-tara","ru","rue","sa","sah","sc","scn","sco","sd","sgs","sh","shn","si","sk","skr-arab","sl","sq","sr-ec","sr-el","su","sv","sw","ta","tay","te","tg-cyrl","th","tl","tr","tt-cyrl","tyv","tzm","ug-arab","uk","ur","uz","vec","vep","vi","vo","war","wuu","xmf","yi","yue","zh-hans","zh-hant","ace","af","ais","am","ar","arc","arq","as","ast","awa","az","azb","ba","bcc","bcl","be-tarask","be","bg","bho","bn","bqi","br","bs","ca","cdo","ce","ckb","co","crh-cyrl","crh-latn","cs","cu","cy","da","de","diq","dsb","dty","egl","el","eml","en-ca","en","eo","es","et","eu","fa","fi","fo","fr","frr","fur","fy","gd","gl","glk","gom-latn","gor","gu","he","hi","hif-latn","hr","hrx","hsb","hu-formal","hu","hy","ia","id","ie","ilo","inh","io","is","it","ja","jv","ka","kab","khw","kk-cyrl","km","kn","ko","krc","krl","ksh","ku-latn","kw","ky","la","lb","li","lki","lmo","lt","luz","lv","lzh","mg","min","mk","ml","mn","mr","ms","nan","nap","nb","nds-nl","nds","ne","nl","nn","oc","olo","om","or","pa","pfl","pl","pms","pnb","ps","pt-br","pt","qqq","qu","ro","roa-tara","ru","sa","sah","scn","sco","sd","sh","shn","si","sk","skr-arab","sl","sq","sr-ec","sr-el","su","sv","sw","ta","te","tg-cyrl","th","tl","tr","tt-cyrl","ug-arab","uk","ur","uz","vec","vep","vi","vo","war","wuu","xmf","yi","yo","yue","zh-hans","zh-hant"];
-			ve.demoPages = {"aliens":"pages/aliens.html","comments":"pages/comments.html","complex":"pages/complex.html","empty":"pages/empty.html","h1":"pages/h1.html","image":"pages/image.html","isolation":"pages/isolation.html","long":"pages/long.html","rtl":"pages/rtl.html","sections":"pages/sections.html","simple":"pages/simple.html","slugs":"pages/slugs.html","tables":"pages/tables.html"};
+			ve.availableLanguages = ["ace","af","ais","am","ang","ar","arc","arq","as","ast","av","az","azb","ba","bcc","bcl","be-tarask","be","bg","bho","bn","bqi","br","bs","ca","cdo","ce","cjy-hant","ckb","co","cs","cu","cy","da","de","diq","dsb","dty","egl","el","eml","en-ca","en-gb","en","eo","es","et","eu","fa","fi","fo","fr","frp","frr","fur","fy","ga","gd","gl","glk","gn","gom-latn","gor","gsw","gu","gv","he","hi","hr","hrx","hsb","hu-formal","hu","hy","ia","id","ie","ilo","inh","io","is","it","ja","jv","ka","kab","khw","kk-cyrl","km","kn","ko-kp","ko","krc","kri","krl","ksh","ku-latn","kw","ky","la","lb","lez","li","lki","lmo","lrc","lt","luz","lv","lzh","lzz","mg","min","mk","ml","mn","mr","ms","mt","myv","nan","nap","nb","nds-nl","nds","ne","nl","nn","oc","olo","om","or","os","pa","pam","pfl","pl","pms","ps","pt-br","pt","qqq","qu","rm","ro","roa-tara","ru","rue","sa","sah","sc","scn","sco","sd","sgs","sh","shn","si","sk","skr-arab","sl","sq","sr-ec","sr-el","su","sv","sw","ta","tay","te","tg-cyrl","th","tl","tr","tt-cyrl","tyv","tzm","ug-arab","uk","ur","uz","vec","vep","vi","vo","war","wuu","xmf","yi","yue","zh-hans","zh-hant","ace","af","ais","am","ar","arc","arq","as","ast","awa","az","azb","ba","bcc","bcl","be-tarask","be","bg","bho","bn","bqi","br","bs","ca","cdo","ce","ckb","co","crh-cyrl","crh-latn","cs","cu","cy","da","de","diq","dsb","dty","egl","el","eml","en-ca","en-gb","en","eo","es","et","eu","fa","fi","fo","fr","frr","fur","fy","gd","gl","glk","gom-latn","gor","gu","he","hi","hif-latn","hr","hrx","hsb","hu-formal","hu","hy","ia","id","ie","ilo","inh","io","is","it","ja","jv","ka","kab","khw","kk-cyrl","km","kn","ko","krc","krl","ksh","ku-latn","kw","ky","la","lb","li","lki","lmo","lt","luz","lv","lzh","mg","min","mk","ml","mn","mr","ms","myv","nan","nap","nb","nds-nl","nds","ne","nl","nn","oc","olo","om","or","pa","pfl","pl","pms","pnb","ps","pt-br","pt","qqq","qu","ro","roa-tara","ru","sa","sah","scn","sco","sd","sh","shn","si","sk","skr-arab","sl","sq","sr-ec","sr-el","su","sv","sw","ta","tay","te","tg-cyrl","th","tl","tr","tt-cyrl","ug-arab","uk","ur","uz","vec","vep","vi","vo","war","wuu","xmf","yi","yo","yue","zh-hans","zh-hant"];
+			ve.demoPages = {"aliens":"pages/aliens.html","comments":"pages/comments.html","complex":"pages/complex.html","empty":"pages/empty.html","h1":"pages/h1.html","image":"pages/image.html","isolation":"pages/isolation.html","long":"pages/long.html","meta":"pages/meta.html","rtl":"pages/rtl.html","sections":"pages/sections.html","simple":"pages/simple.html","slugs":"pages/slugs.html","tables":"pages/tables.html"};
+			/* eslint-enable */
 		</script>
 
 		<!-- visualEditor.standalone.demo -->

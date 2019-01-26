@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel MWImageModel class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -179,7 +179,7 @@ ve.dm.MWImageModel.static.newFromImageAttributes = function ( attrs, parentDoc )
 	imgModel.cacheOriginalImageAttributes( attrs );
 
 	imgModel.setImageSource( attrs.src );
-	imgModel.setFilename( new mw.Title( attrs.resource.replace( /^(\.\.?\/)*/, '' ) ).getMainText() );
+	imgModel.setFilename( new mw.Title( ve.normalizeParsoidResourceName( attrs.resource ) ).getMainText() );
 	imgModel.setImageHref( attrs.href );
 
 	// Set bounding box
@@ -283,7 +283,7 @@ ve.dm.MWImageModel.prototype.changeImageSource = function ( attrs, APIinfo ) {
 	}
 	if ( attrs.resource ) {
 		this.setImageResourceName( attrs.resource );
-		this.setFilename( new mw.Title( attrs.resource.replace( /^(\.\.?\/)*/, '' ) ).getMainText() );
+		this.setFilename( new mw.Title( ve.normalizeParsoidResourceName( attrs.resource ) ).getMainText() );
 	}
 
 	if ( attrs.src ) {
@@ -458,7 +458,7 @@ ve.dm.MWImageModel.prototype.insertImageNode = function ( fragment ) {
 
 	switch ( nodeType ) {
 		case 'mwInlineImage':
-			if ( selectedNode.type === 'mwBlockImage' ) {
+			if ( selectedNode && selectedNode.type === 'mwBlockImage' ) {
 				// If converting from a block image, create a wrapper paragraph for the inline image to go in.
 				fragment.insertContent( [ { type: 'paragraph', internal: { generated: 'wrapper' } }, { type: '/paragraph' } ] );
 				offset = fragment.getSelection().getRange().start + 1;
@@ -1132,7 +1132,7 @@ ve.dm.MWImageModel.prototype.getImageHref = function () {
  * @param {ve.dm.Scalable} scalable Scalable object
  */
 ve.dm.MWImageModel.prototype.attachScalable = function ( scalable ) {
-	var imageName = this.getResourceName().replace( /^(\.\.?\/)*/, '' ),
+	var imageName = ve.normalizeParsoidResourceName( this.getResourceName() ),
 		imageModel = this;
 
 	if ( this.scalable instanceof ve.dm.Scalable ) {
@@ -1173,7 +1173,7 @@ ve.dm.MWImageModel.prototype.attachScalable = function ( scalable ) {
 /**
  * Set the filename of the current image
  *
- * @param {string} filename Image filename
+ * @param {string} filename Image filename (without namespace)
  */
 ve.dm.MWImageModel.prototype.setFilename = function ( filename ) {
 	this.filename = filename;
@@ -1182,7 +1182,7 @@ ve.dm.MWImageModel.prototype.setFilename = function ( filename ) {
 /**
  * Get the filename of the current image
  *
- * @return {string} filename Image filename
+ * @return {string} filename Image filename (without namespace)
  */
 ve.dm.MWImageModel.prototype.getFilename = function () {
 	return this.filename;

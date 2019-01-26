@@ -4,14 +4,18 @@
 			"Milicevic01",
 			"Rancher",
 			"Жељко Тодоровић",
-			"Михајло Анђелковић"
+			"Михајло Анђелковић",
+			"Obsuser",
+			"Acamicamacaraca",
+			"BadDog"
 		]
 	},
-	"skinname-vector": "Векторско",
-	"vector.css": "/* CSS постављен овде ће утицати на све кориснике теме „Векторско“ */",
-	"vector.js": "/* Јаваскрипт постављен овде ће се учитати за све оне који користе тему „Векторско“ */",
+	"skinname-vector": "Векторска",
+	"vector-skin-desc": "Модерна верзија Монобука са свежим изгледом и много корисних побољшања",
+	"vector.css": "/* CSS постављен овде ће утицати на све кориснике векторске теме */",
+	"vector.js": "/* JavaScript постављен овде ће се учитати за све оне који користе векторску тему */",
 	"vector-action-addsection": "Додај тему",
-	"vector-action-delete": "Обриши",
+	"vector-action-delete": "Избриши",
 	"vector-action-move": "Премести",
 	"vector-action-protect": "Заштити",
 	"vector-action-undelete": "Врати",
@@ -20,6 +24,8 @@
 	"vector-view-edit": "Уреди",
 	"vector-view-history": "Историја",
 	"vector-view-view": "Читај",
-	"vector-view-viewsource": "Изворни код",
+	"vector-view-viewsource": "Извор",
+	"vector-jumptonavigation": "Иди на навигацију",
+	"vector-jumptosearch": "Иди на претрагу",
 	"vector-more-actions": "Више"
 }

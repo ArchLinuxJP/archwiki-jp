@@ -1,7 +1,7 @@
 /*!
  * VisualEditor CommandRegistry class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -244,6 +244,18 @@ ve.ui.commandRegistry.register(
 	new ve.ui.Command(
 		'selectAll', 'content', 'selectAll',
 		{ supportedSelections: [ 'linear', 'table' ] }
+	)
+);
+ve.ui.commandRegistry.register(
+	new ve.ui.Command(
+		'delete', 'content', 'remove',
+		{ args: [ 'delete' ], supportedSelections: [ 'linear', 'table' ] }
+	)
+);
+ve.ui.commandRegistry.register(
+	new ve.ui.Command(
+		'backspace', 'content', 'remove',
+		{ args: [ 'backspace' ], supportedSelections: [ 'linear', 'table' ] }
 	)
 );
 ve.ui.commandRegistry.register(

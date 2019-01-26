@@ -10,13 +10,14 @@ use Http;
 use LinksUpdate;
 use PageImages;
 use Title;
+use Revision;
 
 /**
  * Handler for the "LinksUpdate" hook.
  *
- * @license WTFPL 2.0
+ * @license WTFPL
  * @author Max Semenik
- * @author Thiemo Mättig
+ * @author Thiemo Kreuz
  */
 class LinksUpdateHookHandler {
 
@@ -25,7 +26,7 @@ class LinksUpdateHookHandler {
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LinksUpdate
 	 *
-	 * @param LinksUpdate $linksUpdate
+	 * @param LinksUpdate $linksUpdate the LinksUpdate object that this hook is parsing
 	 */
 	public static function onLinksUpdate( LinksUpdate $linksUpdate ) {
 		$handler = new self();
@@ -35,7 +36,8 @@ class LinksUpdateHookHandler {
 	/**
 	 * Returns a list of page image candidates for consideration
 	 * for scoring algorithm.
-	 * @param LinksUpdate $linksUpdate
+	 * @param LinksUpdate $linksUpdate LinksUpdate object used to determine what page
+	 * to get page images for
 	 * @return array $image Associative array describing an image
 	 */
 	public function getPageImageCandidates( LinksUpdate $linksUpdate ) {
@@ -44,6 +46,9 @@ class LinksUpdateHookHandler {
 
 		if ( $wgPageImagesLeadSectionOnly ) {
 			$rev = $linksUpdate->getRevision();
+			if ( !$rev ) {
+				$rev = Revision::newFromTitle( $linksUpdate->getTitle() );
+			}
 			if ( $rev ) {
 				$content = $rev->getContent();
 				if ( $content ) {
@@ -63,7 +68,7 @@ class LinksUpdateHookHandler {
 	}
 
 	/**
-	 * @param LinksUpdate $linksUpdate
+	 * @param LinksUpdate $linksUpdate the LinksUpdate object that was passed to the handler
 	 */
 	public function doLinksUpdate( LinksUpdate $linksUpdate ) {
 		$images = $this->getPageImageCandidates( $linksUpdate );
@@ -147,8 +152,9 @@ class LinksUpdateHookHandler {
 	/**
 	 * Returns score based on table of ranges
 	 *
-	 * @param int $value
-	 * @param int[] $scores
+	 * @param int $value The number that the various bounds are compared against
+	 * to calculate the score
+	 * @param int[] $scores Table of scores for different ranges of $value
 	 *
 	 * @return int
 	 */
@@ -185,14 +191,16 @@ class LinksUpdateHookHandler {
 	/**
 	 * Fetch file metadata
 	 *
-	 * @param File $file
+	 * @param File $file File to fetch metadata from
 	 * @return array
 	 */
 	protected function fetchFileMetadata( $file ) {
 		$format = new FormatMetadata;
 		$context = new DerivativeContext( $format->getContext() );
-		$format->setSingleLanguage( true ); // we don't care and it's slightly faster
-		$context->setLanguage( 'en' ); // we don't care so avoid splitting the cache
+		// we don't care about the language, and specifying singleLanguage is slightly faster
+		$format->setSingleLanguage( true );
+		// we don't care about the language, so avoid splitting the cache by selecting English
+		$context->setLanguage( 'en' );
 		$format->setContext( $context );
 		return $format->fetchExtendedMetadata( $file );
 	}
@@ -200,7 +208,7 @@ class LinksUpdateHookHandler {
 	/**
 	 * Returns width/height ratio of an image as displayed or 0 is not available
 	 *
-	 * @param array $image
+	 * @param array $image Array representing the image to get the aspect ratio from
 	 *
 	 * @return float|int
 	 */
@@ -266,7 +274,7 @@ class LinksUpdateHookHandler {
 	 * @return string[]
 	 */
 	private function getDbBlacklist( $dbName, $page ) {
-		$dbr = wfGetDB( DB_SLAVE, [], $dbName );
+		$dbr = wfGetDB( DB_REPLICA, [], $dbName );
 		$title = Title::newFromText( $page );
 		$list = [];
 
@@ -304,7 +312,7 @@ class LinksUpdateHookHandler {
 		global $wgFileExtensions;
 
 		$list = [];
-		$text = Http::get( $url, 3 );
+		$text = Http::get( $url, [ 'timeout' => 3 ], __METHOD__ );
 		$regex = '/\[\[:([^|\#]*?\.(?:' . implode( '|', $wgFileExtensions ) . '))/i';
 
 		if ( $text && preg_match_all( $regex, $text, $matches ) ) {

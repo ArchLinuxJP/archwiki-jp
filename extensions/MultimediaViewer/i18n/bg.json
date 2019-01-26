@@ -1,0 +1,22 @@
+{
+	"@metadata": {
+		"authors": [
+			"Mitzev",
+			"DCLXVI",
+			"Vodnokon4e",
+			"StanProg",
+			"ShockD"
+		]
+	},
+	"multimediaviewer-optin-pref": "Включване на <span class=\"plainlinks\">[https://www.mediawiki.org/wiki/Special:MyLanguage/Extension:Media_Viewer/About Media Viewer]</span>",
+	"multimediaviewer-datetime-created": "Създадено: $1",
+	"multimediaviewer-permission-title": "Данни за разрешението",
+	"multimediaviewer-permission-link": "преглед на условията",
+	"multimediaviewer-permission-viewmore": "Вижте още",
+	"multimediaviewer-help-mmv": "Помощ",
+	"multimediaviewer-optin-mmv": "Включване на Media Viewer",
+	"multimediaviewer-share-tab": "Споделяне",
+	"multimediaviewer-title-popup-text": "Описание",
+	"multimediaviewer-title-popup-text-more": "Преглед на пълното описание",
+	"multimediaviewer-credit-popup-text-more": "Показване на цялостна информация за автора и източника"
+}

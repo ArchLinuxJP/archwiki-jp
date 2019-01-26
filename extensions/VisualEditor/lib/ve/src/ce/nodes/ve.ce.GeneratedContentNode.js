@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable GeneratedContentNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -198,8 +198,10 @@ ve.ce.GeneratedContentNode.prototype.render = function ( generatedContents, stag
 	}
 
 	// Update focusable and resizable elements if necessary
+	// TODO: Move these method definitions to their respective mixins.
 	if ( this.$focusable ) {
 		this.$focusable = this.getFocusableElement();
+		this.$bounding = this.getBoundingElement();
 	}
 	if ( this.$resizable ) {
 		this.$resizable = this.getResizableElement();
@@ -245,7 +247,7 @@ ve.ce.GeneratedContentNode.prototype.validateGeneratedContents = function () {
  */
 ve.ce.GeneratedContentNode.prototype.update = function ( config, staged ) {
 	var store = this.model.doc.getStore(),
-		contents = store.value( store.indexOfValue( null, OO.getHash( [ this.model.getHashObjectForRendering(), config ] ) ) );
+		contents = store.value( store.hashOfValue( null, OO.getHash( [ this.model.getHashObjectForRendering(), config ] ) ) );
 	if ( contents ) {
 		this.render( contents, staged );
 	} else {
@@ -334,7 +336,7 @@ ve.ce.GeneratedContentNode.prototype.doneGenerating = function ( generatedConten
 	if ( this.model && this.model.doc ) {
 		store = this.model.doc.getStore();
 		hash = OO.getHash( [ this.model.getHashObjectForRendering(), config ] );
-		store.index( generatedContents, hash );
+		store.hash( generatedContents, hash );
 	}
 
 	this.$element.removeClass( 've-ce-generatedContentNode-generating' );
@@ -367,6 +369,15 @@ ve.ce.GeneratedContentNode.prototype.isGenerating = function () {
  * @return {jQuery} Focusable element
  */
 ve.ce.GeneratedContentNode.prototype.getFocusableElement = function () {
+	return this.$element;
+};
+
+/**
+ * Get the bounding element
+ *
+ * @return {jQuery} Bounding element
+ */
+ve.ce.GeneratedContentNode.prototype.getBoundingElement = function () {
 	return this.$element;
 };
 

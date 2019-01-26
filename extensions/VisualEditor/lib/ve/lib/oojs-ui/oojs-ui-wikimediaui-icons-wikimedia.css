@@ -1,93 +1,46 @@
 /*!
- * OOjs UI v0.23.0
- * https://www.mediawiki.org/wiki/OOjs_UI
+ * OOUI v0.26.3
+ * https://www.mediawiki.org/wiki/OOUI
  *
- * Copyright 2011–2017 OOjs UI Team and other contributors.
+ * Copyright 2011–2018 OOUI Team and other contributors.
  * Released under the MIT license
  * http://oojs.mit-license.org
  *
- * Date: 2017-09-05T21:24:03Z
+ * Date: 2018-04-10T22:15:43Z
  */
 /**
- * WikimediaUI Base v0.9.2
+ * WikimediaUI Base v0.10.0
  * Wikimedia Foundation user interface base variables
  */
-/* Colors */
-/* Positioning */
-/* Box Model properties */
-/* Max Widths */
-/* Typography incl. print properties */
-/* Other Properties */
-/* Animation & Transition */
 .oo-ui-icon-logoCC {
-  background-image: url('themes/wikimediaui/images/icons/logo-cc.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-cc.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-cc.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-cc.png');
+  background-image: url('themes/wikimediaui/images/icons/logo-CC.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-CC.svg');
 }
 .oo-ui-image-invert.oo-ui-icon-logoCC {
-  background-image: url('themes/wikimediaui/images/icons/logo-cc-invert.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-cc-invert.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-cc-invert.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-cc-invert.png');
-}
-.oo-ui-image-progressive.oo-ui-icon-logoCC {
-  background-image: url('themes/wikimediaui/images/icons/logo-cc-progressive.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-cc-progressive.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-cc-progressive.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-cc-progressive.png');
+  background-image: url('themes/wikimediaui/images/icons/logo-CC-invert.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-CC-invert.svg');
 }
 .oo-ui-icon-logoWikimediaCommons {
-  background-image: url('themes/wikimediaui/images/icons/logo-wikimediaCommons.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaCommons.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaCommons.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-wikimediaCommons.png');
+  background-image: url('themes/wikimediaui/images/icons/logo-Wikimedia-Commons.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-Wikimedia-Commons.svg');
 }
 .oo-ui-image-invert.oo-ui-icon-logoWikimediaCommons {
-  background-image: url('themes/wikimediaui/images/icons/logo-wikimediaCommons-invert.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaCommons-invert.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaCommons-invert.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-wikimediaCommons-invert.png');
-}
-.oo-ui-image-progressive.oo-ui-icon-logoWikimediaCommons {
-  background-image: url('themes/wikimediaui/images/icons/logo-wikimediaCommons-progressive.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaCommons-progressive.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaCommons-progressive.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-wikimediaCommons-progressive.png');
+  background-image: url('themes/wikimediaui/images/icons/logo-Wikimedia-Commons-invert.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-Wikimedia-Commons-invert.svg');
 }
 .oo-ui-icon-logoWikimediaDiscovery {
-  background-image: url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery.png');
+  background-image: url('themes/wikimediaui/images/icons/logo-Wikimedia-Discovery.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-Wikimedia-Discovery.svg');
 }
 .oo-ui-image-invert.oo-ui-icon-logoWikimediaDiscovery {
-  background-image: url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery-invert.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery-invert.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery-invert.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery-invert.png');
-}
-.oo-ui-image-progressive.oo-ui-icon-logoWikimediaDiscovery {
-  background-image: url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery-progressive.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery-progressive.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery-progressive.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-wikimediaDiscovery-progressive.png');
+  background-image: url('themes/wikimediaui/images/icons/logo-Wikimedia-Discovery-invert.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-Wikimedia-Discovery-invert.svg');
 }
 .oo-ui-icon-logoWikipedia {
-  background-image: url('themes/wikimediaui/images/icons/logo-wikipedia.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikipedia.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikipedia.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-wikipedia.png');
+  background-image: url('themes/wikimediaui/images/icons/logo-Wikipedia.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-Wikipedia.svg');
 }
 .oo-ui-image-invert.oo-ui-icon-logoWikipedia {
-  background-image: url('themes/wikimediaui/images/icons/logo-wikipedia-invert.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikipedia-invert.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikipedia-invert.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-wikipedia-invert.png');
-}
-.oo-ui-image-progressive.oo-ui-icon-logoWikipedia {
-  background-image: url('themes/wikimediaui/images/icons/logo-wikipedia-progressive.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikipedia-progressive.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-wikipedia-progressive.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/logo-wikipedia-progressive.png');
+  background-image: url('themes/wikimediaui/images/icons/logo-Wikipedia-invert.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/logo-Wikipedia-invert.svg');
 }

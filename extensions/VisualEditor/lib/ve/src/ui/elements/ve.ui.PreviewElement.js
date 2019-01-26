@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface PreviewElement class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -106,6 +106,7 @@ ve.ui.PreviewElement.prototype.updatePreview = function () {
 
 	// Initial CE node
 	this.view = ve.ce.nodeFactory.create( this.model.getType(), this.model );
+	this.$element.append( this.view.$element );
 
 	// When all children are rerendered, replace with dm DOM
 	ve.ce.GeneratedContentNode.static.awaitGeneratedContent( this.view )

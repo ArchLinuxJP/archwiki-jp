@@ -1,7 +1,7 @@
 /*!
  * VisualEditor test utilities.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 ( function () {
@@ -15,6 +15,9 @@
 	// Create a dummy platform and target so ve.init.platform/target are available
 	function DummyPlatform() {
 		DummyPlatform.super.apply( this, arguments );
+		this.sessionStorage = {};
+		// Set this to true to test session methods failing and returning false
+		this.sessionDisabled = false;
 	}
 	OO.inheritClass( DummyPlatform, ve.init.Platform );
 	DummyPlatform.prototype.getUserLanguages = function () { return [ 'en' ]; };
@@ -25,6 +28,18 @@
 	DummyPlatform.prototype.getUnanchoredExternalLinkUrlProtocolsRegExp = function () { return /https?:\/\//i; };
 	DummyPlatform.prototype.getUserConfig = function () { return undefined; };
 	DummyPlatform.prototype.setUserConfig = function () {};
+	DummyPlatform.prototype.getSession = function ( key ) {
+		if ( this.sessionDisabled ) { return false; }
+		return this.sessionStorage.hasOwnProperty( key ) ? this.sessionStorage[ key ] : null;
+	};
+	DummyPlatform.prototype.setSession = function ( key, value ) {
+		if ( this.sessionDisabled || value === '__FAIL__' ) { return false; }
+		this.sessionStorage[ key ] = value.toString(); return true;
+	};
+	DummyPlatform.prototype.removeSession = function ( key ) {
+		if ( this.sessionDisabled ) { return false; }
+		delete this.sessionStorage[ key ]; return true;
+	};
 
 	ve.test.utils.DummyPlatform = DummyPlatform;
 
@@ -52,23 +67,27 @@
 	// Disable scroll animatinos
 	ve.scrollIntoView = function () {};
 
+	function getSerializableData( model ) {
+		return model.getFullData( undefined, true );
+	}
+
 	ve.test.utils.runIsolateTest = function ( assert, type, range, expected, label ) {
 		var data,
 			doc = ve.dm.example.createExampleDocument( 'isolationData' ),
 			surface = new ve.dm.Surface( doc ),
 			fragment = surface.getLinearFragment( range );
 
-		data = ve.copy( doc.getFullData() );
+		data = ve.copy( getSerializableData( doc ) );
 		fragment.isolateAndUnwrap( type );
 		expected( data );
 
-		assert.deepEqual( doc.getFullData(), data, label );
+		assert.deepEqual( getSerializableData( doc ), data, label );
 	};
 
 	ve.test.utils.runFormatConverterTest = function ( assert, range, type, attributes, expectedRange, expectedData, msg ) {
 		var surface = ve.test.utils.createModelOnlySurfaceFromHtml( ve.dm.example.isolationHtml ),
 			formatAction = new ve.ui.FormatAction( surface ),
-			data = ve.copy( surface.getModel().getDocument().getFullData() ),
+			data = ve.copy( getSerializableData( surface.getModel().getDocument() ) ),
 			originalData = ve.copy( data );
 
 		expectedData( data );
@@ -76,12 +95,12 @@
 		surface.getModel().setLinearSelection( range );
 		formatAction.convert( type, attributes );
 
-		assert.equalLinearData( surface.getModel().getDocument().getFullData(), data, msg + ': data models match' );
+		assert.equalLinearData( getSerializableData( surface.getModel().getDocument() ), data, msg + ': data models match' );
 		assert.equalRange( surface.getModel().getSelection().getRange(), expectedRange, msg + ': ranges match' );
 
 		surface.getModel().undo();
 
-		assert.equalLinearData( surface.getModel().getDocument().getFullData(), originalData, msg + ' (undo): data models match' );
+		assert.equalLinearData( getSerializableData( surface.getModel().getDocument() ), originalData, msg + ' (undo): data models match' );
 		assert.equalRange( surface.getModel().getSelection().getRange(), range, msg + ' (undo): ranges match' );
 	};
 
@@ -91,7 +110,7 @@
 				ve.test.utils.createViewOnlySurfaceFromHtml( html || ve.dm.example.html ) :
 				ve.test.utils.createModelOnlySurfaceFromHtml( html || ve.dm.example.html ),
 			action = ve.ui.actionFactory.create( actionName, surface ),
-			data = ve.copy( surface.getModel().getDocument().getFullData() ),
+			data = ve.copy( getSerializableData( surface.getModel().getDocument() ) ),
 			documentModel = surface.getModel().getDocument(),
 			selection = ve.test.utils.selectionFromRangeOrSelection( documentModel, rangeOrSelection ),
 			expectedSelection = options.expectedRangeOrSelection && ve.test.utils.selectionFromRangeOrSelection( documentModel, options.expectedRangeOrSelection );
@@ -109,7 +128,7 @@
 		surface.getModel().setSelection( selection );
 		action[ method ].apply( action, args || [] );
 
-		actualData = surface.getModel().getDocument().getFullData();
+		actualData = getSerializableData( surface.getModel().getDocument() );
 		ve.dm.example.postprocessAnnotations( actualData, surface.getModel().getDocument().getStore() );
 		assert.equalLinearData( actualData, data, msg + ': data models match' );
 		if ( expectedSelection ) {
@@ -123,7 +142,7 @@
 
 			surface.getModel().undo();
 
-			assert.equalLinearData( surface.getModel().getDocument().getFullData(), originalData, msg + ' (undo): data models match' );
+			assert.equalLinearData( getSerializableData( surface.getModel().getDocument() ), originalData, msg + ' (undo): data models match' );
 			if ( expectedSelection ) {
 				expectedOriginalRangeOrSelection = options.expectedOriginalRangeOrSelection &&
 					ve.test.utils.selectionFromRangeOrSelection( documentModel, options.expectedOriginalRangeOrSelection );
@@ -133,7 +152,7 @@
 	};
 
 	ve.test.utils.runGetModelFromDomTest = function ( assert, caseItem, msg ) {
-		var model, hash, html, htmlDoc, actualData, actualRtDoc, expectedRtDoc,
+		var model, hash, html, htmlDoc, actualDataReal, actualDataMeta, actualRtDoc, expectedRtDoc,
 			// Make sure we've always got a <base> tag
 			defaultHead = '<base href="' + ve.dm.example.baseUri + '">';
 
@@ -141,19 +160,26 @@
 			html = '<head>' + ( caseItem.head || defaultHead ) + '</head><body>' + caseItem.body + '</body>';
 			htmlDoc = ve.createDocumentFromHtml( html );
 			model = ve.dm.converter.getModelFromDom( htmlDoc, { fromClipboard: !!caseItem.fromClipboard } );
-			actualData = model.getFullData();
+			actualDataReal = model.getFullData();
+			actualDataMeta = getSerializableData( model );
+
 			// Round-trip here, check round-trip later
 			if ( caseItem.modify ) {
-				actualData = ve.copy( actualData );
+				actualDataReal = ve.copy( actualDataReal );
+				actualDataMeta = ve.copy( actualDataMeta );
 				caseItem.modify( model );
 			}
 			actualRtDoc = ve.dm.converter.getDomFromModel( model );
 
 			// Normalize and verify data
-			ve.dm.example.postprocessAnnotations( actualData, model.getStore(), caseItem.preserveAnnotationDomElements );
-			assert.equalLinearData( actualData, caseItem.data, msg + ': data' );
+			ve.dm.example.postprocessAnnotations( actualDataReal, model.getStore(), caseItem.preserveAnnotationDomElements );
+			ve.dm.example.postprocessAnnotations( actualDataMeta, model.getStore(), caseItem.preserveAnnotationDomElements );
+
+			assert.equalLinearData( actualDataReal, ( caseItem.realData || caseItem.data ), msg + ': real data' );
+			assert.equalLinearData( actualDataMeta, caseItem.data, msg + ': data with metaItems restored' );
+
 			assert.deepEqual( model.getInnerWhitespace(), caseItem.innerWhitespace || new Array( 2 ), msg + ': inner whitespace' );
-			// check storeItems have been added to store
+			// Check storeItems have been added to store
 			if ( caseItem.storeItems ) {
 				for ( hash in caseItem.storeItems ) {
 					assert.deepEqualWithDomElements(
@@ -173,7 +199,7 @@
 
 	ve.test.utils.getModelFromTestCase = function ( caseItem ) {
 		var hash, model,
-			store = new ve.dm.IndexValueStore();
+			store = new ve.dm.HashValueStore();
 
 		// Load storeItems into store
 		if ( caseItem.storeItems ) {
@@ -193,7 +219,7 @@
 		var originalData, model, html, fromDataBody, clipboardHtml;
 
 		model = ve.test.utils.getModelFromTestCase( caseItem );
-		originalData = ve.copy( model.getFullData() );
+		originalData = ve.copy( getSerializableData( model ) );
 		fromDataBody = caseItem.fromDataBody || caseItem.normalizedBody || caseItem.body;
 		html = '<body>' + fromDataBody + '</body>';
 		clipboardHtml = '<body>' + ( caseItem.clipboardBody || fromDataBody ) + '</body>';
@@ -207,7 +233,32 @@
 			ve.createDocumentFromHtml( clipboardHtml ),
 			msg + ' (clipboard mode)'
 		);
-		assert.deepEqualWithDomElements( model.getFullData(), originalData, msg + ' (data hasn\'t changed)' );
+		assert.deepEqualWithDomElements( getSerializableData( model ), originalData, msg + ' (data hasn\'t changed)' );
+	};
+
+	ve.test.utils.runDiffElementTest = function ( assert, caseItem ) {
+		var visualDiff, diffElement,
+			oldDoc = ve.dm.converter.getModelFromDom( ve.createDocumentFromHtml( caseItem.oldDoc ) ),
+			newDoc = ve.dm.converter.getModelFromDom( ve.createDocumentFromHtml( caseItem.newDoc ) );
+		// TODO: Differ expects newDoc to be derived from oldDoc and contain all its store data.
+		// We may want to remove that assumption from the differ?
+		newDoc.getStore().merge( oldDoc.getStore() );
+		visualDiff = new ve.dm.VisualDiff( oldDoc, newDoc, caseItem.forceTimeout ? -1 : undefined );
+		diffElement = new ve.ui.DiffElement( visualDiff );
+		assert.equalDomElement( diffElement.$document[ 0 ], $( '<div>' ).addClass( 've-ui-diffElement-document' ).html( caseItem.expected )[ 0 ], caseItem.msg );
+		assert.strictEqual( diffElement.$element.hasClass( 've-ui-diffElement-hasMoves' ), !!caseItem.hasMoves, caseItem.msg + ': hasMoves' );
+		assert.strictEqual( diffElement.$element.hasClass( 've-ui-diffElement-hasDescriptions' ), !!caseItem.expectedDescriptions, caseItem.msg + ': hasDescriptions' );
+		if ( caseItem.expectedDescriptions !== undefined ) {
+			assert.deepEqual(
+				diffElement.descriptions.items.map( function ( item ) { return item.$label.text(); } ),
+				caseItem.expectedDescriptions,
+				caseItem.msg + ': sidebar'
+			);
+		}
+		assert.deepEqual(
+			diffElement.$messages.children().length, caseItem.forceTimeout ? 1 : 0,
+			'Timeout message ' + ( caseItem.forceTimeout ? 'shown' : 'not shown' )
+		);
 	};
 
 	/**

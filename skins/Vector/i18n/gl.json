@@ -3,10 +3,11 @@
 		"authors": [
 			"Elisardojm",
 			"Toliño",
-			"Vivaelcelta"
+			"Vivaelcelta",
+			"Banjo"
 		]
 	},
-	"vector-skin-desc": "Versión moderna da aparencia MonoBook, cun aspecto fresco e moitas melloras na usabilidade",
+	"vector-skin-desc": "Versión moderna da aparencia MonoBook, cun aspecto actualizado e moitas melloras na usabilidade",
 	"vector.css": "/* O CSS que se coloque aquí afectará a quen use a aparencia Vector */",
 	"vector.js": "/* Calquera JavaScript que haxa aquí será cargado para os usuarios que usen a aparencia Vector */",
 	"vector-action-addsection": "Nova sección",
@@ -20,5 +21,7 @@
 	"vector-view-history": "Ver o historial",
 	"vector-view-view": "Ler",
 	"vector-view-viewsource": "Ver o código fonte",
+	"vector-jumptonavigation": "Saltar ata a navegación",
+	"vector-jumptosearch": "Saltar á procura",
 	"vector-more-actions": "Máis"
 }

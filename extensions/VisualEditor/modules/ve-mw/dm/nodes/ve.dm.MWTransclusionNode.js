@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel MWTransclusionNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -136,7 +136,7 @@ ve.dm.MWTransclusionNode.static.toDomElements = function ( dataElement, doc, con
 	var els, i, len, span, value,
 		store = converter.getStore(),
 		originalMw = dataElement.attributes.originalMw,
-		originalDomElements = store.value( dataElement.originalDomElementsIndex );
+		originalDomElements = store.value( dataElement.originalDomElementsHash );
 
 	function wrapTextNode( node ) {
 		var wrapper;
@@ -160,7 +160,7 @@ ve.dm.MWTransclusionNode.static.toDomElements = function ( dataElement, doc, con
 		if (
 			converter.isForClipboard() &&
 			// Use getHashObjectForRendering to get the rendering from the store
-			( value = store.value( store.indexOfValue( null, OO.getHash( [ this.getHashObjectForRendering( dataElement ), undefined ] ) ) ) )
+			( value = store.value( store.hashOfValue( null, OO.getHash( [ this.getHashObjectForRendering( dataElement ), undefined ] ) ) ) )
 		) {
 			// For the clipboard use the current DOM contents so the user has something
 			// meaningful to paste into external applications
@@ -207,8 +207,61 @@ ve.dm.MWTransclusionNode.static.toDomElements = function ( dataElement, doc, con
 	return els;
 };
 
-ve.dm.MWTransclusionNode.static.describeChanges = function () {
-	// TODO: Provide a more detailed description of template changes
+ve.dm.MWTransclusionNode.static.describeChanges = function ( attributeChanges ) {
+	var change, params, param, $descriptions;
+
+	// This method assumes that the behavior of isDiffComparable above remains
+	// the same, so it doesn't have to consider whether the actual template
+	// involved has changed.
+
+	function getLabel( param ) {
+		// If a parameter is an object with a wt key, we just want the value of that.
+		if ( param && param.wt !== undefined ) {
+			// Can be `''`, and we're okay with that
+			return param.wt;
+		}
+		return param;
+	}
+
+	if ( attributeChanges.mw.from.parts.length === 1 && attributeChanges.mw.to.parts.length === 1 ) {
+		// Single-template transclusion, before and after. Relatively easy to summarize.
+		// TODO: expand this to well-represent transclusions that contain multiple templates.
+
+		// The bits of a template we care about are deeply-nested inside an
+		// attribute. We'll restructure this so that we can pretend template
+		// params are the direct attributes of the template.
+		params = {};
+		for ( param in attributeChanges.mw.from.parts[ 0 ].template.params ) {
+			params[ param ] = { from: getLabel( attributeChanges.mw.from.parts[ 0 ].template.params[ param ] ) };
+		}
+		for ( param in attributeChanges.mw.to.parts[ 0 ].template.params ) {
+			params[ param ] = ve.extendObject(
+				{ to: getLabel( attributeChanges.mw.to.parts[ 0 ].template.params[ param ] ) },
+				params[ param ]
+			);
+		}
+		for ( param in params ) {
+			// All we know is that *something* changed, without the normal
+			// helpful just-being-given-the-changed-bits, so we have to filter
+			// this ourselves.
+			if ( params[ param ].from !== params[ param ].to ) {
+				change = this.describeChange( param, params[ param ] );
+				if ( change ) {
+					if ( !$descriptions ) {
+						$descriptions = $( '<ul>' );
+					}
+					if ( change instanceof jQuery ) {
+						$descriptions.append( $( '<li>' ).append( change ) );
+					} else {
+						$descriptions.append( $( '<li>' ).text( change ) );
+					}
+				}
+			}
+		}
+		if ( $descriptions ) {
+			return [ ve.msg( 'visualeditor-changedesc-mwtransclusion' ), $descriptions ];
+		}
+	}
 	return [ ve.msg( 'visualeditor-changedesc-mwtransclusion' ) ];
 };
 
@@ -391,7 +444,7 @@ ve.dm.MWTransclusionNode.prototype.getPartsList = function () {
 			part = content.parts[ i ];
 			if ( part.template ) {
 				href = part.template.target.href;
-				page = href ? ve.decodeURIComponentIntoArticleTitle( href.replace( /^(\.\.?\/)*/, '' ) ) : null;
+				page = href ? ve.normalizeParsoidResourceName( href ) : null;
 				this.partsList.push( {
 					template: part.template.target.wt,
 					templatePage: page

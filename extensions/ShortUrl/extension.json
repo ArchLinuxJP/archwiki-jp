@@ -1,0 +1,54 @@
+{
+	"name": "ShortUrl",
+	"version": "1.2.0",
+	"author": "Yuvi Panda",
+	"license-name": "BSD-3-Clause",
+	"url": "https://www.mediawiki.org/wiki/Extension:ShortUrl",
+	"descriptionmsg": "shorturl-desc",
+	"type": "specialpage",
+	"SpecialPages": {
+		"ShortUrl": "SpecialShortUrl"
+	},
+	"MessagesDirs": {
+		"ShortUrl": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"ShortUrlAlias": "ShortUrl.alias.php"
+	},
+	"AutoloadClasses": {
+		"ShortUrlUtils": "ShortUrl.utils.php",
+		"ShortUrlHooks": "ShortUrl.hooks.php",
+		"SpecialShortUrl": "SpecialShortUrl.php"
+	},
+	"ResourceModules": {
+		"ext.shortUrl": {
+			"scripts": "js/ext.shortUrl.js",
+			"styles": "css/ext.shortUrl.css",
+			"localBasePath": "",
+			"remoteExtPath": "ShortUrl",
+			"dependencies": [
+				"mediawiki.Uri"
+			]
+		}
+	},
+	"Hooks": {
+		"SkinTemplateToolboxEnd": [
+			"ShortUrlHooks::addToolboxLink"
+		],
+		"LoadExtensionSchemaUpdates": [
+			"ShortUrlHooks::setupSchema"
+		],
+		"OutputPageBeforeHTML": [
+			"ShortUrlHooks::onOutputPageBeforeHTML"
+		],
+		"WebRequestPathInfoRouter": [
+			"ShortUrlHooks::setupUrlRouting"
+		]
+	},
+	"config": {
+		"ShortUrlTemplate": false
+	},
+	"manifest_version": 1
+}

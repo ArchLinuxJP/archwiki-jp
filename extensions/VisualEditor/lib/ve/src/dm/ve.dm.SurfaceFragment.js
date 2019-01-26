@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Fragment class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 // HACK: eslint valid-jsdoc doesn't yet support @chainable: https://github.com/eslint/eslint/issues/6681
@@ -31,6 +31,7 @@ ve.dm.SurfaceFragment = function VeDmSurfaceFragment( surface, selection, noAuto
 	this.surface = surface;
 	this.selection = selection || surface.getSelection();
 	this.leafNodes = null;
+	this.pending = [];
 
 	// Initialization
 	this.historyPointer = this.document.getCompleteHistoryLength();
@@ -350,7 +351,7 @@ ve.dm.SurfaceFragment.prototype.expandLinearSelection = function ( scope, type )
 					this.document.data.getWordRange( oldRange.end )
 				], oldRange.isBackwards() );
 			} else {
-				// optimisation for zero-length ranges
+				// Optimisation for zero-length ranges
 				newRange = this.document.data.getWordRange( oldRange.start );
 			}
 			break;
@@ -368,7 +369,7 @@ ve.dm.SurfaceFragment.prototype.expandLinearSelection = function ( scope, type )
 			}
 			break;
 		case 'root':
-			newRange = new ve.Range( 0, this.getDocument().getInternalList().getListNode().getOuterRange().start );
+			newRange = this.getDocument().getDocumentRange();
 			break;
 		case 'siblings':
 			// Grow range to cover all siblings
@@ -480,7 +481,7 @@ ve.dm.SurfaceFragment.prototype.getAnnotations = function ( all ) {
 					annotations = matchingAnnotations;
 					break;
 				} else {
-					// match in the other direction, to keep all distinct compatible annotations (e.g. both b and strong)
+					// Match in the other direction, to keep all distinct compatible annotations (e.g. both b and strong)
 					annotations = annotations.getComparableAnnotationsFromSet( rangeAnnotations );
 					annotations.addSet( matchingAnnotations );
 				}
@@ -642,6 +643,31 @@ ve.dm.SurfaceFragment.prototype.hasMatchingAncestor = function ( type, attribute
 	}
 
 	return all;
+};
+
+/**
+ * Clear a fragment's pending list
+ */
+ve.dm.SurfaceFragment.prototype.clearPending = function () {
+	this.pending = [];
+};
+
+/**
+ * Push a promise to the fragment's pending list
+ *
+ * @param {jQuery.Promise} promise Promise
+ */
+ve.dm.SurfaceFragment.prototype.pushPending = function ( promise ) {
+	this.pending.push( promise );
+};
+
+/**
+ * Get a promise that resolves when the pending list is complete
+ *
+ * @return {jQuery.Promise} Promise
+ */
+ve.dm.SurfaceFragment.prototype.getPending = function () {
+	return $.when.apply( $, this.pending );
 };
 
 /**

@@ -1,0 +1,45 @@
+{
+	"extends": "wikimedia",
+	"parserOptions": {
+		"sourceType": "module",
+		"ecmaVersion": "6"
+	},
+	"env": {
+		"browser": true,
+		"jquery": true,
+		"commonjs": true
+	},
+	"globals": {
+		"mediaWiki": false,
+		"OO": false,
+		"moment": false,
+		"Redux": false,
+		"ReduxThunk": false
+	},
+	"rules": {
+		"no-prototype-builtins": 0,
+		"no-restricted-properties": [2,
+			{
+				 "object": "$",
+				 "property": "each",
+				 "message": "Please use Array.forEach"
+			 }
+		],
+		"valid-jsdoc": ["error", {
+			"requireParamDescription": false,
+			"requireReturnDescription": false,
+			"preferType": {
+				"Boolean": "boolean",
+				"Number": "number",
+				"object": "Object",
+				"String": "string"
+			}
+		}],
+		"dot-notation": [ 2, { "allowKeywords": true } ],
+		"no-use-before-define": 0,
+		"no-var": 2,
+		"prefer-const": 1,
+		"prefer-template": 1,
+		"one-var": 0
+	}
+}

@@ -11,11 +11,13 @@
 	"vector-action-move": "Iyalis",
 	"vector-action-protect": "Salakniban",
 	"vector-action-undelete": "Isubli ti inikkat",
-	"vector-action-unprotect": "Sukatan ti salaknib",
-	"vector-view-create": "Agaramid",
+	"vector-action-unprotect": "Baliwan ti salaknib",
+	"vector-view-create": "Agpartuat",
 	"vector-view-edit": "Urnosen",
 	"vector-view-history": "Kitaen ti pakasaritaan",
 	"vector-view-view": "Basaen",
 	"vector-view-viewsource": "Kitaen ti taudan",
+	"vector-jumptonavigation": "Darsen a mapan iti pagdaliasatan",
+	"vector-jumptosearch": "Darsen a mapan agbiruk",
 	"vector-more-actions": "Adu pay"
 }

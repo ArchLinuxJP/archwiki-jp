@@ -1,7 +1,7 @@
 /*!
  * VisualEditor MediaWiki Initialization DesktopArticleTarget Vector skin styles.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -23,14 +23,14 @@
 	margin: 0 -1.14286em;
 }
 
-.ve-deactivating .ve-init-mw-desktopArticleTarget-originalContent,
-.ve-activated .ve-init-mw-desktopArticleTarget-originalContent {
-	padding-top: 1em;
-}
-
 .ve-init-mw-desktopArticleTarget .ve-init-mw-target-surface .ve-ce-documentNode,
 .ve-init-mw-desktopArticleTarget .ve-init-mw-target-surface .ve-ui-surface-placeholder {
 	padding: 0 1.14286em; /* 1/0.875 */
+}
+
+.ve-init-mw-desktopArticleTarget .ve-ui-mwWikitextSurface .ve-ce-documentNode,
+.ve-init-mw-desktopArticleTarget .ve-ui-mwWikitextSurface .ve-ui-surface-placeholder {
+	padding: 0 1.2em; /* 1/ 16/13.3333 */
 }
 
 .mw-body .ve-init-mw-desktopArticleTarget .ve-init-mw-target-surface .ve-ui-surface-placeholder > * {
@@ -40,19 +40,12 @@
 	border: 0;
 }
 
-.ve-init-mw-desktopArticleTarget-toolbar {
-	font-size: 0.8em;
-	/* 1/0.8 */
-	margin: -1.25em -1.25em 0 -1.25em;
-	position: relative;
-}
-
 /* Main document debug bar */
 .ve-init-mw-desktopArticleTarget .ve-init-mw-target-surface > .ve-ui-debugBar {
-	/* 1/0.8 */
-	padding: 1.25em;
+	/* 1/0.875 */
+	padding: 1.14286em;
 	padding-bottom: 0;
-	margin-top: 1.25em;
+	margin-top: 1.14286em;
 }
 
 /* High-definition-specific styles (because Vector adds 1em to the leftNav if width is 982px+ */
@@ -62,27 +55,22 @@
 		margin: 0 -1.71429em;
 	}
 
-	.ve-deactivating .ve-init-mw-desktopArticleTarget-originalContent,
-	.ve-activated .ve-init-mw-desktopArticleTarget-originalContent {
-		padding-top: 1.25em;
-	}
-
 	.ve-init-mw-desktopArticleTarget .ve-init-mw-target-surface .ve-ce-documentNode,
 	.ve-init-mw-desktopArticleTarget .ve-init-mw-target-surface .ve-ui-surface-placeholder {
 		padding: 0 1.71429em; /* surface-margin-left (1.5em) / (mw-body-content font-size) 0.875em */
 	}
 
-	.ve-init-mw-desktopArticleTarget-toolbar {
-		/* 1.25/0.8, 1.5/0.8 */
-		margin: -1.5625em -1.875em 0 -1.875em;
+	.ve-init-mw-desktopArticleTarget .ve-ui-mwWikitextSurface .ve-ce-documentNode,
+	.ve-init-mw-desktopArticleTarget .ve-ui-mwWikitextSurface .ve-ui-surface-placeholder {
+		padding: 0 1.8em; /* surface-margin-left (1.5em) / 16/13.3333 */
 	}
 
 	/* Main document debug bar */
 	.ve-init-mw-desktopArticleTarget .ve-init-mw-target-surface > .ve-ui-debugBar {
-		/* 1/0.8, 1.5/0.8 */
-		padding: 1.875em;
+		/* 1.5/0.875 */
+		padding: 1.71429em;
 		padding-bottom: 0;
-		margin-top: 1.875em;
+		margin-top: 1.71429em;
 	}
 }
 

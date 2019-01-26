@@ -8,14 +8,16 @@
 			"OsamaK",
 			"أحمد",
 			"زكريا",
-			"Khaled"
+			"Khaled",
+			"علاء",
+			"ديفيد"
 		]
 	},
 	"skinname-vector": "فكتور",
 	"vector-skin-desc": "نسة حديثة من مونوبوك بمظهر جديد وسهولة الاستخدام",
 	"vector.css": "/* الأنماط المتراصة CSS المعروضة هنا ستؤثر على مستخدمي واجهة فكتور */",
 	"vector.js": "/* أي جافاسكريبت هنا سيتم تحميلها للمستخدمين الذين يستعملون واجهة فكتور */",
-	"vector-action-addsection": "أضف موضوعا",
+	"vector-action-addsection": "أضف موضوعاً",
 	"vector-action-delete": "احذف",
 	"vector-action-move": "انقل",
 	"vector-action-protect": "احم",
@@ -23,8 +25,10 @@
 	"vector-action-unprotect": "غير الحماية",
 	"vector-view-create": "أنشئ",
 	"vector-view-edit": "عدل",
-	"vector-view-history": "اعرض التاريخ",
+	"vector-view-history": "تاريخ",
 	"vector-view-view": "اقرأ",
 	"vector-view-viewsource": "اعرض المصدر",
-	"vector-more-actions": "مزيد"
+	"vector-jumptonavigation": "اذهب إلى التنقل",
+	"vector-jumptosearch": "اذهب إلى البحث",
+	"vector-more-actions": "المزيد"
 }

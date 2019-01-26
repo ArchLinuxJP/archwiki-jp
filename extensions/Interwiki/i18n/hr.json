@@ -5,11 +5,12 @@
 			"Ex13",
 			"Roberta F.",
 			"SpeedyGonsales",
-			"MaGa"
+			"MaGa",
+			"Bugoslav"
 		]
 	},
 	"interwiki": "Vidi i uredi međuwiki podatke",
-	"interwiki-title-norights": "Gledanje međuwiki tablice",
+	"interwiki-title-norights": "Pregled međuwiki podataka",
 	"interwiki-desc": "Dodaje [[Special:Interwiki|posebnu stranicu]] za gledanje i uređivanje interwiki tablice",
 	"interwiki_intro": "Ovo je pregled međuwiki tablice.",
 	"interwiki_prefix": "Prefiks",
@@ -40,7 +41,7 @@
 	"interwiki_edited": "Prefiks \"$1\" je uspješno promijenjen u interwiki tablici.",
 	"interwiki_editerror": "Prefiks \"$1\" ne može biti promijenjen u interwiki tablici. Vjerojatno ne postoji.",
 	"interwiki-badprefix": "Određeni međuwiki prefiks \"$1\" sadrži nedozvoljene znakove",
-	"log-name-interwiki": "Evidencije interwiki tablice",
+	"log-name-interwiki": "Evidencija tablice međuwikija",
 	"log-description-interwiki": "Ovo su evidencije promjena na [[Special:Interwiki|interwiki tablici]].",
 	"right-interwiki": "Uređivanje interwiki podataka",
 	"action-interwiki": "uredi ovaj međuwiki zapis",

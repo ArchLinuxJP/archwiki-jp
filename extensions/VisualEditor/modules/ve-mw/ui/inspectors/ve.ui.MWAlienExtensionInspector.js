@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWAlienExtensionInspector class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -30,6 +30,8 @@ OO.inheritClass( ve.ui.MWAlienExtensionInspector, ve.ui.MWExtensionInspector );
 /* Static properties */
 
 ve.ui.MWAlienExtensionInspector.static.name = 'alienExtension';
+
+ve.ui.MWAlienExtensionInspector.static.allowedEmpty = true;
 
 ve.ui.MWAlienExtensionInspector.static.modelClasses = [
 	ve.dm.MWAlienInlineExtensionNode,
@@ -63,6 +65,7 @@ ve.ui.MWAlienExtensionInspector.prototype.getSetupProcess = function ( data ) {
 					attributeInput = new OO.ui.TextInputWidget( {
 						value: attributes[ key ]
 					} );
+					attributeInput.connect( this, { change: 'onChangeHandler' } );
 					this.attributeInputs[ key ] = attributeInput;
 					field = new OO.ui.FieldLayout(
 						attributeInput,

@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Surface class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -12,10 +12,11 @@
  *
  * @constructor
  * @param {ve.dm.Document} doc
+ * @param {Object} [config]
  */
-ve.dm.MWWikitextSurface = function VeDmMwWikitextSurface() {
+ve.dm.MWWikitextSurface = function VeDmMwWikitextSurface( doc, config ) {
 	// Parent constructors
-	ve.dm.MWWikitextSurface.super.apply( this, arguments );
+	ve.dm.MWWikitextSurface.super.call( this, doc, ve.extendObject( config, { sourceMode: true } ) );
 };
 
 /* Inheritance */

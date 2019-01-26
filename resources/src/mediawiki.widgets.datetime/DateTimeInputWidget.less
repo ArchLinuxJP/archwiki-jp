@@ -1,0 +1,166 @@
+/* stylelint-disable no-duplicate-selectors */
+@import 'mediawiki.widgets.datetime.definitions';
+
+.mw-widgets-datetime-dateTimeInputWidget {
+	display: inline-block;
+	position: relative;
+	width: 100%;
+	max-width: @max-width-input;
+	.oo-ui-inline-spacing( 0.5em );
+	vertical-align: middle;
+
+	&-fields {
+		position: relative;
+		display: table;
+		z-index: 2;
+		.oo-ui-unselectable();
+
+		> .mw-widgets-datetime-dateTimeInputWidget-field {
+			.oo-ui-box-sizing( border-box );
+			display: table-cell;
+			white-space: pre;
+		}
+	}
+
+	&-handle {
+		background-color: @background-color-base;
+		color: @color-base;
+		display: inline-block;
+		.oo-ui-box-sizing( border-box );
+		width: 100%;
+		height: @size-base;
+		border: @border-base;
+		border-radius: @border-radius-base;
+		padding: 0 @padding-horizontal-input-text;
+		box-shadow: inset 0 0 0 0 @color-progressive;
+		// Needed for proper behavior with `overflow: hidden`.
+		vertical-align: bottom;
+		overflow: hidden;
+		.oo-ui-unselectable();
+		.oo-ui-transition( box-shadow @transition-base );
+
+		> .oo-ui-iconElement-icon,
+		> .oo-ui-indicatorElement-indicator {
+			background-position: center center;
+			background-repeat: no-repeat;
+			position: absolute;
+			top: 0;
+			z-index: 1;
+		}
+
+		> .oo-ui-iconElement-icon {
+			left: @padding-start-input-text-icon;
+			width: @size-icon;
+			height: @size-icon;
+		}
+
+		> .oo-ui-indicatorElement-indicator {
+			right: @padding-horizontal-base;
+			min-width: @min-size-indicator;
+			width: @size-indicator;
+			min-height: @min-size-indicator;
+			height: @size-indicator;
+			max-height: @size-base;
+		}
+	}
+
+	&-empty &-handle {
+		color: @color-base--subtle;
+	}
+
+	&.oo-ui-iconElement .mw-widgets-datetime-dateTimeInputWidget-handle {
+		padding-left: @padding-start-input-text-icon-label;
+	}
+
+	&.oo-ui-indicatorElement .mw-widgets-datetime-dateTimeInputWidget-handle {
+		padding-right: @size-indicator + 2 * @padding-horizontal-input-text;
+	}
+
+	&-field {
+		background-color: transparent;
+		color: inherit;
+		.oo-ui-box-sizing( border-box );
+		border: 0;
+		border-radius: @border-radius-base;
+		// Provide more top padding due to border not being part of the calculation
+		padding-top: 10 / @ooui-font-size-browser / @ooui-font-size-base;
+		padding-bottom: @padding-bottom-base;
+		box-shadow: none;
+		font-size: inherit;
+		font-family: inherit;
+		line-height: @line-height-widget-singleline;
+		text-align: center;
+		vertical-align: top;
+	}
+
+	&-editField {
+		.mw-widgets-datetime-dateTimeInputWidget-invalid {
+			border: 1px solid @border-color-erroneous;
+			box-shadow: @box-shadow-widget;
+
+			&:focus {
+				border: 1px solid @border-color-erroneous;
+				box-shadow: @box-shadow-erroneous--focus;
+			}
+		}
+	}
+
+	&-clearButton {
+		padding-top: 0;
+	}
+
+	&.oo-ui-widget-enabled {
+		.mw-widgets-datetime-dateTimeInputWidget-handle {
+			.oo-ui-transition( border-color @transition-ease-medium );
+
+			&:hover {
+				border-color: @border-color-input--hover;
+			}
+		}
+
+		// Set on widget parent to also enable `:hover` on child elmeents
+		&:hover {
+			input,
+			textarea {
+				border-color: @border-color-input--hover;
+			}
+		}
+
+		.mw-widgets-datetime-dateTimeInputWidget-editField:hover {
+			background-color: @background-color-base--hover;
+		}
+
+		.mw-widgets-datetime-dateTimeInputWidget-editField:focus {
+			outline: 0;
+			box-shadow: inset 0 0 0 1px @color-progressive, 0 0 0 1px @color-progressive;
+		}
+
+		&.oo-ui-flaggedElement-invalid {
+			.mw-widgets-datetime-dateTimeInputWidget-handle {
+				border-color: @border-color-erroneous;
+				box-shadow: @box-shadow-widget;
+
+				&:focus {
+					border-color: @border-color-erroneous;
+					box-shadow: @box-shadow-erroneous--focus;
+				}
+			}
+		}
+	}
+
+	&.oo-ui-widget-disabled {
+		.mw-widgets-datetime-dateTimeInputWidget-handle {
+			background-color: @background-color-base--disabled;
+			// Support: Safari
+			-webkit-text-fill-color: @color-base--disabled;
+			color: @color-base--disabled;
+			border-color: @border-color-base--disabled;
+			text-shadow: @text-shadow-base--disabled;
+		}
+
+		> .oo-ui-iconElement-icon,
+		> .oo-ui-indicatorElement-indicator {
+			opacity: @opacity-base--disabled;
+		}
+	}
+}

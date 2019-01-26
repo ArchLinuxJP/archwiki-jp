@@ -1,7 +1,7 @@
 /*!
  * VisualEditor Node class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -136,6 +136,15 @@ ve.Node.prototype.canContainContent = null;
  * @return {boolean} Node is content
  */
 ve.Node.prototype.isContent = null;
+
+/**
+ * Check if the node is an internal node
+ *
+ * @method
+ * @abstract
+ * @return {boolean} Node is an internal node
+ */
+ve.Node.prototype.isInternal = null;
 
 /**
  * Check if the node has a wrapped element in the document data.
@@ -351,10 +360,21 @@ ve.Node.prototype.getDocument = function () {
  * This method is overridden by nodes with children.
  *
  * @method
- * @param {ve.Document} doc Document this node is a part of
+ * @param {ve.Document|null} doc Document this node is a part of
  */
 ve.Node.prototype.setDocument = function ( doc ) {
+	var oldDoc = this.doc;
+	if ( doc === oldDoc ) {
+		return;
+	}
+	if ( oldDoc ) {
+		this.doc = null;
+		oldDoc.nodeDetached( this );
+	}
 	this.doc = doc;
+	if ( doc ) {
+		doc.nodeAttached( this );
+	}
 };
 
 /**
@@ -416,4 +436,28 @@ ve.Node.prototype.findParent = function ( type ) {
 	return this.traverseUpstream( function ( node ) {
 		return !( node instanceof type );
 	} );
+};
+
+/**
+ * Get the offset path from the document node to this node
+ *
+ * @return {number[]|null} The offset path, or null if not attached to a DocumentNode
+ */
+ve.Node.prototype.getOffsetPath = function () {
+	var parent,
+		node = this,
+		path = [];
+
+	while ( true ) {
+		if ( node.type === 'document' ) {
+			// We reached the ve.dm.DocumentNode/ve.ce.DocumentNode that this node is attached to
+			return path;
+		}
+		parent = node.getParent();
+		if ( !parent ) {
+			return null;
+		}
+		path.unshift( parent.indexOf( node ) );
+		node = parent;
+	}
 };

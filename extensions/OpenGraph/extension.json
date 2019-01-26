@@ -1,0 +1,28 @@
+{
+  "name": "OpenGraph",
+  "version": "0.1.0",
+  "author": [
+    "48pedia"
+  ],
+  "url": "",
+  "descriptionmsg": "OpenGraph-desc",
+  "license-name": "",
+  "type": "other",
+  "AutoloadClasses": {
+    "OpenGraph": "OpenGraph.hooks.php"
+  },
+  "Hooks": {
+    "BeforePageDisplay": [
+      "OpenGraph::addMeta"
+    ]
+  },
+  "config": {
+    "ogpTwitter": false
+  },
+  "MessagesDirs": {
+    "OpenGraph": [
+      "i18n"
+    ]
+  },
+  "manifest_version": 1
+}

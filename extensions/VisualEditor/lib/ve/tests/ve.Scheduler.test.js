@@ -1,7 +1,7 @@
 /*!
  * VisualEditor Scheduler tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.Scheduler' );
@@ -112,6 +112,7 @@ QUnit.test( 'Test that never succeeds', function ( assert ) {
 		}
 	).done( function () {
 		assert.ok( false, 'promise was wrongly resolved as successful' );
+		done();
 	} ).fail( function () {
 		assert.ok( true, 'promise was rejected' );
 		done();

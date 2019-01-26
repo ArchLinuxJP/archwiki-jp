@@ -4,14 +4,13 @@
 			"Juanpabl"
 		]
 	},
-	"cite-desc": "Adibe as etiquetas <nowiki><ref[ name=id]></nowiki> y <nowiki><references/></nowiki> ta fer citas",
+	"cite-desc": "Adibe as etiquetas <code><nowiki><ref[ name=id]></nowiki></code> y <code><nowiki><references/></nowiki></code> ta fer citas",
 	"cite_error": "Error en a cita: $1",
 	"cite_error_ref_numeric_key": "Etiqueta <code>&lt;ref&gt;</code> incorreuta; o nombre d'a etiqueta no puede estar un numero entero, faiga servir un títol descriptivo",
 	"cite_error_ref_no_key": "Etiqueta <code>&lt;ref&gt;</code> incorreuta; as referencias sin de conteniu han de tener un nombre",
 	"cite_error_ref_too_many_keys": "Etiqueta <code>&lt;ref&gt;</code> incorreuta; nombres de parametros incorreutos.",
 	"cite_error_ref_no_input": "Etiqueta <code>&lt;ref&gt;</code> incorreuta; as referencias sin nombre no han de tener conteniu",
 	"cite_error_references_invalid_parameters": "Etiqueta <code>&lt;references&gt;</code> incorreuta; no se premiten parametros, faiga servir <code>&lt;references /&gt;</code>",
-	"cite_error_references_invalid_parameters_group": "Etiqueta <code>&lt;references&gt;</code> no conforme;\nnomás se premite o parametro \"group\".\nFaiga servir <code>&lt;references /&gt;</code>, u <code>&lt;references group=\"...\" /&gt;</code>",
 	"cite_error_references_no_backlink_label": "Ya no quedan etiquetas backlink presonalizatas, defina más en o mensache <nowiki>[[MediaWiki:Cite references link many format backlink labels]]</nowiki>",
 	"cite_error_no_link_label_group": "S'han acorau as etiquetas de vinclos personalizaus ta o grupo \"$1\".\nDefina-ne mas en o mensache <nowiki>[[MediaWiki:$2]]</nowiki>.",
 	"cite_error_references_no_text": "Etiqueta <code>&lt;ref&gt;</code> incorreuta; no ha escrito garra testo t'as referencias nombratas <code>$1</code>",

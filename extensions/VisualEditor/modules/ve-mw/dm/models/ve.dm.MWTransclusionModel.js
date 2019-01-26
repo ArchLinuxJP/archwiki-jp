@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel MWTransclusionModel class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -84,7 +84,7 @@
 				nodeClass = ve.dm.modelRegistry.lookup( type );
 				store = surfaceFragment.getDocument().getStore();
 				hash = OO.getHash( [ nodeClass.static.getHashObjectForRendering( data[ 0 ] ), undefined ] );
-				store.index( generatedContents, hash );
+				store.hash( generatedContents, hash );
 			}
 
 			if ( range.isCollapsed() ) {
@@ -103,13 +103,11 @@
 		if ( forceType ) {
 			insertNode( forceType === 'inline' );
 		} else {
-			new mw.Api().post( {
-				action: 'visualeditor',
-				paction: 'parsefragment',
-				page: mw.config.get( 'wgRelevantPageName' ),
-				wikitext: baseNodeClass.static.getWikitext( this.getPlainObject() ),
-				pst: 1
-			} ).then( function ( response ) {
+			ve.init.target.parseWikitextFragment(
+				baseNodeClass.static.getWikitext( this.getPlainObject() ),
+				true,
+				surfaceFragment.getDocument()
+			).then( function ( response ) {
 				var contentNodes;
 
 				if ( ve.getProp( response, 'visualeditor', 'result' ) === 'success' ) {

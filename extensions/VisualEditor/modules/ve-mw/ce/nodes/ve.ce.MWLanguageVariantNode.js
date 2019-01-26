@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable MWLanguageVariantNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -160,6 +160,16 @@ ve.ce.MWLanguageVariantNode.prototype.createInvisibleIcon = function () {
 	this.icon = icon;
 	this.onUpdate(); // update label of icon
 	return icon.$element;
+};
+
+/**
+ * @inheritdoc
+ */
+ve.ce.MWLanguageVariantNode.prototype.hasRendering = function () {
+	// Efficiency improvement: the superclass implementation does a bunch
+	// of DOM measurement to determine if the node is empty.
+	// Instead consult the model for a definitive answer.
+	return !this.model.isHidden();
 };
 
 /**

@@ -18,7 +18,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
- * @author Brad Jorsch
  */
 
 /**
@@ -34,8 +33,7 @@ class ResourceLoaderJqueryMsgModule extends ResourceLoaderFileModule {
 		$fileScript = parent::getScript( $context );
 
 		$tagData = Sanitizer::getRecognizedTagData();
-		$parserDefaults = array();
-		$parserDefaults['allowedHtmlElements'] = array_merge(
+		$allowedHtmlElements = array_merge(
 			array_keys( $tagData['htmlpairs'] ),
 			array_diff(
 				array_keys( $tagData['htmlsingle'] ),
@@ -43,15 +41,30 @@ class ResourceLoaderJqueryMsgModule extends ResourceLoaderFileModule {
 			)
 		);
 
-		$dataScript = Xml::encodeJsCall( 'mw.jqueryMsg.setParserDefaults', array( $parserDefaults ) );
+		$magicWords = [
+			'SITENAME' => $this->getConfig()->get( 'Sitename' ),
+		];
+		Hooks::run( 'ResourceLoaderJqueryMsgModuleMagicWords', [ $context, &$magicWords ] );
 
-		return $fileScript . $dataScript;
+		$parserDefaults = [
+			'allowedHtmlElements' => $allowedHtmlElements,
+			'magic' => $magicWords,
+		];
+
+		$setDataScript = Xml::encodeJsCall( 'mw.jqueryMsg.setParserDefaults', [
+			$parserDefaults,
+			// Pass deep=true because mediawiki.jqueryMsg.js contains
+			// page-specific magic words that must not be overwritten.
+			true,
+		] );
+
+		return $fileScript . $setDataScript;
 	}
 
 	/**
-	* @param ResourceLoaderContext $context
-	* @return array
-	*/
+	 * @param ResourceLoaderContext $context
+	 * @return array
+	 */
 	public function getScriptURLsForDebug( ResourceLoaderContext $context ) {
 		// Bypass file module urls
 		return ResourceLoaderModule::getScriptURLsForDebug( $context );

@@ -59,6 +59,7 @@
 			{
 				"name": "MediaWiki",
 				"classes": [
+					"mw.Api",
 					"mw.Title",
 					"mw.widgets.*Widget"
 				]
@@ -103,11 +104,10 @@
 					"ve.dm.ModelRegistry",
 					"ve.dm.ModelFactory",
 					"ve.dm.AnnotationFactory",
-					"ve.dm.MetaItemFactory",
 					"ve.dm.NodeFactory",
 					"ve.dm.Converter",
 					"ve.dm.DataString",
-					"ve.dm.IndexValueStore",
+					"ve.dm.HashValueStore",
 					"ve.dm.Scalable",
 					"ve.dm.APIResultsProvider",
 					"ve.dm.APIResultsQueue",
@@ -153,6 +153,7 @@
 					"ve.ce.TextState",
 					"ve.ce.TextStateChunk",
 					"ve.ce.*Annotation",
+					"ve.ce.MetaItem",
 					"ve.ce.*Factory",
 					"ve.ce.*KeyDownHandler",
 					"ve.ce.Document",

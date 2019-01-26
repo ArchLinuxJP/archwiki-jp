@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWCategoryInputWidget class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -15,6 +15,7 @@
  * @constructor
  * @param {ve.ui.MWCategoryWidget} categoryWidget
  * @param {Object} [config] Configuration options
+ * @cfg {mw.Api} [api] API object to use, creates a default mw.Api instance if not specified
  */
 ve.ui.MWCategoryInputWidget = function VeUiMWCategoryInputWidget( categoryWidget, config ) {
 	// Config initialization
@@ -30,6 +31,7 @@ ve.ui.MWCategoryInputWidget = function VeUiMWCategoryInputWidget( categoryWidget
 
 	// Properties
 	this.categoryWidget = categoryWidget;
+	this.api = config.api || new mw.Api();
 
 	// Initialization
 	this.$element.addClass( 've-ui-mwCategoryInputWidget' );
@@ -62,7 +64,7 @@ ve.ui.MWCategoryInputWidget.prototype.getLookupRequest = function () {
 	} else {
 		title = this.value;
 	}
-	return new mw.Api().get( {
+	return this.api.get( {
 		action: 'query',
 		generator: 'allcategories',
 		gacmin: 1,

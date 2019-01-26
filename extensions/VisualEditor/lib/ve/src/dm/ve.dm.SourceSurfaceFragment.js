@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel SourceSurfaceFragment class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -31,16 +31,18 @@ ve.dm.SourceSurfaceFragment.prototype.annotateContent = function () {
 		fragment = this,
 		text = this.getText( true );
 
-	this.convertFromSource( text ).then( function ( selectionDocument ) {
+	this.pushPending( this.convertFromSource( text ).then( function ( selectionDocument ) {
 		tempSurfaceModel = new ve.dm.Surface( selectionDocument );
 		tempFragment = tempSurfaceModel.getLinearFragment(
 			// TODO: Find content offsets
-			new ve.Range( 0, selectionDocument.getInternalList().getListNode().getOuterRange().start )
+			selectionDocument.getDocumentRange()
 		);
 		tempFragment.annotateContent.apply( tempFragment, args );
 
+		fragment.clearPending();
 		fragment.insertDocument( tempFragment.getDocument() );
-	} );
+		return fragment.getPending();
+	} ) );
 
 	return this;
 };
@@ -54,16 +56,18 @@ ve.dm.SourceSurfaceFragment.prototype.convertNodes = function () {
 		fragment = this,
 		text = this.getText( true );
 
-	this.convertFromSource( text ).then( function ( selectionDocument ) {
+	this.pushPending( this.convertFromSource( text ).then( function ( selectionDocument ) {
 		tempSurfaceModel = new ve.dm.Surface( selectionDocument );
 		tempFragment = tempSurfaceModel.getLinearFragment(
 			// TODO: Find content offsets
-			new ve.Range( 0, selectionDocument.getInternalList().getListNode().getOuterRange().start )
+			selectionDocument.getDocumentRange()
 		);
 		tempFragment.convertNodes.apply( tempFragment, args );
 
+		fragment.clearPending();
 		fragment.insertDocument( tempFragment.getDocument() );
-	} );
+		return fragment.getPending();
+	} ) );
 
 	return this;
 };
@@ -75,7 +79,7 @@ ve.dm.SourceSurfaceFragment.prototype.insertContent = function ( content, annota
 	var i, l, data, lines;
 
 	if ( typeof content !== 'string' ) {
-		data = new ve.dm.ElementLinearData( new ve.dm.IndexValueStore(), content );
+		data = new ve.dm.ElementLinearData( new ve.dm.HashValueStore(), content );
 		// Pass `annotate` as `ignoreCoveringAnnotations`. If matching the target annotation (plain text) strip covering annotations.
 		if ( !data.isPlainText( null, false, [ 'paragraph' ], annotate ) ) {
 			this.insertDocument( new ve.dm.Document( content.concat( [ { type: 'internalList' }, { type: '/internalList' } ] ) ) );
@@ -146,18 +150,19 @@ ve.dm.SourceSurfaceFragment.prototype.insertDocument = function ( doc, newDocRan
 		return ve.dm.SourceSurfaceFragment.super.prototype.insertContent.call( this, data );
 	}
 
-	this.convertToSource( doc )
-		.done( function ( source ) {
-			if ( source ) {
-				// Parent method
-				ve.dm.SourceSurfaceFragment.super.prototype.insertContent.call( fragment, source.trim() );
-			} else {
-				fragment.removeContent();
-			}
-		} )
-		.fail( function () {
-			ve.error( 'Failed to convert document', arguments );
-		} );
+	this.pushPending(
+		this.convertToSource( doc )
+			.done( function ( source ) {
+				if ( source ) {
+					// Parent method
+					ve.dm.SourceSurfaceFragment.super.prototype.insertContent.call( fragment, source.trim() );
+				} else {
+					fragment.removeContent();
+				}
+			} ).fail( function () {
+				ve.error( 'Failed to convert document', arguments );
+			} )
+	);
 
 	return this;
 };
@@ -225,7 +230,7 @@ ve.dm.SourceSurfaceFragment.prototype.wrapAllNodes = function ( wrapOuter, wrapE
  */
 ve.dm.SourceSurfaceFragment.prototype.convertToSource = function ( doc ) {
 	if ( !doc.data.hasContent() ) {
-		return $.Deferred().reject().promise();
+		return $.Deferred().resolve( '' ).promise();
 	} else {
 		return $.Deferred().resolve(
 			ve.properInnerHtml(

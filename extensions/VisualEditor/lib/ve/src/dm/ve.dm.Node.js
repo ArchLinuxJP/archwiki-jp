@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Node class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -126,6 +126,27 @@ ve.dm.Node.static.isUnwrappable = true;
  * @inheritable
  */
 ve.dm.Node.static.isContent = false;
+
+/**
+ * Whether this node type is a metadata node. This means the node represents a leaf node that
+ * has no explicit view representation, and should be treated differently for the purposes of
+ * round-tripping, copy/paste etc.
+ *
+ * @static
+ * @property {boolean}
+ * @inheritable
+ */
+ve.dm.Node.static.isMetaData = false;
+
+/**
+ * For a non-content node type, whether this node type can be serialized in a content
+ * position (e.g. for round tripping). This value is ignored if isContent is true.
+ *
+ * @static
+ * @property {boolean}
+ * @inheritable
+ */
+ve.dm.Node.static.canSerializeAsContent = false;
 
 /**
  * Whether this node type can be focused. Focusable nodes react to selections differently.
@@ -314,7 +335,7 @@ ve.dm.Node.static.isHybridInline = function ( domElements, converter ) {
  *
  * @static
  * @param {Object} element Element object
- * @param {ve.dm.IndexValueStore} store Index-value store used by element
+ * @param {ve.dm.HashValueStore} store Hash-value store used by element
  * @param {boolean} preserveGenerated Preserve internal.generated property of element
  * @return {Object} Cloned element object
  */
@@ -323,13 +344,10 @@ ve.dm.Node.static.cloneElement = function ( element, store, preserveGenerated ) 
 		modified = false,
 		clone = ve.copy( element );
 
-	if ( !preserveGenerated && clone.internal ) {
-		delete clone.internal.generated;
-		if ( ve.isEmptyObject( clone.internal ) ) {
-			delete clone.internal;
-		}
+	if ( !preserveGenerated ) {
+		ve.deleteProp( clone, 'internal', 'generated' );
 	}
-	originalDomElements = store.value( clone.originalDomElementsIndex );
+	originalDomElements = store.value( clone.originalDomElementsHash );
 	// Generate a new about attribute to prevent about grouping of cloned nodes
 	if ( originalDomElements ) {
 		// TODO: The '#mwtNNN' is required by Parsoid. Make the name used here
@@ -345,7 +363,7 @@ ve.dm.Node.static.cloneElement = function ( element, store, preserveGenerated ) 
 			return elClone;
 		} );
 		if ( modified ) {
-			clone.originalDomElementsIndex = store.index( domElements, domElements.map( ve.getNodeHtml ).join( '' ) );
+			clone.originalDomElementsHash = store.hash( domElements, domElements.map( ve.getNodeHtml ).join( '' ) );
 		}
 	}
 	return clone;
@@ -411,10 +429,7 @@ ve.dm.Node.prototype.canHaveChildrenNotContent = function () {
 };
 
 /**
- * Check if the node is an internal node
- *
- * @method
- * @return {boolean} Node is an internal node
+ * @inheritdoc ve.Node
  */
 ve.dm.Node.prototype.isInternal = function () {
 	return this.constructor.static.isInternal;

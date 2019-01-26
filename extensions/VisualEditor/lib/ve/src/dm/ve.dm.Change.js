@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Change class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /* global DOMPurify */
@@ -71,7 +71,7 @@
  * @constructor
  * @param {number} start Length of the history stack at change start
  * @param {ve.dm.Transaction[]} transactions Transactions to apply
- * @param {ve.dm.IndexValueStore[]} stores For each transaction, a collection of new store items
+ * @param {ve.dm.HashValueStore[]} stores For each transaction, a collection of new store items
  * @param {Object} selections For each author ID (key), latest ve.dm.Selection
  */
 ve.dm.Change = function VeDmChange( start, transactions, stores, selections ) {
@@ -94,11 +94,35 @@ ve.dm.Change.static = {};
  * @param {Object} data Change serialized as a JSONable object
  * @param {ve.dm.Document} [doc] Document, used for creating proper selections if deserializing in the client
  * @param {boolean} [preserveStoreValues] Keep store values verbatim instead of deserializing
+ * @param {boolean} [unsafe] Use unsafe deserialization (skipping DOMPurify), used via #unsafeDeserialize
  * @return {ve.dm.Change} Deserialized change
  */
-ve.dm.Change.static.deserialize = function ( data, doc, preserveStoreValues ) {
-	var authorId, deserializeStore,
-		selections = {};
+ve.dm.Change.static.deserialize = function ( data, doc, preserveStoreValues, unsafe ) {
+	var authorId, deserializeStore, i, iLen, txSerialized, insertion, tx,
+		prevInfo,
+		hasOwn = Object.prototype.hasOwnProperty,
+		getTransactionInfo = this.getTransactionInfo,
+		deserializeValue = this.deserializeValue,
+		selections = {},
+		transactions = [],
+		// If stores is undefined, create an array of nulls
+		stores = data.stores || data.transactions.map( function () { return null; } );
+
+	/**
+	 * Apply annotations in-place to array of code units
+	 *
+	 * @param {string[]} items Array of code units
+	 * @param {string[]|null} annotations Annotations to apply uniformly, or null
+	 */
+	function annotate( items, annotations ) {
+		var i, iLen;
+		if ( !annotations || !annotations.length ) {
+			return;
+		}
+		for ( i = 0, iLen = items.length; i < iLen; i++ ) {
+			items[ i ] = [ items[ i ], annotations.slice() ];
+		}
+	}
 
 	for ( authorId in data.selections ) {
 		selections[ authorId ] = ve.dm.Selection.static.newFromJSON(
@@ -106,18 +130,54 @@ ve.dm.Change.static.deserialize = function ( data, doc, preserveStoreValues ) {
 			data.selections[ authorId ]
 		);
 	}
-	deserializeStore = ve.dm.IndexValueStore.static.deserialize.bind(
+	deserializeStore = ve.dm.HashValueStore.static.deserialize.bind(
 		null,
 		preserveStoreValues ? function noop( x ) {
 			return x;
-		} : this.deserializeValue
+		} : function ( x ) { return deserializeValue( x, unsafe ); }
 	);
+	for ( i = 0, iLen = data.transactions.length; i < iLen; i++ ) {
+		txSerialized = data.transactions[ i ];
+		if ( typeof txSerialized === 'string' ) {
+			insertion = txSerialized.split( '' );
+			annotate(
+				insertion,
+				prevInfo.uniformInsert && prevInfo.uniformInsert.annotations
+			);
+			tx = new ve.dm.Transaction( [
+				{ type: 'retain', length: prevInfo.end },
+				{ type: 'replace', remove: [], insert: insertion },
+				{ type: 'retain', length: prevInfo.docLength - prevInfo.end }
+			], prevInfo.authorId );
+			if ( tx.operations[ 2 ].length === 0 ) {
+				tx.operations.pop();
+			}
+		} else {
+			tx = ve.dm.Transaction.static.deserialize( txSerialized );
+			if ( prevInfo && !hasOwn.call( txSerialized, 'authorId' ) ) {
+				tx.authorId = prevInfo.authorId;
+			}
+		}
+		transactions.push( tx );
+		prevInfo = getTransactionInfo( tx );
+	}
 	return new ve.dm.Change(
 		data.start,
-		data.transactions.map( ve.dm.Transaction.static.deserialize ),
-		data.stores.map( deserializeStore ),
+		transactions,
+		stores.map( deserializeStore ),
 		selections
 	);
+};
+
+/**
+ * Deserialize a change from a JSONable object without sanitizing DOM nodes
+ *
+ * @param {Object} data
+ * @param {ve.dm.Document} [doc]
+ * @return {ve.dm.Change} Deserialized change
+ */
+ve.dm.Change.static.unsafeDeserialize = function ( data, doc ) {
+	return this.deserialize( data, doc, false, true );
 };
 
 ve.dm.Change.static.serializeValue = function ( value ) {
@@ -130,29 +190,41 @@ ve.dm.Change.static.serializeValue = function ( value ) {
 	}
 };
 
-ve.dm.Change.static.deserializeValue = function ( serialized ) {
-	var rdfaAttrs;
+ve.dm.Change.static.deserializeValue = function ( serialized, unsafe ) {
+	var addTags, addAttrs;
 	if ( serialized.type === 'annotation' ) {
 		return ve.dm.annotationFactory.createFromElement( serialized.value );
 	} else if ( serialized.type === 'domNodeArray' ) {
-		rdfaAttrs = [ 'about', 'rel', 'resource', 'property', 'content', 'datatype', 'typeof' ];
-
-		return serialized.value.map( function ( nodeHtml ) {
-			return DOMPurify.sanitize( $.parseHTML( nodeHtml )[ 0 ], {
-				ADD_ATTR: rdfaAttrs,
-				ADD_URI_SAFE_ATTR: rdfaAttrs,
-				FORBID_TAGS: [ 'style' ],
-				RETURN_DOM_FRAGMENT: true
-			} ).childNodes[ 0 ];
-		} ).filter( function ( node ) {
-			// Nodes can be sanitized to nothing (empty string or undefined)
-			// so check it is truthy
-			return node;
-		} );
+		if ( unsafe ) {
+			return serialized.value.map( function ( nodeHtml ) {
+				return $.parseHTML( nodeHtml )[ 0 ];
+			} );
+		} else {
+			// TODO: Move MW-specific rules to ve-mw
+			addTags = [ 'figure-inline' ];
+			addAttrs = [
+				'srcset',
+				// RDFa
+				'about', 'rel', 'resource', 'property', 'content', 'datatype', 'typeof'
+			];
+			return serialized.value.map( function ( nodeHtml ) {
+				return DOMPurify.sanitize( $.parseHTML( nodeHtml )[ 0 ], {
+					ADD_TAGS: addTags,
+					ADD_ATTR: addAttrs,
+					ADD_URI_SAFE_ATTR: addAttrs,
+					FORBID_TAGS: [ 'style' ],
+					RETURN_DOM_FRAGMENT: true
+				} ).childNodes[ 0 ];
+			} ).filter( function ( node ) {
+				// Nodes can be sanitized to nothing (empty string or undefined)
+				// so check it is truthy
+				return node;
+			} );
+		}
 	} else if ( serialized.type === 'plain' ) {
 		return serialized.value;
 	} else {
-		throw new Error( 'Unrecognised type: ' + serialized.type );
+		throw new Error( 'Unrecognized type: ' + serialized.type );
 	}
 };
 
@@ -231,7 +303,7 @@ ve.dm.Change.static.rebaseTransactions = function ( transactionA, transactionB )
 			if ( active && start === undefined ) {
 				start = offset;
 			}
-			// adjust offset and diff
+			// Adjust offset and diff
 			if ( op.type === 'retain' ) {
 				offset += op.length;
 			} else if ( op.type === 'replace' ) {
@@ -425,6 +497,7 @@ ve.dm.Change.static.rebaseUncommittedChange = function ( history, uncommitted ) 
 			if ( rebases[ 0 ] === null ) {
 				rejected = uncommitted.mostRecent( uncommitted.start + i );
 				transactionsB.length = i;
+				storesB.length = i;
 				selectionsB = {};
 				break bLoop;
 			}
@@ -464,6 +537,133 @@ ve.dm.Change.static.rebaseUncommittedChange = function ( history, uncommitted ) 
 		rebased: rebased,
 		transposedHistory: transposedHistory,
 		rejected: rejected
+	};
+};
+
+/**
+ * Get info about a transaction if it is a "simple replacement", or null if not
+ *
+ * A simple replacement transaction is one that has just one retain op
+ * @param {ve.dm.Transaction} tx The transaction
+ * @return {Object|null} Info about the transaction if a simple replacement, else null
+ * @return {number} return.start The start offset of the replacement
+ * @return {number} return.end The end offset of the replacement (after replacement)
+ * @return {number} return.docLength The total length of the document (after replacement)
+ * @return {number} return.authorId The author ID
+ * @return {Object|null} return.uniformInsert The insertion as uniform text, or null if not
+ * @return {string} return.uniformInsert.text The plain text of the uniform text
+ * @return {string} return.uniformInsert.annotations Annotation hashes for all text
+ * @return {string} return.uniformInsert.annotationString Comma-separated annotation hashes
+ */
+ve.dm.Change.static.getTransactionInfo = function ( tx ) {
+	var op0, op1, op2, replaceOp, start, end, docLength;
+
+	// Copy of ve.dm.ElementLinearData.static.getAnnotationHashesFromItem, but we
+	// don't want to load all of ElementLinearData and its dependencies on the server-side.
+	function getAnnotations( item ) {
+		if ( typeof item === 'string' ) {
+			return [];
+		} else if ( item.annotations ) {
+			return item.annotations.slice();
+		} else if ( item[ 1 ] ) {
+			return item[ 1 ].slice();
+		} else {
+			return [];
+		}
+	}
+
+	/**
+	 * Get an item's single code unit (without annotation), or null if not a code unit
+	 *
+	 * @param {Object|Array|string} item The item
+	 * @return {string|null} The single code unit, or null if not a code unit
+	 */
+	function getSingleCodeUnit( item ) {
+		if ( typeof item === 'string' && item.length === 1 ) {
+			return item;
+		}
+		if ( Array.isArray( item ) && item[ 0 ].length === 1 ) {
+			return item[ 0 ];
+		}
+		return null;
+	}
+
+	/**
+	 * Get info about the "uniform text" from an item array, or null if not uniform text
+	 *
+	 * The item array is uniform text if all items have the same annotations, and
+	 * every item is a single code unit of text
+	 *
+	 * @param {Array} items The items
+	 * @return {Object|null} Info about the uniform text, or null if not uniform text
+	 * @return {string} return.text The code units, in a single string
+	 * @return {string} return.annotations Annotation hashes for all text
+	 * @return {string} return.annotationString Comma-separated annotation hashes
+	 */
+	function getUniformText( items ) {
+		var annotations, annotationString, i, iLen, codeUnit,
+			codeUnits = [];
+		if ( items.length === 0 ) {
+			return null;
+		}
+		codeUnit = getSingleCodeUnit( items[ 0 ] );
+		if ( codeUnit === null ) {
+			return null;
+		}
+		codeUnits.push( codeUnit );
+		annotations = getAnnotations( items[ 0 ] );
+		annotationString = annotations.join( ',' );
+		for ( i = 1, iLen = items.length; i < iLen; i++ ) {
+			codeUnit = getSingleCodeUnit( items[ i ] );
+			if ( codeUnit === null ) {
+				return null;
+			}
+			codeUnits.push( codeUnit );
+			if ( annotationString !== getAnnotations( items[ i ] ).join( ',' ) ) {
+				return null;
+			}
+		}
+		return {
+			text: codeUnits.join( '' ),
+			annotations: annotations,
+			annotationString: annotationString
+		};
+	}
+
+	op0 = tx.operations[ 0 ];
+	op1 = tx.operations[ 1 ];
+	op2 = tx.operations[ 2 ];
+	if (
+		op0 &&
+		op0.type === 'replace' &&
+		( !op1 || op1.type === 'retain' ) &&
+		!op2
+	) {
+		replaceOp = op0;
+		start = 0;
+		end = start + replaceOp.insert.length;
+		docLength = end;
+	} else if (
+		op0 &&
+		op0.type === 'retain' &&
+		op1 &&
+		op1.type === 'replace' &&
+		( !op2 || op2.type === 'retain' )
+	) {
+		replaceOp = op1;
+		start = op0.length;
+		end = start + replaceOp.insert.length;
+		docLength = end + ( op2 ? op2.length : 0 );
+	} else {
+		return null;
+	}
+
+	return {
+		start: start,
+		end: end,
+		docLength: docLength,
+		authorId: tx.authorId,
+		uniformInsert: getUniformText( replaceOp.insert )
 	};
 };
 
@@ -525,7 +725,7 @@ ve.dm.Change.prototype.reversed = function () {
 		} ).reverse(),
 		// Empty store for each transaction (reverting cannot possibly add new annotations)
 		this.transactions.map( function () {
-			return new ve.dm.IndexValueStore();
+			return new ve.dm.HashValueStore();
 		} ),
 		{}
 	);
@@ -651,16 +851,13 @@ ve.dm.Change.prototype.applyTo = function ( surface ) {
  */
 ve.dm.Change.prototype.unapplyTo = function ( surface ) {
 	var doc = surface.documentModel,
-		historyLength = doc.completeHistory.length - this.getLength(),
-		storeLength = doc.store.getLength();
-	this.stores.forEach( function ( store ) {
-		storeLength -= store.getLength();
-	} );
+		historyLength = doc.completeHistory.length - this.getLength();
 	this.transactions.slice().reverse().forEach( function ( tx ) {
 		surface.change( tx.reversed() );
 	} );
 	doc.completeHistory.length = historyLength;
-	doc.store.truncate( storeLength );
+	doc.storeLengthAtHistoryLength.length = historyLength + 1;
+	doc.store.truncate( doc.storeLengthAtHistoryLength[ historyLength ] );
 };
 
 /**
@@ -685,21 +882,17 @@ ve.dm.Change.prototype.addToHistory = function ( documentModel ) {
 /**
  * Remove change transactions from history
  *
- * @param {ve.dm.Document} documentModel
+ * @param {ve.dm.Document} doc
  * @throws {Error} If this change does not end at the top of the history
  */
-ve.dm.Change.prototype.removeFromHistory = function ( documentModel ) {
-	var storeLength;
-	if ( this.start + this.getLength() !== documentModel.completeHistory.length ) {
+ve.dm.Change.prototype.removeFromHistory = function ( doc ) {
+	if ( this.start + this.getLength() !== doc.completeHistory.length ) {
 		throw new Error( 'this ends at ' + ( this.start + this.getLength() ) +
-			' but history ends at ' + documentModel.completeHistory.length );
+			' but history ends at ' + doc.completeHistory.length );
 	}
-	documentModel.completeHistory.length -= this.transactions.length;
-	storeLength = documentModel.store.getLength();
-	this.stores.forEach( function ( store ) {
-		storeLength -= store.getLength();
-	} );
-	documentModel.store.truncate( storeLength );
+	doc.completeHistory.length -= this.transactions.length;
+	doc.storeLengthAtHistoryLength -= this.transactions.length;
+	doc.store.truncate( doc.storeLengthAtHistoryLength[ doc.completeHistory.length ] );
 };
 
 /**
@@ -712,8 +905,11 @@ ve.dm.Change.prototype.removeFromHistory = function ( documentModel ) {
  * @return {ve.dm.Change} Deserialized change
  */
 ve.dm.Change.prototype.serialize = function ( preserveStoreValues ) {
-	var authorId, serializeStoreValues, serializeStore,
-		selections = {};
+	var authorId, serializeStoreValues, serializeStore, i, iLen, tx, info, prevInfo,
+		txSerialized, stores, data,
+		getTransactionInfo = this.constructor.static.getTransactionInfo,
+		selections = {},
+		transactions = [];
 
 	for ( authorId in this.selections ) {
 		selections[ authorId ] = this.selections[ authorId ].toJSON();
@@ -724,12 +920,39 @@ ve.dm.Change.prototype.serialize = function ( preserveStoreValues ) {
 	serializeStore = function ( store ) {
 		return store.serialize( serializeStoreValues );
 	};
-	return {
+	for ( i = 0, iLen = this.transactions.length; i < iLen; i++ ) {
+		tx = this.transactions[ i ];
+		info = getTransactionInfo( tx );
+		if (
+			info &&
+			prevInfo &&
+			info.authorId === prevInfo.authorId &&
+			info.start === prevInfo.end &&
+			info.uniformInsert &&
+			prevInfo.uniformInsert &&
+			info.uniformInsert.annotationString === prevInfo.uniformInsert.annotationString
+		) {
+			transactions.push( info.uniformInsert.text );
+		} else {
+			txSerialized = tx.serialize();
+			if ( i > 0 && tx.authorId === this.transactions[ i - 1 ].authorId ) {
+				delete txSerialized.authorId;
+			}
+			transactions.push( txSerialized );
+		}
+		prevInfo = info;
+	}
+	stores = this.stores.map( serializeStore );
+	data = {
 		start: this.start,
-		transactions: this.transactions.map( function ( tx ) {
-			return tx.serialize();
-		} ),
-		stores: this.stores.map( serializeStore ),
-		selections: selections
+		transactions: transactions
 	};
+	// Only set stores if at least one is non-null
+	if ( stores.some( function ( store ) { return store !== null; } ) ) {
+		data.stores = stores;
+	}
+	if ( Object.keys( selections ).length ) {
+		data.selections = selections;
+	}
+	return data;
 };

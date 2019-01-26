@@ -1,0 +1,34 @@
+{
+	"@metadata": {
+		"authors": [
+			"Asaifm",
+			"محمد أحمد عبد الفتاح",
+			"ديفيد",
+			"علاء",
+			"Meno25"
+		]
+	},
+	"popups-message": "معاينات الصفحة",
+	"popups-desc": "يقوم بعرض معاينات عندما يقوم المستخدم بحوم المؤشر على رابط الصفحة",
+	"popups-settings-title": "معاينة الصفحة",
+	"popups-settings-option-simple": "تمكين",
+	"popups-settings-option-simple-description": "الحصول على معاينة سريعة للموضوع أثناء قراءة الصفحة.",
+	"popups-settings-option-advanced": "متقدمة",
+	"popups-settings-option-advanced-description": "شاهد معاينات الرابط والوصول إلى تحرير القوائم الوظيفية. هذا مُستخدم من قبل العديد من المحررين.",
+	"popups-settings-option-off": "تعطيل",
+	"popups-settings-save": "احفظ",
+	"popups-settings-help-ok": "موافق",
+	"popups-settings-cancel": "ألغ",
+	"popups-settings-help": "يمكنك تفعيل المعاينات مرة أُخرى من خلال استعمال رابط في تذييل الصفحة.",
+	"popups-settings-enable": "فعل المعاينات",
+	"popups-preview-no-preview": "كانت هناك مشكلة في عرض هذه المعاينة",
+	"popups-preview-footer-read": "اذهب إلى هذه الصفحة",
+	"popups-preview-disambiguation": "يرتبط هذا العنوان بأكثر من صفحة واحدة",
+	"popups-preview-disambiguation-link": "عرض صفحات مماثلة",
+	"prefs-reading": "تفضيلات القراءة",
+	"popups-prefs-optin-title": "معاينة الصفحة (الحصول على معاينة سريعة للموضوع أثناء قراءة الصفحة):",
+	"popups-prefs-optin-enabled-label": "تفعيل",
+	"popups-prefs-optin-disabled-label": "تعطيل",
+	"popups-prefs-disable-nav-gadgets-info": "يجب عليك [[$1 |تعطيل أداة التنقل بالنوافذ المنبثقة]] من علامة تبويب الأدوات لتمكين معاينات الصفحة",
+	"popups-prefs-conflicting-gadgets-info": "قد تؤثر بعض الأدوات والتخصيصات الأخرى على أداء هذه الميزة، إذا واجهت أية مُشكلات تُرجَى مراجعة أدواتك والنصوص البرمجية للمستخدم الخاصة بك، بما في ذلك العالمية."
+}

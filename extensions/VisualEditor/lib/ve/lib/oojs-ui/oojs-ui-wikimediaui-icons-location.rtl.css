@@ -1,93 +1,62 @@
 /*!
- * OOjs UI v0.23.0
- * https://www.mediawiki.org/wiki/OOjs_UI
+ * OOUI v0.26.3
+ * https://www.mediawiki.org/wiki/OOUI
  *
- * Copyright 2011–2017 OOjs UI Team and other contributors.
+ * Copyright 2011–2018 OOUI Team and other contributors.
  * Released under the MIT license
  * http://oojs.mit-license.org
  *
- * Date: 2017-09-05T21:24:03Z
+ * Date: 2018-04-10T22:15:43Z
  */
 /**
- * WikimediaUI Base v0.9.2
+ * WikimediaUI Base v0.10.0
  * Wikimedia Foundation user interface base variables
  */
-/* Colors */
-/* Positioning */
-/* Box Model properties */
-/* Max Widths */
-/* Typography incl. print properties */
-/* Other Properties */
-/* Animation & Transition */
 .oo-ui-icon-map {
   background-image: url('themes/wikimediaui/images/icons/map-rtl.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/map-rtl.svg');
   background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/map-rtl.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/map-rtl.png');
 }
 .oo-ui-image-invert.oo-ui-icon-map {
   background-image: url('themes/wikimediaui/images/icons/map-rtl-invert.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/map-rtl-invert.svg');
   background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/map-rtl-invert.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/map-rtl-invert.png');
 }
 .oo-ui-image-progressive.oo-ui-icon-map {
   background-image: url('themes/wikimediaui/images/icons/map-rtl-progressive.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/map-rtl-progressive.svg');
   background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/map-rtl-progressive.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/map-rtl-progressive.png');
 }
 .oo-ui-icon-mapPin {
   background-image: url('themes/wikimediaui/images/icons/mapPin.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPin.svg');
   background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPin.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/mapPin.png');
 }
 .oo-ui-image-invert.oo-ui-icon-mapPin {
   background-image: url('themes/wikimediaui/images/icons/mapPin-invert.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPin-invert.svg');
   background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPin-invert.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/mapPin-invert.png');
 }
 .oo-ui-image-progressive.oo-ui-icon-mapPin {
   background-image: url('themes/wikimediaui/images/icons/mapPin-progressive.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPin-progressive.svg');
   background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPin-progressive.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/mapPin-progressive.png');
 }
 .oo-ui-icon-mapPinAdd {
-  background-image: url('themes/wikimediaui/images/icons/mapPinAdd-rtl.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPinAdd-rtl.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPinAdd-rtl.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/mapPinAdd-rtl.png');
+  background-image: url('themes/wikimediaui/images/icons/mapPinAdd.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPinAdd.svg');
 }
 .oo-ui-image-invert.oo-ui-icon-mapPinAdd {
-  background-image: url('themes/wikimediaui/images/icons/mapPinAdd-rtl-invert.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPinAdd-rtl-invert.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPinAdd-rtl-invert.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/mapPinAdd-rtl-invert.png');
+  background-image: url('themes/wikimediaui/images/icons/mapPinAdd-invert.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPinAdd-invert.svg');
 }
 .oo-ui-image-progressive.oo-ui-icon-mapPinAdd {
-  background-image: url('themes/wikimediaui/images/icons/mapPinAdd-rtl-progressive.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPinAdd-rtl-progressive.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPinAdd-rtl-progressive.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/mapPinAdd-rtl-progressive.png');
+  background-image: url('themes/wikimediaui/images/icons/mapPinAdd-progressive.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapPinAdd-progressive.svg');
 }
 .oo-ui-icon-mapTrail {
-  background-image: url('themes/wikimediaui/images/icons/mapTrail-rtl.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapTrail-rtl.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapTrail-rtl.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/mapTrail-rtl.png');
+  background-image: url('themes/wikimediaui/images/icons/mapTrail.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapTrail.svg');
 }
 .oo-ui-image-invert.oo-ui-icon-mapTrail {
-  background-image: url('themes/wikimediaui/images/icons/mapTrail-rtl-invert.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapTrail-rtl-invert.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapTrail-rtl-invert.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/mapTrail-rtl-invert.png');
+  background-image: url('themes/wikimediaui/images/icons/mapTrail-invert.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapTrail-invert.svg');
 }
 .oo-ui-image-progressive.oo-ui-icon-mapTrail {
-  background-image: url('themes/wikimediaui/images/icons/mapTrail-rtl-progressive.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapTrail-rtl-progressive.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapTrail-rtl-progressive.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/wikimediaui/images/icons/mapTrail-rtl-progressive.png');
+  background-image: url('themes/wikimediaui/images/icons/mapTrail-progressive.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/mapTrail-progressive.svg');
 }

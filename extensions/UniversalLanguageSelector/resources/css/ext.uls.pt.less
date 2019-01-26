@@ -1,0 +1,44 @@
+@import 'mediawiki.mixins';
+
+/* stylelint-disable selector-max-id */
+
+/*
+ * The trigger can be placed in the personal toolbar near the username
+ * or near the interlanguage links.
+ */
+
+/*
+ * A hack to load the icon before the rest of the module is lazy-loaded.
+ * Copied from jquery.uls.css with the path changed.
+ */
+.uls-trigger {
+	background: transparent no-repeat scroll left center;
+	.background-image-svg( '../../lib/jquery.uls/images/language.svg', '../../lib/jquery.uls/images/language.png' );
+	// Let the SVG image fit without cropping or stretch
+	background-size: contain;
+	padding-left: 24px;
+}
+
+#pt-uls a.uls-trigger {
+	padding-left: 18px;
+	// Let the SVG image fit without cropping or stretch
+	background-size: contain;
+	/* Fix alignment in vector: https://phabricator.wikimedia.org/T61239 */
+	line-height: 1;
+}
+
+/* Opera for some inexplicable reason confuses right and left padding with */
+/* RTL text direction here (bug T47142). x:-o-prefocus won't match anything, */
+/* but will make other browsers ignore this rule. */
+/* stylelint-disable selector-type-no-unknown */
+x:-o-prefocus,
+body.rtl li#pt-uls {
+	/* @noflip */
+	direction: ltr;
+}
+/* stylelint-enable selector-type-no-unknown */
+
+/* Don't show it to users who disabled JS */
+.client-nojs #pt-uls {
+	display: none;
+}

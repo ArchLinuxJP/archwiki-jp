@@ -7,11 +7,12 @@
  *
  * @class jQuery.plugin.confirmable
  */
-( function ( $ ) {
+( function () {
 	var identity = function ( data ) {
 		return data;
 	};
 
+	// eslint-disable-next-line valid-jsdoc
 	/**
 	 * Enable inline confirmation for given clickable element (like `<a />` or `<button />`).
 	 *
@@ -179,4 +180,4 @@
 			noTitle: undefined
 		}
 	};
-}( jQuery ) );
+}() );

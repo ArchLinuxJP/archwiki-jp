@@ -29,21 +29,21 @@ class JpegMetadataExtractorTest extends MediaWikiTestCase {
 	 */
 	public function testUtf8Comment( $file ) {
 		$res = JpegMetadataExtractor::segmentSplitter( $this->filePath . $file );
-		$this->assertEquals( array( 'UTF-8 JPEG Comment — ¼' ), $res['COM'] );
+		$this->assertEquals( [ 'UTF-8 JPEG Comment — ¼' ], $res['COM'] );
 	}
 
 	public static function provideUtf8Comment() {
-		return array(
-			array( 'jpeg-comment-utf.jpg' ),
-			array( 'jpeg-padding-even.jpg' ),
-			array( 'jpeg-padding-odd.jpg' ),
-		);
+		return [
+			[ 'jpeg-comment-utf.jpg' ],
+			[ 'jpeg-padding-even.jpg' ],
+			[ 'jpeg-padding-odd.jpg' ],
+		];
 	}
 
 	/** The file is iso-8859-1, but it should get auto converted */
 	public function testIso88591Comment() {
 		$res = JpegMetadataExtractor::segmentSplitter( $this->filePath . 'jpeg-comment-iso8859-1.jpg' );
-		$this->assertEquals( array( 'ISO-8859-1 JPEG Comment - ¼' ), $res['COM'] );
+		$this->assertEquals( [ 'ISO-8859-1 JPEG Comment - ¼' ], $res['COM'] );
 	}
 
 	/** Comment values that are non-textual (random binary junk) should not be shown.
@@ -60,7 +60,7 @@ class JpegMetadataExtractorTest extends MediaWikiTestCase {
 	 */
 	public function testMultipleComment() {
 		$res = JpegMetadataExtractor::segmentSplitter( $this->filePath . 'jpeg-comment-multiple.jpg' );
-		$this->assertEquals( array( 'foo', 'bar' ), $res['COM'] );
+		$this->assertEquals( [ 'foo', 'bar' ], $res['COM'] );
 	}
 
 	public function testXMPExtraction() {
@@ -107,5 +107,22 @@ class JpegMetadataExtractorTest extends MediaWikiTestCase {
 		$res = JpegMetadataExtractor::segmentSplitter( $this->filePath . 'exif-user-comment.jpg' );
 		$expected = 'BE';
 		$this->assertEquals( $expected, $res['byteOrder'] );
+	}
+
+	public function testInfiniteRead() {
+		// test file truncated right after a segment, which previously
+		// caused an infinite loop looking for the next segment byte.
+		// Should get past infinite loop and throw in wfUnpack()
+		$this->setExpectedException( 'MWException' );
+		$res = JpegMetadataExtractor::segmentSplitter( $this->filePath . 'jpeg-segment-loop1.jpg' );
+	}
+
+	public function testInfiniteRead2() {
+		// test file truncated after a segment's marker and size, which
+		// would cause a seek past end of file. Seek past end of file
+		// doesn't actually fail, but prevents further reading and was
+		// devolving into the previous case (testInfiniteRead).
+		$this->setExpectedException( 'MWException' );
+		$res = JpegMetadataExtractor::segmentSplitter( $this->filePath . 'jpeg-segment-loop2.jpg' );
 	}
 }

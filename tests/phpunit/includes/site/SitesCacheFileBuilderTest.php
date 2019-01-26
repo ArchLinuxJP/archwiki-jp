@@ -27,7 +27,9 @@
  *
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class SitesCacheFileBuilderTest extends PHPUnit_Framework_TestCase {
+class SitesCacheFileBuilderTest extends PHPUnit\Framework\TestCase {
+
+	use MediaWikiCoversValidator;
 
 	protected function setUp() {
 		$this->cacheFile = $this->getCacheFile();
@@ -46,48 +48,48 @@ class SitesCacheFileBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	private function getExpectedData() {
-		return array(
-			'sites' => array(
-				'foobar' => array(
+		return [
+			'sites' => [
+				'foobar' => [
 					'globalid' => 'foobar',
 					'type' => 'unknown',
 					'group' => 'none',
 					'source' => 'local',
 					'language' => null,
-					'localids' => array(),
-					'config' => array(),
-					'data' => array(),
+					'localids' => [],
+					'config' => [],
+					'data' => [],
 					'forward' => false,
 					'internalid' => null,
-					'identifiers' => array()
-				),
-				'enwiktionary' => array(
+					'identifiers' => []
+				],
+				'enwiktionary' => [
 					'globalid' => 'enwiktionary',
 					'type' => 'mediawiki',
 					'group' => 'wiktionary',
 					'source' => 'local',
 					'language' => 'en',
-					'localids' => array(
-						'equivalent' => array( 'enwiktionary' )
-					),
-					'config' => array(),
-					'data' => array(
-						'paths' => array(
+					'localids' => [
+						'equivalent' => [ 'enwiktionary' ]
+					],
+					'config' => [],
+					'data' => [
+						'paths' => [
 							'page_path' => 'https://en.wiktionary.org/wiki/$1',
 							'file_path' => 'https://en.wiktionary.org/w/$1'
-						)
-					),
+						]
+					],
 					'forward' => false,
 					'internalid' => null,
-					'identifiers' => array(
-						array(
+					'identifiers' => [
+						[
 							'type' => 'equivalent',
 							'key' => 'enwiktionary'
-						)
-					)
-				)
-			)
-		);
+						]
+					]
+				]
+			]
+		];
 	}
 
 	private function newSitesCacheFileBuilder( SiteList $sites ) {
@@ -98,7 +100,7 @@ class SitesCacheFileBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	private function getSiteLookup( SiteList $sites ) {
-		$siteLookup = $this->getMockBuilder( 'SiteLookup' )
+		$siteLookup = $this->getMockBuilder( SiteLookup::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -110,7 +112,7 @@ class SitesCacheFileBuilderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	private function getSites() {
-		$sites = array();
+		$sites = [];
 
 		$site = new Site();
 		$site->setGlobalId( 'foobar' );

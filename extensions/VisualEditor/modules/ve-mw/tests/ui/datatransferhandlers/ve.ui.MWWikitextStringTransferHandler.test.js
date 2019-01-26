@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWWikitextStringTransferHandler tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 window.MWWIKITEXT_MOCK_API = true;
@@ -60,7 +60,7 @@ ve.test.utils.runWikitextStringHandlerTest = function ( assert, server, string, 
 			store = docOrData.getStore();
 		} else {
 			actualData = docOrData;
-			store = new ve.dm.IndexValueStore();
+			store = new ve.dm.HashValueStore();
 		}
 		ve.dm.example.postprocessAnnotations( actualData, store );
 		if ( assertDom ) {
@@ -165,11 +165,26 @@ QUnit.test( 'convert', function ( assert ) {
 				annotations: [],
 				assertDom: true,
 				expectedData: [
-					{ type: 'mwHeading', attributes: { level: 2 }, originalDomElements: $( '<h2>foo</h2>' ).toArray() },
+					{ type: 'mwHeading', attributes: { level: 2 }, internal: { changesSinceLoad: 0, metaItems: [] }, originalDomElements: $( '<h2>foo</h2>' ).toArray() },
 					'f', 'o', 'o',
 					{ type: '/mwHeading' },
-					{ type: 'mwHeading', attributes: { level: 2 }, originalDomElements: $( '<h2 id="mw-meaningful-id">bar</h2>' ).toArray() },
+					{ type: 'mwHeading', attributes: { level: 2 }, internal: { changesSinceLoad: 0, metaItems: [] }, originalDomElements: $( '<h2 id="mw-meaningful-id">bar</h2>' ).toArray() },
 					'b', 'a', 'r',
+					{ type: '/mwHeading' },
+					{ type: 'internalList' },
+					{ type: '/internalList' }
+				]
+			},
+			{
+				msg: 'Headings, parsoid fallback ids don\'t interfere with whitespace stripping',
+				pasteString: '== Tudnivalók ==',
+				pasteType: 'text/plain',
+				parsoidResponse: '<h2 id="Tudnivalók"><span id="Tudnival.C3.B3k" typeof="mw:FallbackId"></span> Tudnivalók </h2>',
+				annotations: [],
+				assertDom: true,
+				expectedData: [
+					{ type: 'mwHeading', attributes: { level: 2 }, internal: { changesSinceLoad: 0, metaItems: [] }, originalDomElements: $( '<h2 id="Tudnivalók"> Tudnivalók </h2>' ).toArray() },
+					'T', 'u', 'd', 'n', 'i', 'v', 'a', 'l', 'ó', 'k',
 					{ type: '/mwHeading' },
 					{ type: 'internalList' },
 					{ type: '/internalList' }

@@ -1,7 +1,7 @@
 /*
  * VisualEditor user interface MWTemplateDialog class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -50,7 +50,7 @@ ve.ui.MWTemplateDialog.static.actions = [
 	{
 		action: 'insert',
 		label: OO.ui.deferMsg( 'visualeditor-dialog-action-insert' ),
-		flags: [ 'primary', 'constructive' ],
+		flags: [ 'primary', 'progressive' ],
 		modes: 'insert'
 	},
 	{
@@ -198,9 +198,10 @@ ve.ui.MWTemplateDialog.prototype.onAddParameter = function ( param ) {
 	var page;
 
 	if ( param.getName() ) {
-		page = new ve.ui.MWParameterPage( param, param.getId() );
+		page = new ve.ui.MWParameterPage( param, param.getId(), { $overlay: this.$overlay } );
 	} else {
 		page = new ve.ui.MWParameterPlaceholderPage( param, param.getId(), {
+			$overlay: this.$overlay,
 			expandedParamList: !!this.expandedParamList[ param.getId() ]
 		} )
 			.connect( this, { showAll: 'onParameterPlaceholderShowAll' } );
@@ -277,7 +278,7 @@ ve.ui.MWTemplateDialog.prototype.getBodyHeight = function () {
  */
 ve.ui.MWTemplateDialog.prototype.getPageFromPart = function ( part ) {
 	if ( part instanceof ve.dm.MWTemplateModel ) {
-		return new ve.ui.MWTemplatePage( part, part.getId() );
+		return new ve.ui.MWTemplatePage( part, part.getId(), { $overlay: this.$overlay } );
 	} else if ( part instanceof ve.dm.MWTemplatePlaceholderModel ) {
 		return new ve.ui.MWTemplatePlaceholderPage(
 			part,

@@ -1,0 +1,18 @@
+{
+	"@metadata": {
+		"authors": [
+			"Azniv Stepanian",
+			"ArmenBakkalian",
+			"Rajemian"
+		]
+	},
+	"vector-action-addsection": "Աւելցնել քննարկում",
+	"vector-action-delete": "Ջնջել",
+	"vector-action-move": "Տեղափոխել այս էջը",
+	"vector-action-protect": "Պահպանել",
+	"vector-view-create": "Ստեղծել",
+	"vector-view-edit": "Խմբագրել",
+	"vector-view-history": "Տեսնել պատմութիւնը",
+	"vector-view-view": "Կարդալ",
+	"vector-more-actions": "Աւելին"
+}

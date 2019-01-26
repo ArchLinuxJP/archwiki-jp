@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface LinkAnnotationInspector class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -16,7 +16,7 @@
  */
 ve.ui.MWLinkAnnotationInspector = function VeUiMWLinkAnnotationInspector( config ) {
 	// Parent constructor
-	ve.ui.MWLinkAnnotationInspector.super.call( this, config );
+	ve.ui.MWLinkAnnotationInspector.super.call( this, ve.extendObject( { padded: false }, config ) );
 };
 
 /* Inheritance */

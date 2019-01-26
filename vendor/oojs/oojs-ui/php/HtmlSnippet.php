@@ -19,9 +19,13 @@ class HtmlSnippet {
 	/* Methods */
 
 	/**
-	 * @param string $content
+	 * @param string $content HTML snippet
+	 * @param-taint $content exec_html
 	 */
 	public function __construct( $content ) {
+		if ( !is_string( $content ) ) {
+			throw new Exception( 'Content passed to HtmlSnippet must be a string' );
+		}
 		$this->content = $content;
 	}
 

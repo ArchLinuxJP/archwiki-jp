@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface AlignWidget class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -30,7 +30,7 @@ ve.ui.AlignWidget = function VeUiAlignWidget( config ) {
 		} ),
 		new OO.ui.ButtonOptionWidget( {
 			data: 'center',
-			icon: 'alignCentre',
+			icon: 'alignCenter',
 			label: ve.msg( 'visualeditor-align-widget-center' )
 		} ),
 		new OO.ui.ButtonOptionWidget( {

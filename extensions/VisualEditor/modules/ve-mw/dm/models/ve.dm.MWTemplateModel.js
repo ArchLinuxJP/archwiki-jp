@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel MWTemplateModel class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -25,7 +25,7 @@ ve.dm.MWTemplateModel = function VeDmMWTemplateModel( transclusion, target ) {
 	this.target = target;
 
 	// TODO: Either here or in uses of this constructor we need to validate the title
-	this.title = ( target.href && target.href.replace( /^(\.\.?\/)*/, '' ) ) || null;
+	this.title = target.href ? ve.normalizeParsoidResourceName( target.href ) : null;
 	this.sequence = null;
 	this.params = {};
 	this.spec = new ve.dm.MWTemplateSpecModel( this );

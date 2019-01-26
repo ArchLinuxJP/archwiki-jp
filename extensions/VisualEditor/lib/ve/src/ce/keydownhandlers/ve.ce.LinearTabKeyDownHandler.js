@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable linear escape key down handler
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -34,11 +34,12 @@ ve.ce.LinearTabKeyDownHandler.static.supportedSelections = [ 'linear' ];
 /**
  * @inheritdoc
  *
- * Handle escape key down events with a linear selection while table editing.
+ * Handle tab key down events with a linear selection while table editing.
  */
 ve.ce.LinearTabKeyDownHandler.static.execute = function ( surface, e ) {
 	var activeTableNode = surface.getActiveNode() && surface.getActiveNode().findParent( ve.ce.TableNode );
-	if ( activeTableNode ) {
+	// Check we have an active table node and that we are inside a cell (editingFragment), and not just a caption
+	if ( activeTableNode && activeTableNode.editingFragment ) {
 		if ( e.ctrlKey || e.altKey || e.metaKey ) {
 			// Support: Firefox
 			// In Firefox, ctrl-tab to switch browser-tabs still triggers the
@@ -54,11 +55,11 @@ ve.ce.LinearTabKeyDownHandler.static.execute = function ( surface, e ) {
 		surface.getModel().setSelection( surface.getModel().getSelection().collapseToStart() );
 		ve.ce.TableArrowKeyDownHandler.static.moveTableSelection(
 			surface,
-			0, // rows
-			e.shiftKey ? -1 : 1, // columns
-			false, // logical direction, not visual
-			false, // don't expand the current selection,
-			true // wrap to next/previous row
+			0, // Rows
+			e.shiftKey ? -1 : 1, // Columns
+			false, // Logical direction, not visual
+			false, // Don't expand the current selection,
+			true // Wrap to next/previous row
 		);
 		activeTableNode.setEditing( true );
 		return true;

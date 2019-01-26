@@ -18,7 +18,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
- * @ingroup JobQueue
  */
 
 /**
@@ -118,17 +117,17 @@ class JobSpecification implements IJobSpecification {
 	 * @param string $type
 	 * @param array $params Map of key/values
 	 * @param array $opts Map of key/values; includes 'removeDuplicates'
-	 * @param Title $title Optional descriptive title
+	 * @param Title|null $title Optional descriptive title
 	 */
 	public function __construct(
-		$type, array $params, array $opts = array(), Title $title = null
+		$type, array $params, array $opts = [], Title $title = null
 	) {
 		$this->validateParams( $params );
 		$this->validateParams( $opts );
 
 		$this->type = $type;
 		$this->params = $params;
-		$this->title = $title ?: Title::makeTitle( NS_SPECIAL, 'Badtitle/' . get_class( $this ) );
+		$this->title = $title ?: Title::makeTitle( NS_SPECIAL, 'Badtitle/' . static::class );
 		$this->opts = $opts;
 	}
 
@@ -168,12 +167,12 @@ class JobSpecification implements IJobSpecification {
 	}
 
 	public function getDeduplicationInfo() {
-		$info = array(
+		$info = [
 			'type' => $this->getType(),
 			'namespace' => $this->getTitle()->getNamespace(),
 			'title' => $this->getTitle()->getDBkey(),
 			'params' => $this->getParams()
-		);
+		];
 		if ( is_array( $info['params'] ) ) {
 			// Identical jobs with different "root" jobs should count as duplicates
 			unset( $info['params']['rootJobSignature'] );
@@ -186,14 +185,10 @@ class JobSpecification implements IJobSpecification {
 	}
 
 	public function getRootJobParams() {
-		return array(
-			'rootJobSignature' => isset( $this->params['rootJobSignature'] )
-				? $this->params['rootJobSignature']
-				: null,
-			'rootJobTimestamp' => isset( $this->params['rootJobTimestamp'] )
-				? $this->params['rootJobTimestamp']
-				: null
-		);
+		return [
+			'rootJobSignature' => $this->params['rootJobSignature'] ?? null,
+			'rootJobTimestamp' => $this->params['rootJobTimestamp'] ?? null
+		];
 	}
 
 	public function hasRootJobParams() {
@@ -210,15 +205,15 @@ class JobSpecification implements IJobSpecification {
 	 * @since 1.25
 	 */
 	public function toSerializableArray() {
-		return array(
+		return [
 			'type'   => $this->type,
 			'params' => $this->params,
 			'opts'   => $this->opts,
-			'title'  => array(
+			'title'  => [
 				'ns'  => $this->title->getNamespace(),
-				'key' => $this->title->getDbKey()
-			)
-		);
+				'key' => $this->title->getDBkey()
+			]
+		];
 	}
 
 	/**

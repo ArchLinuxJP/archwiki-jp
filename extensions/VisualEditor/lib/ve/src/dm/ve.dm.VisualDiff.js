@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel VisualDiff class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /* global treeDiffer */
@@ -29,7 +29,9 @@ ve.dm.VisualDiff = function VeDmVisualDiff( oldDoc, newDoc, timeout ) {
 	this.treeDiffer = treeDiffer;
 	// eslint-disable-next-line camelcase,new-cap
 	this.linearDiffer = new ve.DiffMatchPatch( this.oldDoc.getStore(), this.newDoc.getStore() );
+
 	this.endTime = new Date().getTime() + ( timeout || 1000 );
+	this.timedOut = false;
 
 	this.freezeInternalListIndices( this.oldDoc );
 	this.freezeInternalListIndices( this.newDoc );
@@ -404,8 +406,8 @@ ve.dm.VisualDiff.prototype.findModifiedRootChildren = function ( oldIndices, new
  * been changed to make the new child, and the diff should be discarded.
  * Otherwise the diff should be cleaned and returned.
  *
- * TODO: It would be possible to discover moves by comparing removed and
- * inserted nodes from the tree differ.
+ * TODO: It would be possible to discover within-child moves by comparing
+ * removed and inserted nodes from the tree differ.
  *
  * @param {ve.dm.Node} oldDocChild Child of the old document node
  * @param {ve.dm.Node} newDocChild Child of the new document node
@@ -414,7 +416,7 @@ ve.dm.VisualDiff.prototype.findModifiedRootChildren = function ( oldIndices, new
  */
 ve.dm.VisualDiff.prototype.getDocChildDiff = function ( oldDocChild, newDocChild, threshold ) {
 	var i, ilen, j, jlen,
-		treeDiff, linearDiff,
+		transactions, treeDiff, linearDiff,
 		oldNode, newNode,
 		replacement,
 		oldDocChildTree,
@@ -432,20 +434,17 @@ ve.dm.VisualDiff.prototype.getDocChildDiff = function ( oldDocChild, newDocChild
 	oldDocChildTree = new this.treeDiffer.Tree( oldDocChild, ve.DiffTreeNode );
 	newDocChildTree = new this.treeDiffer.Tree( newDocChild, ve.DiffTreeNode );
 
-	treeDiff = new this.treeDiffer.Differ( oldDocChildTree, newDocChildTree )
-		.transactions[ oldDocChildTree.orderedNodes.length - 1 ][ newDocChildTree.orderedNodes.length - 1 ];
+	transactions = new this.treeDiffer.Differ( oldDocChildTree, newDocChildTree ).transactions;
+	if ( transactions === null ) {
+		// Tree diff timed out
+		this.timedOut = true;
+		return false;
+	}
 
+	treeDiff = transactions[ oldDocChildTree.orderedNodes.length - 1 ][ newDocChildTree.orderedNodes.length - 1 ];
 	// Length of old content is length of old node minus the open and close
 	// tags for each child node
 	keepLength = oldDocChild.length - 2 * ( oldDocChildTree.orderedNodes.length - 1 );
-
-	// Tree diff timed out: record as full remove and insert
-	if ( !treeDiff ) {
-		treeDiff = [];
-		linearDiff = null;
-		diffLength = oldDocChild.length + newDocChild.length;
-		keepLength = 0;
-	}
 
 	for ( i = 0, ilen = treeDiff.length; i < ilen; i++ ) {
 
@@ -504,7 +503,9 @@ ve.dm.VisualDiff.prototype.getDocChildDiff = function ( oldDocChild, newDocChild
 						this.newDoc.getData( newNode.getRange() ),
 						{ keepOldText: false }
 					);
+					this.timedOut = !!linearDiff.timedOut;
 				} else {
+					this.timedOut = true;
 					linearDiff = null;
 					removeLength += oldNode.getLength();
 					insertLength += newNode.getLength();
@@ -557,7 +558,9 @@ ve.dm.VisualDiff.prototype.getDocChildDiff = function ( oldDocChild, newDocChild
 
 	}
 
-	// Only return the diff if enough content has changed
+	// Only return the diff if a high enough proportion of the content is
+	// unchanged; otherwise, these nodes don't correspond and shouldn't be
+	// diffed.
 	if ( keepLength < threshold * diffLength ) {
 		return false;
 	}
@@ -665,12 +668,10 @@ ve.dm.VisualDiff.prototype.getInternalListDiffInfo = function () {
 		}
 	}
 
-	// TODO: Work out how to calculate moves; for now, keep in the same order
-	// as new doc, with removes at the end
-
 	// Diff the internal list items for each group
 	for ( i = 0, ilen = groups.length; i < ilen; i++ ) {
 		group = groups[ i ];
+
 		switch ( group.action ) {
 			case 'diff':
 
@@ -693,7 +694,7 @@ ve.dm.VisualDiff.prototype.getInternalListDiffInfo = function () {
 				// Check there actually are any changes
 				if (
 					( diff.rootChildrenRemove.length > 0 || diff.rootChildrenInsert.length > 0 ) ||
-					( containsDiff( diff.rootChildrenOldToNew ) )
+					( containsDiff( diff.rootChildrenOldToNew ) || containsDiff( diff.moves ) )
 				) {
 
 					// There are changes.
@@ -750,6 +751,8 @@ ve.dm.VisualDiff.prototype.getInternalListDiffInfo = function () {
 					} );
 
 					internalListDiffInfo[ group.group ].changes = true;
+					internalListDiffInfo[ group.group ].moves = diff.moves;
+
 				}
 
 				break;

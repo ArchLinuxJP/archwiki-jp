@@ -8,10 +8,10 @@ namespace OOUI;
  * @abstract
  */
 class InputWidget extends Widget {
-
-	/* Static Properties */
-
-	public static $supportsSimpleLabel = true;
+	use FlaggedElement;
+	use TabIndexedElement;
+	use TitledElement;
+	use AccessKeyedElement;
 
 	/* Properties */
 
@@ -33,36 +33,44 @@ class InputWidget extends Widget {
 	 * @param array $config Configuration options
 	 * @param string $config['name'] HTML input name (default: '')
 	 * @param string $config['value'] Input value (default: '')
+	 * @param string $config['dir'] The directionality of the input (ltr/rtl)
+	 * @param string $config['inputId'] The value of the input’s HTML `id` attribute.
+	 * @param-taint $config escapes_html
 	 */
-	public function __construct( array $config = array() ) {
+	public function __construct( array $config = [] ) {
 		// Parent constructor
 		parent::__construct( $config );
 
 		// Properties
 		$this->input = $this->getInputElement( $config );
 
-		// Mixins
-		$this->mixin( new FlaggedElement( $this,
-			array_merge( $config, array( 'flagged' => $this ) ) ) );
-		$this->mixin( new TabIndexedElement( $this,
-			array_merge( $config, array( 'tabIndexed' => $this->input ) ) ) );
-		$this->mixin( new TitledElement( $this,
-			array_merge( $config, array( 'titled' => $this->input ) ) ) );
-		$this->mixin( new AccessKeyedElement( $this,
-			array_merge( $config, array( 'accessKeyed' => $this->input ) ) ) );
+		// Traits
+		$this->initializeFlaggedElement( array_merge( $config, [ 'flagged' => $this ] ) );
+		$this->initializeTabIndexedElement(
+			array_merge( $config, [ 'tabIndexed' => $this->input ] ) );
+		$this->initializeTitledElement(
+			array_merge( $config, [ 'titled' => $this->input ] ) );
+		$this->initializeAccessKeyedElement(
+			array_merge( $config, [ 'accessKeyed' => $this->input ] ) );
 
 		// Initialization
 		if ( isset( $config['name'] ) ) {
-			$this->input->setAttributes( array( 'name' => $config['name'] ) );
+			$this->input->setAttributes( [ 'name' => $config['name'] ] );
 		}
 		if ( $this->isDisabled() ) {
-			$this->input->setAttributes( array( 'disabled' => 'disabled' ) );
+			$this->input->setAttributes( [ 'disabled' => 'disabled' ] );
 		}
 		$this
-			->addClasses( array( 'oo-ui-inputWidget' ) )
+			->addClasses( [ 'oo-ui-inputWidget' ] )
 			->appendContent( $this->input );
-		$this->input->addClasses( array( 'oo-ui-inputWidget-input' ) );
-		$this->setValue( isset( $config['value'] ) ? $config['value'] : null );
+		$this->input->addClasses( [ 'oo-ui-inputWidget-input' ] );
+		$this->setValue( $config['value'] ?? null );
+		if ( isset( $config['dir'] ) ) {
+			$this->setDir( $config['dir'] );
+		}
+		if ( isset( $config['inputId'] ) ) {
+			$this->setInputId( $config['inputId'] );
+		}
 	}
 
 	/**
@@ -85,25 +93,21 @@ class InputWidget extends Widget {
 	}
 
 	/**
-	 * Sets the direction of the current input, either RTL or LTR
+	 * Set the directionality of the input.
 	 *
-	 * @param boolean $isRTL
+	 * @param string $dir Text directionality: 'ltr', 'rtl' or 'auto'
+	 * @return $this
 	 */
-	public function setRTL( $isRTL ) {
-		if ( $isRTL ) {
-			$this->input->removeClasses( array( 'oo-ui-ltr' ) );
-			$this->input->addClasses( array( 'oo-ui-rtl' ) );
-		} else {
-			$this->input->removeClasses( array( 'oo-ui-rtl' ) );
-			$this->input->addClasses( array( 'oo-ui-ltr' ) );
-		}
+	public function setDir( $dir ) {
+		$this->input->setAttributes( [ 'dir' => $dir ] );
+		return $this;
 	}
 
 	/**
 	 * Set the value of the input.
 	 *
 	 * @param string $value New value
-	 * @chainable
+	 * @return $this
 	 */
 	public function setValue( $value ) {
 		$this->value = $this->cleanUpValue( $value );
@@ -131,11 +135,22 @@ class InputWidget extends Widget {
 		parent::setDisabled( $state );
 		if ( isset( $this->input ) ) {
 			if ( $this->isDisabled() ) {
-				$this->input->setAttributes( array( 'disabled' => 'disabled' ) );
+				$this->input->setAttributes( [ 'disabled' => 'disabled' ] );
 			} else {
-				$this->input->removeAttributes( array( 'disabled' ) );
+				$this->input->removeAttributes( [ 'disabled' ] );
 			}
 		}
+		return $this;
+	}
+
+	/**
+	 * Set the 'id' attribute of the `<input>` element.
+	 *
+	 * @param string $id The ID of the input element
+	 * @return $this
+	 */
+	public function setInputId( $id ) {
+		$this->input->setAttributes( [ 'id' => $id ] );
 		return $this;
 	}
 
@@ -146,6 +161,10 @@ class InputWidget extends Widget {
 		}
 		if ( $this->value !== '' ) {
 			$config['value'] = $this->value;
+		}
+		$id = $this->input->getAttribute( 'id' );
+		if ( $id !== null ) {
+			$config['inputId'] = $id;
 		}
 		return parent::getConfig( $config );
 	}

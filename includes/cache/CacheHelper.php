@@ -18,7 +18,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
- * @license GNU GPL v2 or later
+ * @license GPL-2.0-or-later
  * @author Jeroen De Dauw < jeroendedauw@gmail.com >
  */
 
@@ -61,7 +61,7 @@ interface ICacheHelper {
 	 *
 	 * @return mixed
 	 */
-	function getCachedValue( $computeFunction, $args = array(), $key = null );
+	function getCachedValue( $computeFunction, $args = [], $key = null );
 
 	/**
 	 * Saves the HTML to the cache in case it got recomputed.
@@ -81,6 +81,8 @@ interface ICacheHelper {
 	 */
 	function setExpiry( $cacheExpiry );
 }
+
+use MediaWiki\MediaWikiServices;
 
 /**
  * Helper class for caching various elements in a single cache entry.
@@ -150,7 +152,7 @@ class CacheHelper implements ICacheHelper {
 	 * @since 1.20
 	 * @var array
 	 */
-	protected $cacheKey = array();
+	protected $cacheKey = [];
 
 	/**
 	 * Sets if the cache should be enabled or not.
@@ -217,10 +219,10 @@ class CacheHelper implements ICacheHelper {
 			$subPage = explode( '/', $subPage, 2 );
 			$subPage = count( $subPage ) > 1 ? $subPage[1] : false;
 
-			$message .= ' ' . Linker::link(
+			$message .= ' ' . MediaWikiServices::getInstance()->getLinkRenderer()->makeLink(
 				$context->getTitle( $subPage ),
-				$context->msg( 'cachedspecial-refresh-now' )->escaped(),
-				array(),
+				$context->msg( 'cachedspecial-refresh-now' )->text(),
+				[],
 				$refreshArgs
 			);
 		}
@@ -239,7 +241,7 @@ class CacheHelper implements ICacheHelper {
 			$cachedChunks = wfGetCache( CACHE_ANYTHING )->get( $this->getCacheKeyString() );
 
 			$this->hasCached = is_array( $cachedChunks );
-			$this->cachedChunks = $this->hasCached ? $cachedChunks : array();
+			$this->cachedChunks = $this->hasCached ? $cachedChunks : [];
 
 			if ( $this->onInitHandler !== false ) {
 				call_user_func( $this->onInitHandler, $this->hasCached );
@@ -261,7 +263,7 @@ class CacheHelper implements ICacheHelper {
 	 *
 	 * @return mixed
 	 */
-	public function getCachedValue( $computeFunction, $args = array(), $key = null ) {
+	public function getCachedValue( $computeFunction, $args = [], $key = null ) {
 		$this->initCaching();
 
 		if ( $this->cacheEnabled && $this->hasCached ) {
@@ -271,7 +273,7 @@ class CacheHelper implements ICacheHelper {
 				$itemKey = array_keys( array_slice( $this->cachedChunks, 0, 1 ) );
 				$itemKey = array_shift( $itemKey );
 
-				if ( !is_integer( $itemKey ) ) {
+				if ( !is_int( $itemKey ) ) {
 					wfWarn( "Attempted to get item with non-numeric key while " .
 						"the next item in the queue has a key ($itemKey) in " . __METHOD__ );
 				} elseif ( is_null( $itemKey ) ) {
@@ -289,10 +291,10 @@ class CacheHelper implements ICacheHelper {
 			}
 		} else {
 			if ( !is_array( $args ) ) {
-				$args = array( $args );
+				$args = [ $args ];
 			}
 
-			$value = call_user_func_array( $computeFunction, $args );
+			$value = $computeFunction( ...$args );
 
 			if ( $this->cacheEnabled ) {
 				if ( is_null( $key ) ) {
@@ -344,11 +346,11 @@ class CacheHelper implements ICacheHelper {
 	 * @throws MWException
 	 */
 	protected function getCacheKeyString() {
-		if ( $this->cacheKey === array() ) {
+		if ( $this->cacheKey === [] ) {
 			throw new MWException( 'No cache key set, so cannot obtain or save the CacheHelper values.' );
 		}
 
-		return call_user_func_array( 'wfMemcKey', $this->cacheKey );
+		return wfMemcKey( ...array_values( $this->cacheKey ) );
 	}
 
 	/**

@@ -4,14 +4,13 @@
 			"Psubhashish"
 		]
 	},
-	"cite-desc": "ଆଧାର ନିମନ୍ତେ <nowiki><ref[ name=id]></nowiki> ଓ <nowiki><references/></nowiki> ଟ୍ୟାଗସବୁ ଏଠାରେ ଯୋଡ଼ିଥାଏ ।",
+	"cite-desc": "ଆଧାର ନିମନ୍ତେ <code><nowiki><ref[ name=id]></nowiki></code> ଓ <code><nowiki><references/></nowiki></code> ଟ୍ୟାଗସବୁ ଏଠାରେ ଯୋଡ଼ିଥାଏ ।",
 	"cite_error": "ଆଧାର ଭୁଲ: $1",
 	"cite_error_ref_numeric_key": "ଅବୈଧ <code>&lt;ref&gt;</code> ଟ୍ୟାଗ;\nନାମଟି କେବେ ହେଲେ ଏକ ପୂର୍ଣ୍ଣସଂଖ୍ୟା ହୋଇପାରିବ ନାହିଁ । ଏକ ବର୍ଣ୍ଣନାମୂଳକ ନାମ ଦିଅନ୍ତୁ ।",
 	"cite_error_ref_no_key": "ଅବୈଧ <code>&lt;ref&gt;</code> ଟ୍ୟାଗ;\nକୌଣସି ମଧ୍ୟ ବିଷୟବସ୍ତୁ ନଥିବା ଆଧାରର ଏକ ନାମ ଥିବା ଲୋଡ଼ା",
 	"cite_error_ref_too_many_keys": "ଅବୈଧ <code>&lt;ref&gt;</code> ଟ୍ୟାଗ;\nଭୁଲ ନାମ (ଯଥା: ଖୁବ ଅଧିକ)",
 	"cite_error_ref_no_input": "ଅବୈଧ <code>&lt;ref&gt;</code> ଟ୍ୟାଗ;\nକୌଣସି ବି ନାମ ନଥିବା ଆଧାରର କିଛି ବିଷୟବସ୍ତୁ ଥିବା ଲୋଡ଼ା",
 	"cite_error_references_invalid_parameters": "ଅଚଳ <code>&lt;references&gt;</code> ଟ୍ୟାଗ;\nକୌଣସିଟି ପାରାମିଟର ଅନୁମୋଦିତ ନୁହେଁ ।\n<code>&lt;references /&gt;</code> ବ୍ୟବହାର କରନ୍ତୁ ।",
-	"cite_error_references_invalid_parameters_group": "ତ୍ରଟିପୂର୍ଣ୍ଣ <code>&lt;references&gt;</code> ଚିହ୍ନ;\n\"group\" ପାରାମିଟରଟି କେବଳ ଅନୁମୋଦିତ ।\n<code>&lt;references /&gt;</code>, କିମ୍ବା <code>&lt;references group=\"...\" /&gt;</code> ବ୍ୟବହାର କରନ୍ତୁ",
 	"cite_error_references_no_backlink_label": "ନିଜ ପସନ୍ଦର ବ୍ୟାକଲିଙ୍କ ଚିହ୍ନ ସବୁ ସରିଗଲା ।\n<nowiki>[[MediaWiki:Cite references link many format backlink labels]]</nowiki>ସୂଚନାରେ ଅଧିକ ଦେଖନ୍ତୁ ।",
 	"cite_error_no_link_label_group": "\"$1\" ଗୋଠ ଲାଗି ନିଜ ପସନ୍ଦର ବ୍ୟାକଲିଙ୍କ ଚିହ୍ନ ସବୁ ସରିଗଲା ।\n<nowiki>[[MediaWiki:$2]]</nowiki>ସୂଚନାରେ ଅଧିକ ଚିହ୍ନିତ କରନ୍ତୁ ।",
 	"cite_error_references_no_text": "ଅଚଳ <code>&lt;ref&gt;</code> ଚିହ୍ନ;\n<code>$1</code> ନାମରେ ଥିବା ଆଧାର ଭିତରେ କିଛି ଲେଖା ନାହିଁ ।",

@@ -1,0 +1,84 @@
+{
+	"name": "NavigationTiming",
+	"author": [
+		"Patrick Reilly",
+		"Ori Livneh",
+		"Asher Feldman",
+		"Timo Tijhof",
+		"Ian Marlier",
+		"Gilles Dubuc"
+	],
+	"url": "https://www.mediawiki.org/wiki/Extension:NavigationTiming",
+	"descriptionmsg": "navigationtiming-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "other",
+	"requires": {
+		"MediaWiki": ">= 1.31.0",
+		"extensions": {
+			"EventLogging": "*"
+		}
+	},
+	"MessagesDirs": {
+		"NavigationTiming": [
+			"i18n"
+		]
+	},
+	"AutoloadClasses": {
+		"NavigationTimingHooks": "NavigationTiming.hooks.php"
+	},
+	"ResourceModules": {
+		"ext.navigationTiming": {
+			"scripts": [
+				"ext.navigationTiming.js"
+			],
+			"dependencies": [
+				"jquery.cookie",
+				"ext.eventLogging.subscriber",
+				"mediawiki.user"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			]
+		},
+		"ext.navigationTiming.rumSpeedIndex": {
+			"scripts": [
+				"RUM-SpeedIndex/rum-speedindex.js"
+			],
+			"targets": [
+				"desktop",
+				"mobile"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "modules",
+		"remoteExtPath": "NavigationTiming/modules"
+	},
+	"Hooks": {
+		"BeforePageDisplay": [
+			"NavigationTimingHooks::onBeforePageDisplay"
+		],
+		"ResourceLoaderTestModules": [
+			"NavigationTimingHooks::onResourceLoaderTestModules"
+		],
+		"ResourceLoaderGetConfigVars": [
+			"NavigationTimingHooks::onResourceLoaderGetConfigVars"
+		]
+	},
+	"EventLoggingSchemas": {
+		"NavigationTiming": 18435897,
+		"SaveTiming": 15396492,
+		"ResourceTiming": 18358918,
+		"CentralNoticeTiming": 18418286,
+		"CpuBenchmark": 18436118
+	},
+	"config": {
+		"NavigationTimingSamplingFactor": false,
+		"NavigationTimingFirstPaintAsiaSamplingFactor": false,
+		"NavigationTimingOversampleFactor": false,
+		"NavigationTimingSurveySamplingFactor": false,
+		"NavigationTimingSurveyName": false
+	},
+	"manifest_version": 1
+}

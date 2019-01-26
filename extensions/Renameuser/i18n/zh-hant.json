@@ -13,12 +13,14 @@
 			"LNDDYL",
 			"Liuxinyu970226",
 			"EagerLin",
-			"Alexsh"
+			"Alexsh",
+			"Hello903hello",
+			"Kly"
 		]
 	},
 	"renameuser": "重新命名使用者",
-	"renameuser-linkoncontribs": "重新命名使用者",
-	"renameuser-linkoncontribs-text": "重新命名此使用者",
+	"renameuser-linkoncontribs": "重新命名{{GENDER:$1|使用者}}",
+	"renameuser-linkoncontribs-text": "重新命名此{{GENDER:$1|使用者}}",
 	"renameuser-desc": "加入用來重新命名使用者的[[Special:RenameUser|特殊頁面]] (需要開啟 ''renameuser'' 權限)",
 	"renameuserold": "目前的使用者名稱：",
 	"renameusernew": "新的使用者名稱：",
@@ -43,7 +45,7 @@
 	"log-description-renameuser": "此頁面為使用者名稱修改日誌。",
 	"logentry-renameuser-renameuser": "$1 {{GENDER:$2|重新命名}}使用者 $4 (已編輯 {{PLURAL:$6|$6 次}}) 為 {{GENDER:$7|$5}}",
 	"logentry-renameuser-renameuser-legacier": "$1 重新命名使用者 $4 為 {{GENDER:$7|$5}}",
-	"renameuser-move-log": "重新命名使用者 \"[[User:$1|$1]]\" 為 \"[[User:$2|$2]]\" 時已自動移動使用者相關頁面",
+	"renameuser-move-log": "重新命名{{GENDER:$2|使用者}} \"[[User:$1|$1]]\" 為 \"[[User:$2|$2]]\" 時已自動移動使用者相關頁面",
 	"action-renameuser": "重新命名使用者",
 	"right-renameuser": "重新命名使用者",
 	"renameuser-renamed-notice": "本使用者已重新命名。\n下列為重新命名日誌以提供參考。"

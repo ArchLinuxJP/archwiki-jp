@@ -1,9 +1,9 @@
 /*!
  * VisualEditor ElementLinearData classes.
  *
- * Class containing element linear data and an index-value store.
+ * Class containing element linear data and an hash-value store.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -12,7 +12,7 @@
  * @class
  * @extends ve.dm.FlatLinearData
  * @constructor
- * @param {ve.dm.IndexValueStore} store Index-value store
+ * @param {ve.dm.HashValueStore} store Hash-value store
  * @param {Array} [data] Linear data
  */
 ve.dm.ElementLinearData = function VeDmElementLinearData() {
@@ -40,14 +40,16 @@ ve.dm.ElementLinearData.static.endWordRegExp = new RegExp(
  * Compare two elements' basic properties
  *
  * Elements are comparable if they have the same type and attributes, or
- * have the same text data.
+ * have the same text data. Anything semantically irrelevant is filtered
+ * out first.
  *
  * @param {Object|Array|string} a First element
  * @param {Object|Array|string} b Second element
  * @return {boolean} Elements are comparable
  */
 ve.dm.ElementLinearData.static.compareElementsUnannotated = function ( a, b ) {
-	var aPlain = a,
+	var aType, bType,
+		aPlain = a,
 		bPlain = b;
 
 	if ( a === undefined || b === undefined ) {
@@ -64,16 +66,28 @@ ve.dm.ElementLinearData.static.compareElementsUnannotated = function ( a, b ) {
 		return true;
 	}
 	if ( a && a.type ) {
-		aPlain = {
-			type: a.type,
-			attributes: a.attributes
-		};
+		aType = a.type;
+		if ( ve.dm.LinearData.static.isOpenElementData( a ) ) {
+			// Ignore semantically irrelevant differences
+			aPlain = ve.dm.modelRegistry.lookup( aType ).static.getHashObject( a );
+			delete aPlain.originalDomElementsHash;
+		} else {
+			aPlain = {
+				type: aType
+			};
+		}
 	}
 	if ( b && b.type ) {
-		bPlain = {
-			type: b.type,
-			attributes: b.attributes
-		};
+		bType = b.type;
+		if ( ve.dm.LinearData.static.isOpenElementData( b ) ) {
+			// Ignore semantically irrelevant differences
+			bPlain = ve.dm.modelRegistry.lookup( bType ).static.getHashObject( b );
+			delete bPlain.originalDomElementsHash;
+		} else {
+			bPlain = {
+				type: bType
+			};
+		}
 	}
 	return ve.compare( aPlain, bPlain );
 };
@@ -87,8 +101,8 @@ ve.dm.ElementLinearData.static.compareElementsUnannotated = function ( a, b ) {
  *
  * @param {Object|Array|string} a First element
  * @param {Object|Array|string} b Second element
- * @param {ve.dm.IndexValueStore} aStore First element's store
- * @param {ve.dm.IndexValueStore} [bStore] Second element's store, if different
+ * @param {ve.dm.HashValueStore} aStore First element's store
+ * @param {ve.dm.HashValueStore} [bStore] Second element's store, if different
  * @return {boolean} Elements are comparable
  */
 ve.dm.ElementLinearData.static.compareElements = function ( a, b, aStore, bStore ) {
@@ -129,6 +143,24 @@ ve.dm.ElementLinearData.static.compareElements = function ( a, b, aStore, bStore
 	bSet = new ve.dm.AnnotationSet( bStore || aStore, bAnnotations || [] );
 
 	return aSet.compareTo( bSet );
+};
+
+/**
+ * Read the array of annotation store hashes from an item of linear data
+ *
+ * @param {string|Array|Object} item of linear data
+ * @return {string[]} An array of annotation store hashes
+ */
+ve.dm.ElementLinearData.static.getAnnotationHashesFromItem = function ( item ) {
+	if ( typeof item === 'string' ) {
+		return [];
+	} else if ( item.annotations ) {
+		return item.annotations.slice();
+	} else if ( item[ 1 ] ) {
+		return item[ 1 ].slice();
+	} else {
+		return [];
+	}
 };
 
 /* Methods */
@@ -361,16 +393,16 @@ ve.dm.ElementLinearData.prototype.canTakeAnnotationAtOffset = function ( offset,
 };
 
 /**
- * Get annotations' store indexes covered by an offset.
+ * Get annotations' store hashes covered by an offset.
  *
  * @method
  * @param {number} offset Offset to get annotations for
  * @param {boolean} [ignoreClose] Ignore annotations on close elements
- * @return {number[]} An array of annotation store indexes the offset is covered by
+ * @return {string[]} An array of annotation store hashes the offset is covered by
  * @throws {Error} offset out of bounds
  */
-ve.dm.ElementLinearData.prototype.getAnnotationIndexesFromOffset = function ( offset, ignoreClose ) {
-	var element;
+ve.dm.ElementLinearData.prototype.getAnnotationHashesFromOffset = function ( offset, ignoreClose ) {
+	var item;
 	if ( offset < 0 || offset > this.getLength() ) {
 		throw new Error( 'offset ' + offset + ' out of bounds' );
 	}
@@ -380,22 +412,16 @@ ve.dm.ElementLinearData.prototype.getAnnotationIndexesFromOffset = function ( of
 	if (
 		!ignoreClose &&
 		this.isCloseElementData( offset ) &&
-		!ve.dm.nodeFactory.canNodeHaveChildren( this.getType( offset ) ) // leaf node
+		!ve.dm.nodeFactory.canNodeHaveChildren( this.getType( offset ) ) // Leaf node
 	) {
 		offset = this.getRelativeContentOffset( offset, -1 );
+		if ( offset === -1 ) {
+			return [];
+		}
 	}
 
-	element = this.getData( offset );
-
-	if ( element === undefined || typeof element === 'string' ) {
-		return [];
-	} else if ( element.annotations ) {
-		return element.annotations.slice();
-	} else if ( element[ 1 ] ) {
-		return element[ 1 ].slice();
-	} else {
-		return [];
-	}
+	item = this.getData( offset );
+	return this.constructor.static.getAnnotationHashesFromItem( item ) || [];
 };
 
 /**
@@ -410,7 +436,7 @@ ve.dm.ElementLinearData.prototype.getAnnotationIndexesFromOffset = function ( of
  * @throws {Error} offset out of bounds
  */
 ve.dm.ElementLinearData.prototype.getAnnotationsFromOffset = function ( offset, ignoreClose ) {
-	return new ve.dm.AnnotationSet( this.getStore(), this.getAnnotationIndexesFromOffset( offset, ignoreClose ) );
+	return new ve.dm.AnnotationSet( this.getStore(), this.getAnnotationHashesFromOffset( offset, ignoreClose ) );
 };
 
 /**
@@ -423,30 +449,30 @@ ve.dm.ElementLinearData.prototype.getAnnotationsFromOffset = function ( offset, 
  * @param {ve.dm.AnnotationSet} annotations Annotations to set
  */
 ve.dm.ElementLinearData.prototype.setAnnotationsAtOffset = function ( offset, annotations ) {
-	this.setAnnotationIndexesAtOffset( offset, this.getStore().indexes( annotations.get() ) );
+	this.setAnnotationHashesAtOffset( offset, this.getStore().hashAll( annotations.get() ) );
 };
 
 /**
- * Set annotations' store indexes at a specified offset.
+ * Set annotations' store hashes at a specified offset.
  *
- * Cleans up data structure if indexes array is empty.
+ * Cleans up data structure if hashes array is empty.
  *
  * @method
- * @param {number} offset Offset to set annotation indexes at
- * @param {number[]} indexes Annotations' store indexes
+ * @param {number} offset Offset to set annotation hashes at
+ * @param {string[]} hashes Annotations' store hashes
  */
-ve.dm.ElementLinearData.prototype.setAnnotationIndexesAtOffset = function ( offset, indexes ) {
+ve.dm.ElementLinearData.prototype.setAnnotationHashesAtOffset = function ( offset, hashes ) {
 	var character,
 		item = this.getData( offset ),
 		isElement = this.isElementData( offset );
-	if ( indexes.length > 0 ) {
+	if ( hashes.length > 0 ) {
 		if ( isElement ) {
 			// New element annotation
-			item.annotations = indexes;
+			item.annotations = hashes;
 		} else {
 			// New character annotation
 			character = this.getCharacterData( offset );
-			this.setData( offset, [ character, indexes ] );
+			this.setData( offset, [ character, hashes ] );
 		}
 	} else {
 		if ( isElement ) {
@@ -668,7 +694,7 @@ ve.dm.ElementLinearData.prototype.getInsertionAnnotationsFromRange = function ( 
 ve.dm.ElementLinearData.prototype.hasAnnotationsInRange = function ( range ) {
 	var i;
 	for ( i = range.start; i < range.end; i++ ) {
-		if ( this.getAnnotationIndexesFromOffset( i, true ).length ) {
+		if ( this.getAnnotationHashesFromOffset( i, true ).length ) {
 			return true;
 		}
 	}
@@ -1043,16 +1069,16 @@ ve.dm.ElementLinearData.prototype.getWordRange = function ( offset ) {
 };
 
 /**
- * Finds all instances of items being stored in the index-value store for this data store
+ * Finds all instances of items being stored in the hash-value store for this data store
  *
  * Currently this is just all annotations still in use.
  *
  * @method
  * @param {ve.Range} [range] Optional range to get store values for
- * @return {Object} Object containing all store values, indexed by store index
+ * @return {Object} Object containing all store values, keyed by store hash
  */
 ve.dm.ElementLinearData.prototype.getUsedStoreValues = function ( range ) {
-	var i, index, indexes, j,
+	var i, hash, hashes, j,
 		store = this.getStore(),
 		valueStore = {};
 
@@ -1061,16 +1087,16 @@ ve.dm.ElementLinearData.prototype.getUsedStoreValues = function ( range ) {
 	for ( i = range.start; i < range.end; i++ ) {
 		// Annotations
 		// Use ignoreClose to save time; no need to count every element annotation twice
-		indexes = this.getAnnotationIndexesFromOffset( i, true );
-		j = indexes.length;
+		hashes = this.getAnnotationHashesFromOffset( i, true );
+		j = hashes.length;
 		while ( j-- ) {
-			index = indexes[ j ];
-			if ( !Object.prototype.hasOwnProperty.call( valueStore, index ) ) {
-				valueStore[ index ] = store.value( index );
+			hash = hashes[ j ];
+			if ( !Object.prototype.hasOwnProperty.call( valueStore, hash ) ) {
+				valueStore[ hash ] = store.value( hash );
 			}
 		}
-		if ( this.data[ i ].originalDomElementsIndex !== undefined ) {
-			valueStore[ this.data[ i ].originalDomElementsIndex ] = store.value( this.data[ i ].originalDomElementsIndex );
+		if ( this.data[ i ].originalDomElementsHash !== undefined ) {
+			valueStore[ this.data[ i ].originalDomElementsHash ] = store.value( this.data[ i ].originalDomElementsHash );
 		}
 	}
 	return valueStore;
@@ -1115,24 +1141,24 @@ ve.dm.ElementLinearData.prototype.remapInternalListKeys = function ( internalLis
 };
 
 /**
- * Remap an annotation index when it changes
+ * Remap an annotation hash when it changes
  *
- * @param  {string} oldIndex Old index to replace
- * @param  {string} newIndex New index to replace it with
+ * @param  {string} oldHash Old hash to replace
+ * @param  {string} newHash New hash to replace it with
  */
-ve.dm.ElementLinearData.prototype.remapAnnotationIndex = function ( oldIndex, newIndex ) {
-	var i, ilen, attrIndex;
+ve.dm.ElementLinearData.prototype.remapAnnotationHash = function ( oldHash, newHash ) {
+	var i, ilen, spliceAt;
 	for ( i = 0, ilen = this.data.length; i < ilen; i++ ) {
 		if ( this.data[ i ] === undefined || typeof this.data[ i ] === 'string' ) {
-			// common case, cheap, avoid the isArray check
+			// Common case, cheap, avoid the isArray check
 			continue;
 		} else if ( Array.isArray( this.data[ i ] ) ) {
-			attrIndex = this.data[ i ][ 1 ].indexOf( oldIndex );
-			if ( attrIndex !== -1 ) {
-				if ( this.data[ i ][ 1 ].indexOf( newIndex ) === -1 ) {
-					this.data[ i ][ 1 ].splice( attrIndex, 1, newIndex );
+			spliceAt = this.data[ i ][ 1 ].indexOf( oldHash );
+			if ( spliceAt !== -1 ) {
+				if ( this.data[ i ][ 1 ].indexOf( newHash ) === -1 ) {
+					this.data[ i ][ 1 ].splice( spliceAt, 1, newHash );
 				} else {
-					this.data[ i ][ 1 ].splice( attrIndex, 1, newIndex );
+					this.data[ i ][ 1 ].splice( spliceAt, 1, newHash );
 				}
 			}
 		}
@@ -1152,6 +1178,7 @@ ve.dm.ElementLinearData.prototype.remapAnnotationIndex = function ( oldIndex, ne
  * @param {boolean} [rules.nodeSanitization] Apply per-type node sanitizations via ve.dm.Node#sanitize
  * @param {boolean} [rules.keepEmptyContentBranches] Preserve empty content branch nodes
  * @param {boolean} [rules.singleLine] Don't allow more that one ContentBranchNode
+ * @param {boolean} [rules.allowMetaData] Don't strip metadata
  */
 ve.dm.ElementLinearData.prototype.sanitize = function ( rules ) {
 	var i, len, annotations, emptySet, setToRemove, type, oldHash, newHash,
@@ -1167,23 +1194,23 @@ ve.dm.ElementLinearData.prototype.sanitize = function ( rules ) {
 			// Remove originalDomElements from annotations
 			for ( i = 0, len = allAnnotations.getLength(); i < len; i++ ) {
 				ann = allAnnotations.get( i );
-				if ( ann.element.originalDomElementsIndex !== undefined ) {
+				if ( ann.element.originalDomElementsHash !== undefined ) {
 					// This changes the hash of the value, so we have to
 					// update that. If we don't do this, other assumptions
 					// that values fetched from the store are actually in the
 					// store will fail.
-					oldHash = store.indexOfValue( ann );
-					delete allAnnotations.get( i ).element.originalDomElementsIndex;
+					oldHash = store.hashOfValue( ann );
+					delete allAnnotations.get( i ).element.originalDomElementsHash;
 					newHash = store.replaceHash( oldHash, ann );
-					this.remapAnnotationIndex( oldHash, newHash );
-					if ( allAnnotations.storeIndexes.indexOf( newHash ) !== -1 ) {
+					this.remapAnnotationHash( oldHash, newHash );
+					if ( allAnnotations.storeHashes.indexOf( newHash ) !== -1 ) {
 						// New annotation-value was already in the set, which
 						// just reduces the effective-length of the set.
-						allAnnotations.storeIndexes.splice( i, 1 );
+						allAnnotations.storeHashes.splice( i, 1 );
 						i--;
 						len--;
 					} else {
-						allAnnotations.storeIndexes.splice( i, 1, newHash );
+						allAnnotations.storeHashes.splice( i, 1, newHash );
 					}
 				}
 			}
@@ -1225,19 +1252,17 @@ ve.dm.ElementLinearData.prototype.sanitize = function ( rules ) {
 				} );
 			}
 
-			// Remove blacklisted nodes
+			// Remove blacklisted nodes, and metadata if disallowed
 			if (
 				( rules.blacklist && rules.blacklist.indexOf( type ) !== -1 ) ||
-				( rules.plainText && type !== 'paragraph' && type !== 'internalList' )
+				( rules.plainText && type !== 'paragraph' && type !== 'internalList' ) ||
+				( !rules.allowMetadata && ve.dm.nodeFactory.isMetaData( type ) )
 			) {
 				this.splice( i, 1 );
 				len--;
 				// Make sure you haven't just unwrapped a wrapper paragraph
-				if ( isOpen && ve.getProp( this.getData( i ), 'internal', 'generated' ) ) {
-					delete this.getData( i ).internal.generated;
-					if ( ve.isEmptyObject( this.getData( i ).internal ) ) {
-						delete this.getData( i ).internal;
-					}
+				if ( isOpen ) {
+					ve.deleteProp( this.getData( i ), 'internal', 'generated' );
 				}
 				// Move pointer back and continue
 				i--;
@@ -1274,12 +1299,7 @@ ve.dm.ElementLinearData.prototype.sanitize = function ( rules ) {
 			}
 
 			if ( !rules.preserveHtmlWhitespace ) {
-				if ( ve.getProp( this.getData( i ), 'internal', 'whitespace' ) ) {
-					delete this.getData( i ).internal.whitespace;
-					if ( ve.isEmptyObject( this.getData( i ).internal ) ) {
-						delete this.getData( i ).internal;
-					}
-				}
+				ve.deleteProp( this.getData( i ), 'internal', 'whitespace' );
 			}
 
 			if ( canContainContent && !isOpen && rules.singleLine ) {
@@ -1324,6 +1344,23 @@ ve.dm.ElementLinearData.prototype.sanitize = function ( rules ) {
 					}
 				}
 			}
+			// Support: Chrome, Safari
+			// Sometimes all spaces are replaced with NBSP by the browser, so replace those
+			// which aren't adjacent to plain spaces. T183647
+			if (
+				this.getCharacterData( i ) === '\u00a0' &&
+				// Get last open type from the stack
+				!ve.dm.nodeFactory.doesNodeHaveSignificantWhitespace( elementStack[ elementStack.length - 1 ].type )
+			) {
+				if ( !( this.getCharacterData( i + 1 ) === ' ' || this.getCharacterData( i - 1 ) === ' ' ) ) {
+					// Replace with a space
+					if ( typeof this.getData( i ) === 'string' ) {
+						this.data[ i ] = ' ';
+					} else {
+						this.data[ i ][ 0 ] = ' ';
+					}
+				}
+			}
 		}
 		annotations = this.getAnnotationsFromOffset( i, true );
 		if ( !annotations.isEmpty() ) {
@@ -1343,7 +1380,7 @@ ve.dm.ElementLinearData.prototype.sanitize = function ( rules ) {
 			}
 			if ( rules.removeOriginalDomElements ) {
 				// Remove originalDomElements from nodes
-				delete this.getData( i ).originalDomElementsIndex;
+				delete this.getData( i ).originalDomElementsHash;
 			}
 		}
 	}

@@ -6,10 +6,11 @@ namespace OOUI;
  * Label widget.
  */
 class LabelWidget extends Widget {
+	use LabelElement;
 
 	/* Static Properties */
 
-	public static $tagName = 'span';
+	public static $tagName = 'label';
 
 	/* Properties */
 
@@ -23,20 +24,24 @@ class LabelWidget extends Widget {
 	/**
 	 * @param array $config Configuration options
 	 * @param InputWidget $config['input'] Input widget this label is for
+	 * @param-taint $config escapes_html
 	 */
-	public function __construct( array $config = array() ) {
+	public function __construct( array $config = [] ) {
 		// Parent constructor
 		parent::__construct( $config );
 
-		// Mixins
-		$this->mixin( new LabelElement( $this,
-			array_merge( $config, array( 'labelElement' => $this ) ) ) );
+		// Traits
+		$this->initializeLabelElement(
+			array_merge( $config, [ 'labelElement' => $this ] ) );
 
 		// Properties
-		$this->input = isset( $config['input'] ) ? $config['input'] : null;
+		$this->input = $config['input'] ?? null;
 
 		// Initialization
-		$this->addClasses( array( 'oo-ui-labelWidget' ) );
+		if ( $this->input && $this->input->getInputId() ) {
+			$this->setAttributes( [ 'for' => $this->input->getInputId() ] );
+		}
+		$this->addClasses( [ 'oo-ui-labelWidget' ] );
 	}
 
 	public function getConfig( &$config ) {

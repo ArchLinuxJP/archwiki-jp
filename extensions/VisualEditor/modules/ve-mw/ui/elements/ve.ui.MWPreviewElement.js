@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWPreviewElement class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -20,7 +20,7 @@ ve.ui.MWPreviewElement = function VeUiMwPreviewElement() {
 	ve.ui.MWPreviewElement.super.apply( this, arguments );
 
 	// Initialize
-	this.$element.addClass( 've-ui-mwPreviewElement mw-body-content' );
+	this.$element.addClass( 've-ui-mwPreviewElement mw-body-content mw-parser-output' );
 };
 
 /* Inheritance */

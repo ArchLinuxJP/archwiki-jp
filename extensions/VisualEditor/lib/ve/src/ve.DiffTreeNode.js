@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DiffTreeNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -43,7 +43,7 @@ ve.DiffTreeNode.prototype.isEqual = function ( otherNode ) {
 			JSON.stringify( otherNode.doc.getData( otherNode.node.getOuterRange() ) );
 	} else {
 		return ( this.node.getType() === otherNode.node.getType() &&
-			ve.compare( this.node.getAttributes(), otherNode.node.getAttributes() ) );
+			ve.compare( this.node.getHashObject(), otherNode.node.getHashObject() ) );
 	}
 };
 

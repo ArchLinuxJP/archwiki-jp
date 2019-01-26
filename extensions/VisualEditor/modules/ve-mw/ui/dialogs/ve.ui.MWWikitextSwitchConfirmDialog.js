@@ -1,7 +1,7 @@
 /*
  * VisualEditor user interface MWWikitextSwitchConfirmDialog class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -26,10 +26,6 @@ OO.inheritClass( ve.ui.MWWikitextSwitchConfirmDialog, OO.ui.MessageDialog );
 /* Static Properties */
 
 ve.ui.MWWikitextSwitchConfirmDialog.static.name = 'wikitextswitchconfirm';
-
-ve.ui.MWWikitextSwitchConfirmDialog.static.verbose = true;
-
-ve.ui.MWWikitextSwitchConfirmDialog.static.size = 'small';
 
 ve.ui.MWWikitextSwitchConfirmDialog.static.title =
 	OO.ui.deferMsg( 'visualeditor-mweditmodesource-title' );

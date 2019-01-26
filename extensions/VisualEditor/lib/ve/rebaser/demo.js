@@ -1,12 +1,16 @@
 /*!
  * VisualEditor rebaser demo
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 ( function () {
 	function RebaserTarget() {
 		RebaserTarget.super.apply( this, arguments );
+
+		// HACK: Disable history commands until supported (T185706)
+		ve.ui.commandRegistry.unregister( 'undo' );
+		ve.ui.commandRegistry.unregister( 'redo' );
 	}
 
 	OO.inheritClass( RebaserTarget, ve.init.sa.Target );

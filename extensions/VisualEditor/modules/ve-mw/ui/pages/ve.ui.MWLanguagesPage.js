@@ -1,7 +1,7 @@
 /*!
  * VisualEditor user interface MWLanguagesPage class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -14,6 +14,7 @@
  * @constructor
  * @param {string} name Unique symbolic name of page
  * @param {Object} [config] Configuration options
+ * @cfg {jQuery} [$overlay] Overlay to render dropdowns in
  */
 ve.ui.MWLanguagesPage = function VeUiMWLanguagesPage() {
 	// Parent constructor
@@ -169,7 +170,7 @@ ve.ui.MWLanguagesPage.prototype.getAllLanguageItems = function () {
 	new mw.Api().get( {
 		action: 'visualeditor',
 		paction: 'getlanglinks',
-		page: mw.config.get( 'wgPageName' )
+		page: ve.init.target.pageName
 	} )
 		.done( this.onAllLanguageItemsSuccess.bind( this, deferred ) )
 		.fail( this.onAllLanguageItemsError.bind( this, deferred ) );

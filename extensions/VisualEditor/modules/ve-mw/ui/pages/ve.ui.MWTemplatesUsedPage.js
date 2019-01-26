@@ -14,6 +14,7 @@
  * @constructor
  * @param {string} name Unique symbolic name of page
  * @param {Object} [config] Configuration options
+ * @cfg {jQuery} [$overlay] Overlay to render dropdowns in
  */
 ve.ui.MWTemplatesUsedPage = function VeUiMWTemplatesUsedPage() {
 	// Parent constructor
@@ -28,7 +29,7 @@ ve.ui.MWTemplatesUsedPage = function VeUiMWTemplatesUsedPage() {
 	if ( ve.init.target.$templatesUsed && ve.init.target.$templatesUsed.find( 'li' ).length ) {
 		this.templatesUsedFieldset.$element.append(
 			ve.init.target.$templatesUsed.clone().find( 'a' ).each( function () {
-				$( this ).attr( 'target', '_blank' );
+				$( this ).attr( 'target', '_blank' ).attr( 'rel', 'noopener' );
 			} ).end()
 		);
 	} else {

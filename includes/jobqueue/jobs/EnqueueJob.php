@@ -24,11 +24,10 @@
 /**
  * Router job that takes jobs and enqueues them to their proper queues
  *
- * This can be used for several things:
- *   - a) Making multi-job enqueues more robust by atomically enqueueing
- *        a single job that pushes the actual jobs (with retry logic)
- *   - b) Masking the latency of pushing jobs to different queues/wikis
- *   - c) Low-latency enqueues to push jobs from warm to hot datacenters
+ * This can be used for getting sets of multiple jobs or sets of jobs intended for multiple
+ * queues to be inserted more robustly. This is a single job that, upon running, enqueues the
+ * wrapped jobs. If some of those fail to enqueue then the EnqueueJob will be retried. Due to
+ * the possibility of duplicate enqueues, the wrapped jobs should be idempotent.
  *
  * @ingroup JobQueue
  * @since 1.25
@@ -49,9 +48,9 @@ final class EnqueueJob extends Job {
 	 * @return EnqueueJob
 	 */
 	public static function newFromLocalJobs( $jobs ) {
-		$jobs = is_array( $jobs ) ? $jobs : array( $jobs );
+		$jobs = is_array( $jobs ) ? $jobs : [ $jobs ];
 
-		return self::newFromJobsByWiki( array( wfWikiID() => $jobs ) );
+		return self::newFromJobsByWiki( [ wfWikiID() => $jobs ] );
 	}
 
 	/**
@@ -61,9 +60,9 @@ final class EnqueueJob extends Job {
 	public static function newFromJobsByWiki( array $jobsByWiki ) {
 		$deduplicate = true;
 
-		$jobMapsByWiki = array();
+		$jobMapsByWiki = [];
 		foreach ( $jobsByWiki as $wiki => $jobs ) {
-			$jobMapsByWiki[$wiki] = array();
+			$jobMapsByWiki[$wiki] = [];
 			foreach ( $jobs as $job ) {
 				if ( $job instanceof JobSpecification ) {
 					$jobMapsByWiki[$wiki][] = $job->toSerializableArray();
@@ -76,7 +75,7 @@ final class EnqueueJob extends Job {
 
 		$eJob = new self(
 			Title::makeTitle( NS_SPECIAL, 'Badtitle/' . __CLASS__ ),
-			array( 'jobsByWiki' => $jobMapsByWiki )
+			[ 'jobsByWiki' => $jobMapsByWiki ]
 		);
 		// If *all* jobs to be pushed are to be de-duplicated (a common case), then
 		// de-duplicate this whole job itself to avoid build up in high traffic cases
@@ -87,7 +86,7 @@ final class EnqueueJob extends Job {
 
 	public function run() {
 		foreach ( $this->params['jobsByWiki'] as $wiki => $jobMaps ) {
-			$jobSpecs = array();
+			$jobSpecs = [];
 			foreach ( $jobMaps as $jobMap ) {
 				$jobSpecs[] = JobSpecification::newFromArray( $jobMap );
 			}

@@ -8,25 +8,48 @@ namespace OOUI;
  * Just add FieldLayout items.
  */
 class FieldsetLayout extends Layout {
+	use IconElement;
+	use LabelElement;
+	use GroupElement;
+
+	/* Static Properties */
+
+	public static $tagName = 'fieldset';
+
+	protected $header;
+
 	/**
 	 * @param array $config Configuration options
 	 * @param FieldLayout[] $config['items'] Items to add
+	 * @param-taint $config escapes_htmlnoent
 	 */
-	public function __construct( array $config = array() ) {
+	public function __construct( array $config = [] ) {
 		// Parent constructor
 		parent::__construct( $config );
 
-		// Mixins
-		$this->mixin( new IconElement( $this, $config ) );
-		$this->mixin( new LabelElement( $this, $config ) );
-		$this->mixin( new GroupElement( $this, $config ) );
+		// Traits
+		$this->initializeIconElement( $config );
+		$this->initializeLabelElement( $config );
+		$this->initializeGroupElement( $config );
+
+		// Properties
+		$this->header = new Tag( 'legend' );
 
 		// Initialization
+		$this->header
+			->addClasses( [ 'oo-ui-fieldsetLayout-header' ] )
+			->appendContent( $this->icon, $this->label );
+		$this->group->addClasses( [ 'oo-ui-fieldsetLayout-group' ] );
 		$this
-			->addClasses( array( 'oo-ui-fieldsetLayout' ) )
-			->prependContent( $this->icon, $this->label, $this->group );
+			->addClasses( [ 'oo-ui-fieldsetLayout' ] )
+			->prependContent( $this->header, $this->group );
 		if ( isset( $config['items'] ) ) {
 			$this->addItems( $config['items'] );
 		}
+	}
+
+	public function getConfig( &$config ) {
+		$config['$overlay'] = true;
+		return parent::getConfig( $config );
 	}
 }

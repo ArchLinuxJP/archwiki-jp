@@ -1,7 +1,7 @@
 /*!
  * VisualEditor user interface MWParameterPage class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -15,6 +15,7 @@
  * @param {ve.dm.MWParameterModel} parameter Template parameter
  * @param {string} name Unique symbolic name of page
  * @param {Object} [config] Configuration options
+ * @cfg {jQuery} [$overlay] Overlay to render dropdowns in
  */
 ve.ui.MWParameterPage = function VeUiMWParameterPage( parameter, name, config ) {
 	var paramName = parameter.getName();
@@ -131,6 +132,7 @@ ve.ui.MWParameterPage = function VeUiMWParameterPage( parameter, name, config ) 
 		} );
 	} else {
 		this.infoButton = new OO.ui.PopupButtonWidget( {
+			$overlay: config.$overlay,
 			popup: {
 				$content: this.$description
 			},
@@ -278,7 +280,7 @@ ve.ui.MWParameterPage.prototype.createValueInput = function () {
 		return ve.ui.MWExternalLinkAnnotationWidget.static.createExternalLinkInputWidget( valueInputConfig );
 	} else if ( type !== 'line' ) {
 		this.rawValueInput = true;
-		valueInputConfig.multiline = true;
+		return new OO.ui.MultilineTextInputWidget( valueInputConfig );
 	}
 
 	return new OO.ui.TextInputWidget( valueInputConfig );

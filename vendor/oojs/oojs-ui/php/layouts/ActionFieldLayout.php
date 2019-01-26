@@ -18,8 +18,9 @@ class ActionFieldLayout extends FieldLayout {
 	 * @param Widget $fieldWidget Field widget
 	 * @param ButtonWidget $buttonWidget Field widget
 	 * @param array $config Configuration options
+	 * @param-taint $config escapes_htmlnoent
 	 */
-	public function __construct( $fieldWidget, $buttonWidget = false, array $config = array() ) {
+	public function __construct( $fieldWidget, $buttonWidget = false, array $config = [] ) {
 		// Allow passing positional parameters inside the config array
 		if ( is_array( $fieldWidget ) && isset( $fieldWidget['fieldWidget'] ) ) {
 			$config = $fieldWidget;
@@ -32,16 +33,16 @@ class ActionFieldLayout extends FieldLayout {
 
 		// Properties
 		$this->buttonWidget = $buttonWidget;
-		$this->button = new Tag( 'div' );
-		$this->input = new Tag( 'div' );
+		$this->button = new Tag( 'span' );
+		$this->input = $this->isFieldInline() ? new Tag( 'span' ) : new Tag( 'div' );
 
 		// Initialization
-		$this->addClasses( array( 'oo-ui-actionFieldLayout' ) );
+		$this->addClasses( [ 'oo-ui-actionFieldLayout' ] );
 		$this->button
-			->addClasses( array( 'oo-ui-actionFieldLayout-button' ) )
+			->addClasses( [ 'oo-ui-actionFieldLayout-button' ] )
 			->appendContent( $this->buttonWidget );
 		$this->input
-			->addClasses( array( 'oo-ui-actionFieldLayout-input' ) )
+			->addClasses( [ 'oo-ui-actionFieldLayout-input' ] )
 			->appendContent( $this->fieldWidget );
 		$this->field
 			->clearContent()

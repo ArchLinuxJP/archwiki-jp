@@ -1,7 +1,7 @@
 /*!
  * VisualEditor user interface MWCategoriesPage class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -31,13 +31,25 @@ ve.ui.MWCategoriesPage = function VeUiMWCategoriesPage( name, config ) {
 		label: ve.msg( 'visualeditor-dialog-meta-categories-data-label' ),
 		icon: 'tag'
 	} );
+
 	this.categoryOptionsFieldset = new OO.ui.FieldsetLayout( {
 		label: ve.msg( 'visualeditor-dialog-meta-categories-options' ),
-		icon: 'settings'
+		icon: 'advanced'
 	} );
+
 	this.categoryWidget = new ve.ui.MWCategoryWidget( {
 		$overlay: config.$overlay
 	} );
+
+	this.addCategory = new OO.ui.FieldLayout(
+		this.categoryWidget,
+		{
+			$overlay: config.$overlay,
+			align: 'top',
+			label: ve.msg( 'visualeditor-dialog-meta-categories-addcategory-label' )
+		}
+	);
+
 	this.defaultSortInput = new OO.ui.TextInputWidget( {
 		placeholder: this.fallbackDefaultSortKey
 	} );
@@ -64,7 +76,7 @@ ve.ui.MWCategoriesPage = function VeUiMWCategoriesPage( name, config ) {
 	} );
 
 	// Initialization
-	this.categoriesFieldset.$element.append( this.categoryWidget.$element );
+	this.categoriesFieldset.addItems( [ this.addCategory ] );
 	this.categoryOptionsFieldset.addItems( [ this.defaultSort ] );
 	this.$element.append( this.categoriesFieldset.$element, this.categoryOptionsFieldset.$element );
 };
@@ -107,16 +119,16 @@ ve.ui.MWCategoriesPage.prototype.onDefaultSortChange = function ( value ) {
  *  or undefined to go at the end
  */
 ve.ui.MWCategoriesPage.prototype.onNewCategory = function ( item, beforeMetaItem ) {
+	var args = [ this.getCategoryItemForInsertion( item ) ];
+
 	// Insert new metaList item
 	if ( beforeMetaItem ) {
-		this.insertMetaListItem(
-			this.getCategoryItemForInsertion( item ),
-			beforeMetaItem.getOffset(),
-			beforeMetaItem.getIndex()
-		);
-	} else {
-		this.insertMetaListItem( this.getCategoryItemForInsertion( item ) );
+		args.push( beforeMetaItem.getOffset() );
+		if ( beforeMetaItem.getIndex ) {
+			args.push( beforeMetaItem.getIndex() );
+		}
 	}
+	this.metaList.insertMeta.apply( this.metaList, args );
 };
 
 /**
@@ -135,11 +147,14 @@ ve.ui.MWCategoriesPage.prototype.onUpdateSortKey = function ( item ) {
  * @param {ve.dm.MetaItem} metaItem
  */
 ve.ui.MWCategoriesPage.prototype.onMetaListInsert = function ( metaItem ) {
+	var index;
+
 	// Responsible for adding UI components
 	if ( metaItem.element.type === 'mwCategory' ) {
+		index = this.metaList.getItemsInGroup( 'mwCategory' ).indexOf( metaItem );
 		this.categoryWidget.addItems(
 			[ this.getCategoryItemFromMetaListItem( metaItem ) ],
-			this.metaList.findItem( metaItem.getOffset(), metaItem.getIndex(), 'mwCategory' )
+			index
 		);
 	}
 };
@@ -219,17 +234,6 @@ ve.ui.MWCategoriesPage.prototype.getCategoryItemForInsertion = function ( item, 
 		return ve.extendObject( {}, oldData, newData );
 	}
 	return newData;
-};
-
-/**
- * Inserts a meta list item
- *
- * @param {Object} metaBase meta list insert object
- * @param {number} [offset] Offset of the meta items within the document
- * @param {number} [index] Index of the meta item within the group of meta items at this offset
- */
-ve.ui.MWCategoriesPage.prototype.insertMetaListItem = function ( metaBase, offset, index ) {
-	this.metaList.insertMeta( metaBase, offset, index );
 };
 
 /**

@@ -23,7 +23,8 @@
 			"Wikitoni",
 			"Nemo bis",
 			"Fringio",
-			"Kaspo"
+			"Kaspo",
+			"S4b1nuz E.656"
 		]
 	},
 	"visualeditor": "VisualEditor",
@@ -51,6 +52,7 @@
 	"visualeditor-changedesc-language": "Lingua modificata da $1 a $2",
 	"visualeditor-changedesc-no-key": "$1 modificato a $2",
 	"visualeditor-changedesc-set": "$1 impostato a $2",
+	"visualeditor-changedesc-style": "Stile modificato da $1 a $2",
 	"visualeditor-changedesc-unknown": "$1 modificato",
 	"visualeditor-changedir-tool-ltr": "Vedi da sinistra a destra",
 	"visualeditor-changedir-tool-rtl": "Vedi da destra a sinistra",
@@ -68,8 +70,10 @@
 	"visualeditor-contextitemwidget-label-remove": "Cancella",
 	"visualeditor-contextitemwidget-label-secondary": "Modifica",
 	"visualeditor-debugbar-close": "Chiudi",
-	"visualeditor-debugbar-logrange": "Registro",
+	"visualeditor-debugbar-logrange": "Registro selezionato",
 	"visualeditor-debugbar-showmodel": "Mostra modello",
+	"visualeditor-debugbar-startfilibuster": "Filibustiere",
+	"visualeditor-debugbar-stopfilibuster": "Ferma il filibustiere",
 	"visualeditor-dialog-action-apply": "Applica modifiche",
 	"visualeditor-dialog-action-cancel": "Annulla",
 	"visualeditor-dialog-action-done": "Fatto",

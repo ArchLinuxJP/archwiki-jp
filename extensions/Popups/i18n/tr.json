@@ -1,0 +1,30 @@
+{
+	"@metadata": {
+		"authors": [
+			"Joseph",
+			"Sayginer",
+			"Incelemeelemani",
+			"Meelo",
+			"McAang",
+			"Katpatuka",
+			"Rapsar"
+		]
+	},
+	"popups-message": "Vurgulanmış kartlar",
+	"popups-desc": "Kullanıcı bir makale bağlantısı üzerine geldiğinde, makale içeriği özetini içeren açılır pencereler görüntüler.",
+	"popups-settings-title": "Sayfa önizleme",
+	"popups-settings-option-simple": "Etkin",
+	"popups-settings-option-simple-description": "Bir sayfa okurken, ilgili bağlantının hızlı bir önizlemesini görün.",
+	"popups-settings-option-advanced": "Gelişmiş",
+	"popups-settings-option-advanced-description": "Bağlantı önizleme ve erişim düzenleme fonksiyon menülerine bakın. Bu, birçok editör tarafından kullanılır.",
+	"popups-settings-option-off": "Devre dışı",
+	"popups-settings-save": "Kaydet",
+	"popups-settings-help-ok": "Tamamlandı",
+	"popups-settings-cancel": "Vazgeç",
+	"popups-settings-help": "Sayfanın alt kısmındaki bir bağlantıyı kullanarak önizlemeyi geri açabilirsiniz.",
+	"popups-settings-enable": "Önizlemeyi etkinleştir",
+	"popups-preview-footer-read": "Oku",
+	"popups-prefs-optin-title": "Sayfa önizlemeleri\n\n<em>Bir sayfayı okurken, konuyla ilgili hızlı önizlemeler al</em>",
+	"popups-prefs-optin-enabled-label": "Etkinleştir",
+	"popups-prefs-optin-disabled-label": "Devre dışı bırak"
+}

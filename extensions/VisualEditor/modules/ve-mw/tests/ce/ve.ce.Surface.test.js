@@ -1,7 +1,7 @@
 /*!
  * VisualEditor MediaWiki-specific ContentEditable Surface tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -77,11 +77,26 @@ QUnit.test( 'beforePaste/afterPaste', function ( assert ) {
 
 	for ( i = 0; i < cases.length; i++ ) {
 		ve.test.utils.runSurfacePasteTest(
-			assert, cases[ i ].documentHtml,
-			cases[ i ].pasteHtml, cases[ i ].internalSourceRangeOrSelection, cases[ i ].fromVe, cases[ i ].useClipboardData,
-			cases[ i ].pasteTargetHtml, cases[ i ].rangeOrSelection, cases[ i ].pasteSpecial,
-			cases[ i ].expectedOps, cases[ i ].expectedRangeOrSelection, cases[ i ].expectedHtml,
-			cases[ i ].store, false, cases[ i ].msg
+			/* assert */ assert,
+			/* htmlOrView */ cases[ i ].documentHtml,
+			/* pasteData */
+			{
+				'text/html': cases[ i ].pasteHtml,
+				'text/plain': cases[ i ].pasteText
+			},
+			/* internalSourceRangeOrSelection */ cases[ i ].internalSourceRangeOrSelection,
+			/* noClipboardData */ cases[ i ].noClipboardData,
+			/* fromVe */ cases[ i ].fromVe,
+			/* useClipboardData */ cases[ i ].useClipboardData,
+			/* pasteTargetHtml */ cases[ i ].pasteTargetHtml,
+			/* rangeOrSelection */ cases[ i ].rangeOrSelection,
+			/* pasteSpecial */ cases[ i ].pasteSpecial,
+			/* expectedOps */ cases[ i ].expectedOps,
+			/* expectedRangeOrSelection */ cases[ i ].expectedRangeOrSelection,
+			/* expectedHtml */ cases[ i ].expectedHtml,
+			/* expectedDefaultPrevented */ cases[ i ].expectedDefaultPrevented,
+			/* store */ cases[ i ].store,
+			/* msg */ cases[ i ].msg
 		);
 	}
 } );

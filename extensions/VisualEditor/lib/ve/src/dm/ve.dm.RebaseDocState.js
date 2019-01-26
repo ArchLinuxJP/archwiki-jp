@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel rebase document state class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /* eslint-env node, es6 */
@@ -44,6 +44,7 @@ OO.initClass( ve.dm.RebaseDocState );
 ve.dm.RebaseDocState.static.newAuthorData = function () {
 	return {
 		displayName: '',
+		displayColor: '',
 		rejections: 0,
 		continueBase: null,
 		// TODO use cryptographic randomness here and convert to hex

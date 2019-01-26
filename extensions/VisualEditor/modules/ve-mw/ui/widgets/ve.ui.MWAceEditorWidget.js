@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWAceEditorWidget class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /* global ace */
@@ -37,7 +37,7 @@ ve.ui.MWAceEditorWidget = function VeUiMWAceEditorWidget( config ) {
 	this.autocomplete = config.autocomplete || 'none';
 	this.autocompleteWordList = config.autocompleteWordList || null;
 
-	this.$ace = $( '<div dir="ltr">' );
+	this.$ace = $( '<div>' ).attr( 'dir', 'ltr' );
 	this.editor = null;
 	// Initialise to a rejected promise for the setValue call in the parent constructor
 	this.loadingPromise = $.Deferred().reject().promise();

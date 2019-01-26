@@ -111,16 +111,11 @@ pre {
 }
 
 code {
-	display: inline !important;
-	word-break: break-all;
+	display: inline;
 }
 
 div#mw-search-top-table input#searchText {
-	width: 100%;
-}
-
-ul.mw-search-results {
-	float: none;
+	width: 35%;
 }
 
 div.searchresult {

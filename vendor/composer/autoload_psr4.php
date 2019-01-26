@@ -6,12 +6,16 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = $vendorDir;
 
 return array(
-    'WrappedString\\' => array($vendorDir . '/wikimedia/wrappedstring/src'),
+    'Wikimedia\\XMPReader\\' => array($vendorDir . '/wikimedia/xmp-reader/src'),
+    'Wikimedia\\Timestamp\\' => array($vendorDir . '/wikimedia/timestamp/src'),
+    'Wikimedia\\Purtle\\Tests\\' => array($vendorDir . '/wikimedia/purtle/tests/phpunit'),
+    'Wikimedia\\Purtle\\' => array($vendorDir . '/wikimedia/purtle/src'),
     'Wikimedia\\Composer\\' => array($vendorDir . '/wikimedia/composer-merge-plugin/src'),
     'Wikimedia\\Assert\\Test\\' => array($vendorDir . '/wikimedia/assert/tests/phpunit'),
     'Wikimedia\\Assert\\' => array($vendorDir . '/wikimedia/assert/src'),
-    'Symfony\\Component\\Process\\' => array($vendorDir . '/symfony/process'),
-    'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
-    'Elastica\\' => array($vendorDir . '/ruflin/elastica/lib/Elastica'),
+    'Wikimedia\\' => array($vendorDir . '/wikimedia/object-factory/src', $vendorDir . '/wikimedia/scoped-callback/src', $vendorDir . '/wikimedia/wrappedstring/src'),
+    'RemexHtml\\' => array($vendorDir . '/wikimedia/remex-html/RemexHtml'),
+    'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'Composer\\Semver\\' => array($vendorDir . '/composer/semver/src'),
+    'CLDRPluralRuleParser\\' => array($vendorDir . '/wikimedia/cldr-plural-rule-parser/src'),
 );

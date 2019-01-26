@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable MWImageNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -22,7 +22,8 @@
 ve.ce.MWImageNode = function VeCeMWImageNode( $focusable, $image, config ) {
 	config = ve.extendObject( {
 		enforceMax: false,
-		minDimensions: { width: 1, height: 1 }
+		minDimensions: { width: 1, height: 1 },
+		$bounding: this.$element
 	}, config );
 
 	// Properties

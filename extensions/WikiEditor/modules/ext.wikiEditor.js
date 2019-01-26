@@ -34,12 +34,12 @@
 			}, data );
 
 			if ( mw.user.isAnon() ) {
-				data['user.class'] = 'IP';
+				data[ 'user.class' ] = 'IP';
 			}
 
-			data['action.' + action + '.type'] = data.type;
-			data['action.' + action + '.mechanism'] = data.mechanism;
-			data['action.' + action + '.timing'] = data.timing === undefined ?
+			data[ 'action.' + action + '.type' ] = data.type;
+			data[ 'action.' + action + '.mechanism' ] = data.mechanism;
+			data[ 'action.' + action + '.timing' ] = data.timing === undefined ?
 				0 : Math.floor( data.timing );
 			// Remove renamed properties
 			delete data.type;
@@ -56,21 +56,33 @@
 			origText = $textarea.val(),
 			submitting, onUnloadFallback;
 
-		// Initialize wikiEditor
-		$textarea.wikiEditor();
-
 		if ( $editingSessionIdInput.length ) {
 			editingSessionId = $editingSessionIdInput.val();
-			logEditEvent( 'ready', {
-				editingSessionId: editingSessionId
-			} );
+			if ( window.performance && window.performance.timing ) {
+				// We want to track from the time the user started to try to
+				// launch the editor which navigationStart approximates. All
+				// of our supported browsers *should* allow this. Rather than
+				// fall back to the timestamp when the page loaded for those
+				// that don't, we just ignore them, so as to not skew the
+				// results towards better-performance in those cases.
+				logEditEvent( 'ready', {
+					editingSessionId: editingSessionId,
+					timing: Date.now() - window.performance.timing.navigationStart
+				} );
+				$textarea.on( 'wikiEditor-toolbar-doneInitialSections', function () {
+					logEditEvent( 'loaded', {
+						editingSessionId: editingSessionId,
+						timing: Date.now() - window.performance.timing.navigationStart
+					} );
+				} );
+			}
 			$textarea.closest( 'form' ).submit( function () {
 				submitting = true;
 			} );
 			onUnloadFallback = window.onunload;
 			window.onunload = function () {
 				var fallbackResult, abortType,
-					caVeEdit = $( '#ca-ve-edit' )[0],
+					caVeEdit = $( '#ca-ve-edit' )[ 0 ],
 					switchingToVE = caVeEdit && (
 						document.activeElement === caVeEdit ||
 						$.contains( caVeEdit, document.activeElement )

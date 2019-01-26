@@ -21,6 +21,8 @@
  * @ingroup Profiler
  * @defgroup Profiler Profiler
  */
+use Wikimedia\ScopedCallback;
+use Wikimedia\Rdbms\TransactionProfiler;
 
 /**
  * Profiler base class that defines the interface and some trivial
@@ -34,7 +36,7 @@ abstract class Profiler {
 	/** @var bool Whether MediaWiki is in a SkinTemplate output context */
 	protected $templated = false;
 	/** @var array All of the params passed from $wgProfiler */
-	protected $params = array();
+	protected $params = [];
 	/** @var IContextSource Current request context */
 	protected $context = null;
 	/** @var TransactionProfiler */
@@ -61,23 +63,24 @@ abstract class Profiler {
 		if ( self::$instance === null ) {
 			global $wgProfiler, $wgProfileLimit;
 
-			$params = array(
-				'class'     => 'ProfilerStub',
+			$params = [
+				'class'     => ProfilerStub::class,
 				'sampling'  => 1,
 				'threshold' => $wgProfileLimit,
-				'output'    => array(),
-			);
+				'output'    => [],
+			];
 			if ( is_array( $wgProfiler ) ) {
 				$params = array_merge( $params, $wgProfiler );
 			}
 
 			$inSample = mt_rand( 0, $params['sampling'] - 1 ) === 0;
-			if ( PHP_SAPI === 'cli' || !$inSample ) {
-				$params['class'] = 'ProfilerStub';
+			// wfIsCLI() is not available yet
+			if ( PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg' || !$inSample ) {
+				$params['class'] = ProfilerStub::class;
 			}
 
 			if ( !is_array( $params['output'] ) ) {
-				$params['output'] = array( $params['output'] );
+				$params['output'] = [ $params['output'] ];
 			}
 
 			self::$instance = new $params['class']( $params );
@@ -162,9 +165,9 @@ abstract class Profiler {
 	abstract public function scopedProfileIn( $section );
 
 	/**
-	 * @param ScopedCallback $section
+	 * @param SectionProfileCallback|null &$section
 	 */
-	public function scopedProfileOut( ScopedCallback &$section = null ) {
+	public function scopedProfileOut( SectionProfileCallback &$section = null ) {
 		$section = null;
 	}
 
@@ -185,15 +188,15 @@ abstract class Profiler {
 	 * Get all usable outputs.
 	 *
 	 * @throws MWException
-	 * @return array Array of ProfilerOutput instances.
+	 * @return ProfilerOutput[]
 	 * @since 1.25
 	 */
 	private function getOutputs() {
-		$outputs = array();
+		$outputs = [];
 		foreach ( $this->params['output'] as $outputType ) {
 			// The class may be specified as either the full class name (for
-			// example, 'ProfilerOutputUdp') or (for backward compatibility)
-			// the trailing portion of the class name (for example, 'udp').
+			// example, 'ProfilerOutputStats') or (for backward compatibility)
+			// the trailing portion of the class name (for example, 'stats').
 			$outputClass = strpos( $outputType, 'ProfilerOutput' ) === false
 				? 'ProfilerOutput' . ucfirst( $outputType )
 				: $outputType;

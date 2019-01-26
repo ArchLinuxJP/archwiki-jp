@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable View class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -106,15 +106,15 @@ ve.ce.View.prototype.getModelHtmlDocument = function () {
  * this.$element is replaced.
  */
 ve.ce.View.prototype.initialize = function () {
-	if ( this.model.element && this.model.element.originalDomElementsIndex !== undefined ) {
+	if ( this.model.element && this.model.element.originalDomElementsHash !== undefined ) {
 		// Render attributes from original DOM elements
 		ve.dm.Converter.static.renderHtmlAttributeList(
 			this.model.getOriginalDomElements( this.model.getStore() ),
 			this.$element,
 			this.constructor.static.renderHtmlAttributes,
-			// computed attributes
+			// Computed
 			true,
-			// deep
+			// Deep
 			!( this.model instanceof ve.dm.Node ) ||
 			!this.model.canHaveChildren() ||
 			this.model.handlesOwnChildren()

@@ -1,22 +1,20 @@
 <?php
 /**
- * Cite extension hooks
- *
- * @file
- * @ingroup Extensions
- * @copyright 2011-2017 Cite VisualEditor Team and others; see AUTHORS.txt
- * @license The MIT License (MIT); see MIT-LICENSE.txt
+ * @copyright 2011-2018 VisualEditor Team's Cite sub-team and others; see AUTHORS.txt
+ * @license MIT
  */
 
+use MediaWiki\MediaWikiServices;
+
 class CiteHooks {
+
 	/**
 	 * Convert the content model of a message that is actually JSON to JSON. This
 	 * only affects validation and UI when saving and editing, not loading the
 	 * content.
 	 *
 	 * @param Title $title
-	 * @param string $model
-	 * @return bool
+	 * @param string &$model
 	 */
 	public static function onContentHandlerDefaultModelFor( Title $title, &$model ) {
 		if (
@@ -28,21 +26,18 @@ class CiteHooks {
 		) {
 			$model = CONTENT_MODEL_JSON;
 		}
-
-		return true;
 	}
 
 	/**
 	 * Conditionally register the unit testing module for the ext.cite.visualEditor module
 	 * only if that module is loaded
 	 *
-	 * @param array $testModules The array of registered test modules
-	 * @param ResourceLoader $resourceLoader The reference to the resource loader
-	 * @return true
+	 * @param array &$testModules The array of registered test modules
+	 * @param ResourceLoader $resourceLoader
 	 */
 	public static function onResourceLoaderTestModules(
 		array &$testModules,
-		ResourceLoader &$resourceLoader
+		ResourceLoader $resourceLoader
 	) {
 		$resourceModules = $resourceLoader->getConfig()->get( 'ResourceModules' );
 
@@ -56,6 +51,7 @@ class CiteHooks {
 					'modules/ve-cite/tests/ve.dm.Converter.test.js',
 					'modules/ve-cite/tests/ve.dm.InternalList.test.js',
 					'modules/ve-cite/tests/ve.dm.Transaction.test.js',
+					'modules/ve-cite/tests/ve.ui.DiffElement.test.js',
 					'modules/ve-cite/tests/ve.ui.MWWikitextStringTransferHandler.test.js',
 				],
 				'dependencies' => [
@@ -66,20 +62,17 @@ class CiteHooks {
 				'remoteExtPath' => 'Cite',
 			];
 		}
-
-		return true;
 	}
 
 	/**
 	 * Conditionally register resource loader modules that depends on the
 	 * VisualEditor MediaWiki extension.
 	 *
-	 * @param $resourceLoader
-	 * @return true
+	 * @param ResourceLoader $resourceLoader
 	 */
-	public static function onResourceLoaderRegisterModules( &$resourceLoader ) {
+	public static function onResourceLoaderRegisterModules( ResourceLoader $resourceLoader ) {
 		if ( ! class_exists( 'VisualEditorHooks' ) ) {
-			return true;
+			return;
 		}
 
 		$dir = dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
@@ -106,6 +99,8 @@ class CiteHooks {
 				"cite-ve-referenceslist-isempty",
 				"cite-ve-referenceslist-isempty-default",
 				"cite-ve-referenceslist-missingref",
+				"cite-ve-referenceslist-missingref-in-list",
+				"cite-ve-referenceslist-missingreflist",
 				"visualeditor-internal-list-diff-default-group-name-mwreference",
 				"visualeditor-internal-list-diff-group-name-mwreference"
 			],
@@ -117,6 +112,57 @@ class CiteHooks {
 
 		$resourceLoader->register( "ext.cite.visualEditor.data",
 			[ "class" => "CiteDataModule" ] );
+
+		$resourceLoader->register( "ext.cite.visualEditor.icons", [
+			'localBasePath' => $dir . 'modules',
+			'remoteExtPath' => 'Cite/modules',
+			"class" => "ResourceLoaderImageModule",
+			"selectorWithoutVariant" => ".oo-ui-icon-{name}",
+			"selectorWithVariant" => ".oo-ui-image-{variant}.oo-ui-icon-{name}",
+			"variants" => [
+				"progressive" => [
+					"color" => "#36c"
+				]
+			],
+			"images" => [
+				"ref-cite-book" => [
+					"file" => "ve-cite/icons/ref-cite-book.svg"
+				],
+				"ref-cite-journal" => [
+					"file" => [
+						"ltr" => "ve-cite/icons/ref-cite-journal-ltr.svg",
+						"rtl" => "ve-cite/icons/ref-cite-journal-rtl.svg"
+					]
+				],
+				"ref-cite-news" => [
+					"file" => [
+						"ltr" => "ve-cite/icons/ref-cite-news-ltr.svg",
+						"rtl" => "ve-cite/icons/ref-cite-news-rtl.svg"
+					]
+				],
+				"ref-cite-web" => [
+					"file" => "ve-cite/icons/ref-cite-web.svg"
+				],
+				"reference" => [
+					"file" => [
+						"ltr" => "ve-cite/icons/reference-ltr.svg",
+						"rtl" => "ve-cite/icons/reference-rtl.svg"
+					]
+				],
+				"reference-existing" => [
+					"file" => [
+						"ltr" => "ve-cite/icons/reference-existing-ltr.svg",
+						"rtl" => "ve-cite/icons/reference-existing-rtl.svg"
+					]
+				],
+				"references" => [
+					"file" => [
+						"ltr" => "ve-cite/icons/references-ltr.svg",
+						"rtl" => "ve-cite/icons/references-rtl.svg"
+					]
+				],
+			]
+		] );
 
 		$resourceLoader->register( "ext.cite.visualEditor", [
 			'localBasePath' => $dir . 'modules',
@@ -140,15 +186,16 @@ class CiteHooks {
 			"styles" => [
 				"ve-cite/ve.ui.MWReferenceContextItem.css",
 				"ve-cite/ve.ui.MWReferenceGroupInputWidget.css",
-				"ve-cite/ve.ui.MWReferenceIcons.css",
 				"ve-cite/ve.ui.MWReferenceResultWidget.css",
 				"ve-cite/ve.ui.MWReferenceSearchWidget.css"
 			],
 			"dependencies" => [
 				"oojs-ui.styles.icons-alerts",
+				"oojs-ui.styles.icons-editing-citation",
 				"oojs-ui.styles.icons-interactions",
 				"ext.cite.visualEditor.core",
 				"ext.cite.visualEditor.data",
+				"ext.cite.visualEditor.icons",
 				"ext.cite.style",
 				"ext.cite.styles",
 				"ext.visualEditor.mwtransclusion",
@@ -162,6 +209,8 @@ class CiteHooks {
 				"cite-ve-changedesc-reflist-group-from",
 				"cite-ve-changedesc-reflist-group-to",
 				"cite-ve-changedesc-reflist-item-id",
+				"cite-ve-changedesc-reflist-responsive-set",
+				"cite-ve-changedesc-reflist-responsive-unset",
 				"cite-ve-dialog-reference-editing-reused",
 				"cite-ve-dialog-reference-options-group-label",
 				"cite-ve-dialog-reference-options-group-placeholder",
@@ -191,7 +240,6 @@ class CiteHooks {
 				"mobile"
 			]
 		] );
-		return true;
 	}
 
 	/**
@@ -201,7 +249,7 @@ class CiteHooks {
 	 *
 	 * @param LinksUpdate $linksUpdate
 	 */
-	public static function onLinksUpdate( LinksUpdate &$linksUpdate ) {
+	public static function onLinksUpdate( LinksUpdate $linksUpdate ) {
 		global $wgCiteStoreReferencesData, $wgCiteCacheRawReferencesOnParse;
 		if ( !$wgCiteStoreReferencesData ) {
 			return;
@@ -212,7 +260,7 @@ class CiteHooks {
 		}
 		if ( $wgCiteCacheRawReferencesOnParse ) {
 			// caching
-			$cache = ObjectCache::getMainWANInstance();
+			$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 			$articleID = $linksUpdate->getTitle()->getArticleID();
 			$key = $cache->makeKey( Cite::EXT_DATA_KEY, $articleID );
 			$cache->set( $key, $refData, Cite::CACHE_DURATION_ONPARSE );
@@ -237,7 +285,7 @@ class CiteHooks {
 	 *
 	 * @param LinksUpdate $linksUpdate
 	 */
-	public static function onLinksUpdateComplete( LinksUpdate &$linksUpdate ) {
+	public static function onLinksUpdateComplete( LinksUpdate $linksUpdate ) {
 		global $wgCiteStoreReferencesData, $wgCiteCacheRawReferencesOnParse;
 		if ( !$wgCiteStoreReferencesData || $wgCiteCacheRawReferencesOnParse ) {
 			return;
@@ -254,7 +302,7 @@ class CiteHooks {
 				return;
 			}
 		}
-		$cache = ObjectCache::getMainWANInstance();
+		$cache = MediaWikiServices::getInstance()->getMainWANObjectCache();
 		$articleID = $linksUpdate->getTitle()->getArticleID();
 		$key = $cache->makeKey( Cite::EXT_DATA_KEY, $articleID );
 		// delete with reduced hold off period (LinksUpdate uses a master connection)
@@ -263,12 +311,12 @@ class CiteHooks {
 
 	/**
 	 * Adds extra variables to the global config
+	 * @param array &$vars
 	 */
 	public static function onResourceLoaderGetConfigVars( array &$vars ) {
-		$config = ConfigFactory::getDefaultInstance()->makeConfig( 'cite' );
+		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'cite' );
 		$vars['wgCiteVisualEditorOtherGroup'] = $config->get( 'CiteVisualEditorOtherGroup' );
 		$vars['wgCiteResponsiveReferences'] = $config->get( 'CiteResponsiveReferences' );
-		return true;
 	}
 
 	/**
@@ -280,7 +328,8 @@ class CiteHooks {
 	 * @param array &$data
 	 */
 	public static function onAPIQuerySiteInfoGeneralInfo( ApiQuerySiteInfo $api, array &$data ) {
-		$config = ConfigFactory::getDefaultInstance()->makeConfig( 'cite' );
+		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'cite' );
 		$data['citeresponsivereferences'] = $config->get( 'CiteResponsiveReferences' );
 	}
+
 }

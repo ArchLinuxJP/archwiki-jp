@@ -4,6 +4,8 @@
  *
  * @file
  * @ingroup Extensions
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
+ * @license MIT
  */
 
 $specialPageAliases = [];
@@ -20,4 +22,10 @@ $specialPageAliases['en'] = [
  */
 $specialPageAliases['cy'] = [
 	'CollabPad' => [ 'PadCydweithredu', 'Pad Cydweithredu' ],
+];
+
+/** Urdu
+ */
+$specialPageAliases['ur'] = [
+	'CollabPad' => [ 'مشترکہ_پیڈ' ],
 ];

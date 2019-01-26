@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWExtensionWindow class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -36,6 +36,17 @@ OO.initClass( ve.ui.MWExtensionWindow );
  * @inheritable
  */
 ve.ui.MWExtensionWindow.static.allowedEmpty = false;
+
+/**
+ * Tell Parsoid to self-close tags when the body is empty
+ *
+ * i.e. `<foo></foo>` -> `<foo/>`
+ *
+ * @static
+ * @property {boolean}
+ * @inheritable
+ */
+ve.ui.MWExtensionWindow.static.selfCloseEmptyBody = false;
 
 /**
  * Inspector's directionality, 'ltr' or 'rtl'
@@ -83,7 +94,7 @@ ve.ui.MWExtensionWindow.prototype.getSetupProcess = function ( data, process ) {
 		if ( this.selectedNode ) {
 			mwData = this.selectedNode.getAttribute( 'mw' );
 			// mwData.body can be null in <selfclosing/> extensions
-			this.input.setValueAndWhitespace( mwData.body && mwData.body.extsrc );
+			this.input.setValueAndWhitespace( ( mwData.body && mwData.body.extsrc ) || '' );
 			this.originalMwData = mwData;
 		} else {
 			if ( !this.constructor.static.modelClasses[ 0 ].static.isContent ) {
@@ -117,6 +128,7 @@ ve.ui.MWExtensionWindow.prototype.getTeardownProcess = function ( data, process 
 	return process.next( function () {
 		// Don't hold on to the original data, it's only refreshed on setup for existing nodes
 		this.originalMwData = null;
+		this.input.disconnect( this, { change: 'onChangeHandler' } );
 	}, this );
 };
 
@@ -241,6 +253,10 @@ ve.ui.MWExtensionWindow.prototype.updateMwData = function ( mwData ) {
 	// Prevent that by escaping the first angle bracket '<' to '&lt;'. (bug 57429)
 	value = value.replace( new RegExp( '<(/' + tagName + '\\s*>)', 'gi' ), '&lt;$1' );
 
-	mwData.body = mwData.body || {};
-	mwData.body.extsrc = value;
+	if ( value.trim() === '' && this.constructor.static.selfCloseEmptyBody ) {
+		mwData.body = null;
+	} else {
+		mwData.body = mwData.body || {};
+		mwData.body.extsrc = value;
+	}
 };

@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface AnnotationInspector class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -57,7 +57,7 @@ ve.ui.AnnotationInspector.static.actions = [
 	{
 		action: 'done',
 		label: OO.ui.deferMsg( 'visualeditor-dialog-action-insert' ),
-		flags: [ 'constructive', 'primary' ],
+		flags: [ 'progressive', 'primary' ],
 		modes: 'insert'
 	}
 ];

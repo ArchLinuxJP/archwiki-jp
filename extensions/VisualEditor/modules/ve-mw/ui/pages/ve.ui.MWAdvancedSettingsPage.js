@@ -1,7 +1,7 @@
 /*!
  * VisualEditor user interface MWAdvancedSettingsPage class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -222,7 +222,7 @@ ve.ui.MWAdvancedSettingsPage.prototype.setup = function ( metaList ) {
 	displayTitleItem = this.getMetaItem( 'mwDisplayTitle' );
 	displayTitle = displayTitleItem && displayTitleItem.getAttribute( 'content' ) || '';
 	if ( !displayTitle ) {
-		displayTitle = mw.Title.newFromText( mw.config.get( 'wgPageName' ) ).getPrefixedText();
+		displayTitle = mw.Title.newFromText( ve.init.target.pageName ).getPrefixedText();
 	}
 	this.displayTitleInput.setValue( displayTitle );
 	this.displayTitleTouched = false;
@@ -253,7 +253,7 @@ ve.ui.MWAdvancedSettingsPage.prototype.teardown = function ( data ) {
 
 	// Indexing items
 	currentIndexingItem = this.getMetaItem( 'mwIndex' );
-	newIndexingData = this.indexing.getField().getSelectedItem();
+	newIndexingData = this.indexing.getField().findSelectedItem();
 
 	// Alter the indexing option flag iff it's been touched & is actually different
 	if ( this.indexingOptionTouched ) {
@@ -276,7 +276,7 @@ ve.ui.MWAdvancedSettingsPage.prototype.teardown = function ( data ) {
 
 	// New section edit link items
 	currentNewSectionEditLinkItem = this.getMetaItem( 'mwNewSectionEdit' );
-	newNewSectionEditLinkData = this.newEditSectionLink.getField().getSelectedItem();
+	newNewSectionEditLinkData = this.newEditSectionLink.getField().findSelectedItem();
 
 	// Alter the new section edit option flag iff it's been touched & is actually different
 	if ( this.newSectionEditLinkOptionTouched ) {
@@ -300,7 +300,7 @@ ve.ui.MWAdvancedSettingsPage.prototype.teardown = function ( data ) {
 	// Display title items
 	currentDisplayTitleItem = this.getMetaItem( 'mwDisplayTitle' );
 	newDisplayTitle = this.displayTitleInput.getValue();
-	if ( newDisplayTitle === mw.Title.newFromText( mw.config.get( 'wgPageName' ) ).getPrefixedText() ) {
+	if ( newDisplayTitle === mw.Title.newFromText( ve.init.target.pageName ).getPrefixedText() ) {
 		newDisplayTitle = '';
 	}
 	newDisplayTitleItem = { type: 'mwDisplayTitle', attributes: { content: newDisplayTitle } };
@@ -325,8 +325,8 @@ ve.ui.MWAdvancedSettingsPage.prototype.teardown = function ( data ) {
 		} else {
 			if ( newDisplayTitle ) {
 				// There's no existing display title but there is a new one, so create
-				// HACK: Putting this at index 0, offset 0 so that it works – bug 61862
-				this.metaList.insertMeta( newDisplayTitleItem, 0, 0 );
+				// HACK: Putting this at position 0 so that it works – T63862
+				this.metaList.insertMeta( newDisplayTitleItem, 0 );
 			}
 		}
 	}

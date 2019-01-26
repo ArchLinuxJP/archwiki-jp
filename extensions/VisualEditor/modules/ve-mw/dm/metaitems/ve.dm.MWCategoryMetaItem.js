@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel MWCategoryMetaItem class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -34,16 +34,17 @@ ve.dm.MWCategoryMetaItem.static.matchRdfaTypes = [ 'mw:PageProp/Category' ];
 
 ve.dm.MWCategoryMetaItem.static.toDataElement = function ( domElements ) {
 	var href = domElements[ 0 ].getAttribute( 'href' ),
-		matches = href.match( /^((?:\.\.?\/)*)(.*?)(?:#(.*))?$/ ),
-		rawSortkey = matches[ 3 ] || '';
+		data = ve.parseParsoidResourceName( href ),
+		rawTitleAndFragment = data.rawTitle.match( /^(.*?)(?:#(.*))?$/ ),
+		titleAndFragment = data.title.match( /^(.*?)(?:#(.*))?$/ );
 	return {
 		type: this.name,
 		attributes: {
-			hrefPrefix: matches[ 1 ],
-			category: ve.decodeURIComponentIntoArticleTitle( matches[ 2 ] ),
-			origCategory: matches[ 2 ],
-			sortkey: ve.decodeURIComponentIntoArticleTitle( rawSortkey ),
-			origSortkey: rawSortkey
+			hrefPrefix: data.hrefPrefix,
+			category: titleAndFragment[ 1 ],
+			origCategory: rawTitleAndFragment[ 1 ],
+			sortkey: titleAndFragment[ 2 ] || '',
+			origSortkey: rawTitleAndFragment[ 2 ] || ''
 		}
 	};
 };

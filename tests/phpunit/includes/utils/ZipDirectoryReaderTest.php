@@ -4,7 +4,10 @@
  * @covers ZipDirectoryReader
  * NOTE: this test is more like an integration test than a unit test
  */
-class ZipDirectoryReaderTest extends PHPUnit_Framework_TestCase {
+class ZipDirectoryReaderTest extends PHPUnit\Framework\TestCase {
+
+	use MediaWikiCoversValidator;
+
 	protected $zipDir;
 	protected $entries;
 
@@ -18,14 +21,14 @@ class ZipDirectoryReaderTest extends PHPUnit_Framework_TestCase {
 	}
 
 	function readZipAssertError( $file, $error, $assertMessage ) {
-		$this->entries = array();
-		$status = ZipDirectoryReader::read( "{$this->zipDir}/$file", array( $this, 'zipCallback' ) );
+		$this->entries = [];
+		$status = ZipDirectoryReader::read( "{$this->zipDir}/$file", [ $this, 'zipCallback' ] );
 		$this->assertTrue( $status->hasMessage( $error ), $assertMessage );
 	}
 
 	function readZipAssertSuccess( $file, $assertMessage ) {
-		$this->entries = array();
-		$status = ZipDirectoryReader::read( "{$this->zipDir}/$file", array( $this, 'zipCallback' ) );
+		$this->entries = [];
+		$status = ZipDirectoryReader::read( "{$this->zipDir}/$file", [ $this, 'zipCallback' ] );
 		$this->assertTrue( $status->isOK(), $assertMessage );
 	}
 
@@ -45,11 +48,11 @@ class ZipDirectoryReaderTest extends PHPUnit_Framework_TestCase {
 
 	public function testSimple() {
 		$this->readZipAssertSuccess( 'class.zip', 'Simple ZIP' );
-		$this->assertEquals( $this->entries, array( array(
+		$this->assertEquals( $this->entries, [ [
 			'name' => 'Class.class',
 			'mtime' => '20010115000000',
 			'size' => 1,
-		) ) );
+		] ] );
 	}
 
 	public function testBadCentralEntrySignature() {

@@ -39,6 +39,7 @@ module.exports = function ( grunt ) {
 	grunt.loadNpmTasks( 'grunt-eslint' );
 	grunt.loadNpmTasks( 'grunt-karma' );
 	grunt.loadNpmTasks( 'grunt-stylelint' );
+	grunt.loadNpmTasks( 'grunt-svgmin' );
 	grunt.loadNpmTasks( 'grunt-tyops' );
 	grunt.loadTasks( 'build/tasks' );
 
@@ -141,6 +142,40 @@ module.exports = function ( grunt ) {
 				expand: true
 			}
 		},
+		// SVG Optimization
+		svgmin: {
+			options: {
+				js2svg: {
+					pretty: true
+				},
+				plugins: [ {
+					cleanupIDs: false
+				}, {
+					removeDesc: false
+				}, {
+					removeRasterImages: true
+				}, {
+					removeTitle: false
+				}, {
+					removeViewBox: false
+				}, {
+					removeXMLProcInst: false
+				}, {
+					sortAttrs: true
+				} ]
+			},
+			all: {
+				files: [ {
+					expand: true,
+					cwd: 'src/ui',
+					src: [
+						'**/*.svg'
+					],
+					dest: 'src/ui/',
+					ext: '.svg'
+				} ]
+			}
+		},
 		buildloader: {
 			iframe: {
 				targetFile: '.jsduck/eg-iframe.html',
@@ -208,7 +243,7 @@ module.exports = function ( grunt ) {
 				template: 'demos/ve/demo.html.template',
 				modules: modules,
 				load: [
-					'visualEditor.standalone.wikimediaui.dist',
+					'visualEditor.mobile.standalone.dist',
 					'visualEditor.standalone.read'
 				],
 				run: [ 'visualEditor.mobile.standalone.demo' ],
@@ -275,8 +310,8 @@ module.exports = function ( grunt ) {
 		},
 		eslint: {
 			main: [
-				'*.js',
-				'{bin,build,demos,src,tests,rebaser}/**/*.js',
+				'*.{js,html}',
+				'{bin,build,demos,src,tests,rebaser}/**/*.{js,html}',
 				'!rebaser/node_modules/**'
 			]
 		},
@@ -315,16 +350,18 @@ module.exports = function ( grunt ) {
 				autoWatch: false
 			},
 			main: {
-				browsers: [ 'Chrome' ],
+				browsers: [ 'Chrome', 'Firefox' ],
 				preprocessors: {
 					'src/**/*.js': [ 'coverage' ]
 				},
 				reporters: [ 'mocha', 'coverage' ],
 				coverageReporter: {
+					dir: 'coverage/',
+					subdir: '.',
 					reporters: [
-						{ type: 'json-summary', dir: 'coverage/' },
-						{ type: 'html', dir: 'coverage/' },
-						{ type: 'text-summary', dir: 'coverage/' }
+						{ type: 'clover' },
+						{ type: 'html' },
+						{ type: 'text-summary' }
 					],
 					// https://github.com/karma-runner/karma-coverage/blob/v1.1.1/docs/configuration.md#check
 					check: {
@@ -368,9 +405,6 @@ module.exports = function ( grunt ) {
 						}
 					}
 				}
-			},
-			others: {
-				browsers: [ 'Firefox' ]
 			},
 			bg: {
 				browsers: [ 'Chrome', 'Firefox' ],
@@ -416,7 +450,7 @@ module.exports = function ( grunt ) {
 	grunt.registerTask( 'lint', [ 'tyops', 'eslint', 'stylelint', 'jsonlint', 'banana' ] );
 	grunt.registerTask( 'unit', [ 'karma:main' ] );
 	grunt.registerTask( '_test', [ 'lint', 'git-build', 'build', 'unit' ] );
-	grunt.registerTask( 'ci', [ '_test', 'git-status' ] );
+	grunt.registerTask( 'ci', [ '_test', 'svgmin', 'git-status' ] );
 	grunt.registerTask( 'watch', [ 'karma:bg:start', 'runwatch' ] );
 
 	/* eslint-disable no-process-env */

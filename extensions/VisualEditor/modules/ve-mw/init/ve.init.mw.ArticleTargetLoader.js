@@ -1,7 +1,7 @@
 /*!
  * VisualEditor MediaWiki ArticleTargetLoader.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -78,13 +78,14 @@
 		 * Once those are loaded, any registered plugin callbacks are executed,
 		 * and we wait for all promises returned by those callbacks to resolve.
 		 *
+		 * @param {string} mode Initial editor mode, for tracking
 		 * @return {jQuery.Promise} Promise resolved when the loading process is complete
 		 */
-		loadModules: function () {
-			ve.track( 'trace.moduleLoad.enter' );
+		loadModules: function ( mode ) {
+			ve.track( 'trace.moduleLoad.enter', { mode: mode } );
 			return mw.loader.using( modules )
 				.then( function () {
-					ve.track( 'trace.moduleLoad.exit' );
+					ve.track( 'trace.moduleLoad.exit', { mode: mode } );
 					pluginCallbacks.push( ve.init.platform.getInitializedPromise.bind( ve.init.platform ) );
 					// Execute plugin callbacks and collect promises
 					return $.when.apply( $, pluginCallbacks.map( function ( callback ) {
@@ -100,6 +101,7 @@
 		 * @param {string} mode Target mode: 'visual' or 'source'
 		 * @param {string} pageName Page name to request
 		 * @param {Object} [options] Options
+		 * @param {boolean} [options.sessionStore] Store result in session storage (by page+mode+section) for auto-save
 		 * @param {number|string} [options.section] Section to edit, number or 'new' (currently just source mode)
 		 * @param {number} [options.oldId] Old revision ID. Current if omitted.
 		 * @param {string} [options.targetName] Optional target name for tracking
@@ -110,11 +112,68 @@
 		 * @return {jQuery.Promise} Abortable promise resolved with a JSON object
 		 */
 		requestPageData: function ( mode, pageName, options ) {
-			if ( mode === 'source' ) {
-				return this.requestWikitext( pageName, options );
-			} else {
-				return this.requestParsoidData( pageName, options );
+			var sessionState, request, dataPromise,
+				apiRequest = mode === 'source' ?
+					this.requestWikitext.bind( this, pageName, options ) :
+					this.requestParsoidData.bind( this, pageName, options );
+
+			if ( options.sessionStore ) {
+				try {
+					// ve.init.platform.getSession is not available yet
+					sessionState = JSON.parse( mw.storage.session.get( 've-docstate' ) );
+				} catch ( e ) {}
+
+				if ( sessionState ) {
+					request = sessionState.request || {};
+					// Check the requested page, mode and section match the stored one
+					if (
+						request.pageName === pageName &&
+						request.mode === mode &&
+						// Only check sections in source mode
+						( request.mode !== 'source' || request.section === options.section )
+						// NB we don't cache by oldid so that cached results can be recovered
+						// even if the page has been since edited
+					) {
+						dataPromise = $.Deferred().resolve( {
+							visualeditor: $.extend(
+								{ content: mw.storage.session.get( 've-dochtml' ) },
+								sessionState.response,
+								{ recovered: true }
+							)
+						} ).promise();
+						// If the document hasn't been edited since the user first loaded it, recover
+						// their changes automatically.
+						if ( sessionState.response.oldid === mw.config.get( 'wgCurRevisionId' ) ) {
+							return dataPromise;
+						} else {
+							// Otherwise, prompt them if they want to recover, or reload the document
+							// to see the latest version
+							// This prompt will throw off all of our timing data, so just disable tracking
+							// for this session
+							ve.track = function () {};
+							return mw.loader.using( 'oojs-ui-windows' ).then( function () {
+								return OO.ui.confirm( mw.msg( 'visualeditor-autosave-modified-prompt-message' ), {
+									title: mw.msg( 'visualeditor-autosave-modified-prompt-title' ),
+									actions: [
+										{ action: 'accept', label: mw.msg( 'visualeditor-autosave-modified-prompt-accept' ), flags: [ 'primary', 'progressive' ] },
+										{ action: 'reject', label: mw.msg( 'visualeditor-autosave-modified-prompt-reject' ), flags: 'destructive' }
+									] }
+								).then( function ( confirmed ) {
+									if ( confirmed ) {
+										return dataPromise;
+									} else {
+										// If they requested the latest version, invalidate the autosave state
+										mw.storage.session.remove( 've-docstate' );
+										return apiRequest();
+									}
+								} );
+							} );
+						}
+					}
+				}
 			}
+
+			return apiRequest();
 		},
 
 		/**
@@ -150,26 +209,34 @@
 			}
 			// Load DOM
 			start = ve.now();
-			ve.track( 'trace.apiLoad.enter' );
+			ve.track( 'trace.apiLoad.enter', { mode: 'visual' } );
 
-			apiXhr = new mw.Api().get( data );
+			if ( data.paction === 'parse' && options.wikitext !== undefined ) {
+				// Non-RESTBase custom wikitext parse
+				data.paction = 'parsefragment';
+				data.wikitext = options.wikitext;
+				apiXhr = new mw.Api().post( data );
+			} else {
+				apiXhr = new mw.Api().get( data );
+			}
 			apiPromise = apiXhr.then( function ( data, jqxhr ) {
-				ve.track( 'trace.apiLoad.exit' );
+				ve.track( 'trace.apiLoad.exit', { mode: 'visual' } );
 				ve.track( 'mwtiming.performance.system.apiLoad', {
-					bytes: $.byteLength( jqxhr.responseText ),
+					bytes: require( 'mediawiki.String' ).byteLength( jqxhr.responseText ),
 					duration: ve.now() - start,
 					cacheHit: /hit/i.test( jqxhr.getResponseHeader( 'X-Cache' ) ),
-					targetName: options.targetName
+					targetName: options.targetName,
+					mode: 'visual'
 				} );
 				return data;
 			} );
 
 			if ( conf.fullRestbaseUrl || conf.restbaseUrl ) {
-				ve.track( 'trace.restbaseLoad.enter' );
+				ve.track( 'trace.restbaseLoad.enter', { mode: 'visual' } );
 
 				// Should be synchronised with ApiVisualEditor.php
 				headers = {
-					Accept: 'text/html; charset=utf-8; profile="mediawiki.org/specs/html/1.2.0"',
+					Accept: 'text/html; charset=utf-8; profile="mediawiki.org/specs/html/1.6.0"',
 					'Api-User-Agent': 'VisualEditor-MediaWiki/' + mw.config.get( 'wgVersion' )
 				};
 
@@ -218,11 +285,12 @@
 				}
 				restbasePromise = restbaseXhr.then(
 					function ( data, status, jqxhr ) {
-						ve.track( 'trace.restbaseLoad.exit' );
+						ve.track( 'trace.restbaseLoad.exit', { mode: 'visual' } );
 						ve.track( 'mwtiming.performance.system.restbaseLoad', {
-							bytes: $.byteLength( jqxhr.responseText ),
+							bytes: require( 'mediawiki.String' ).byteLength( jqxhr.responseText ),
 							duration: ve.now() - start,
-							targetName: options.targetName
+							targetName: options.targetName,
+							mode: 'visual'
 						} );
 						return [ data, jqxhr.getResponseHeader( 'etag' ) ];
 					},

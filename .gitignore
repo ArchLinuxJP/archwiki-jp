@@ -3,6 +3,8 @@
 *.orig
 *.rej
 *.kate-swp
+*.br
+*.gz
 .classpath
 .idea
 .metadata*

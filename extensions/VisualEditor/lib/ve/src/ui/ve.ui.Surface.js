@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface Surface class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -12,7 +12,7 @@
  * @extends OO.ui.Widget
  *
  * @constructor
- * @param {HTMLDocument|Array|ve.dm.LinearData|ve.dm.Document} dataOrDoc Document data to edit
+ * @param {HTMLDocument|Array|ve.dm.ElementLinearData|ve.dm.Document} dataOrDoc Document data to edit
  * @param {Object} [config] Configuration options
  * @cfg {string} [mode] Editing mode
  * @cfg {jQuery} [$scrollContainer] The scroll container of the surface
@@ -42,7 +42,7 @@ ve.ui.Surface = function VeUiSurface( dataOrDoc, config ) {
 	// The following classes are used here:
 	// * ve-ui-overlay-global-mobile
 	// * ve-ui-overlay-global-desktop
-	this.globalOverlay = new ve.ui.Overlay( { classes: [ 've-ui-overlay-global', 've-ui-overlay-global-' + OO.ui.isMobile() ? 'mobile' : 'desktop' ] } );
+	this.globalOverlay = new ve.ui.Overlay( { classes: [ 've-ui-overlay-global', 've-ui-overlay-global-' + ( OO.ui.isMobile() ? 'mobile' : 'desktop' ) ] } );
 	this.localOverlay = new ve.ui.Overlay( { classes: [ 've-ui-overlay-local' ] } );
 	this.$selections = $( '<div>' );
 	this.$blockers = $( '<div>' );
@@ -59,7 +59,7 @@ ve.ui.Surface = function VeUiSurface( dataOrDoc, config ) {
 	if ( dataOrDoc instanceof ve.dm.Document ) {
 		// ve.dm.Document
 		documentModel = dataOrDoc;
-	} else if ( dataOrDoc instanceof ve.dm.LinearData || Array.isArray( dataOrDoc ) ) {
+	} else if ( dataOrDoc instanceof ve.dm.ElementLinearData || Array.isArray( dataOrDoc ) ) {
 		// LinearData or raw linear data
 		documentModel = new ve.dm.Document( dataOrDoc );
 	} else {
@@ -123,6 +123,12 @@ OO.inheritClass( ve.ui.Surface, OO.ui.Widget );
  * The surface was scrolled programmatically
  *
  * @event scroll
+ */
+
+/**
+ * The surface has been submitted by user action, e.g. Ctrl+Enter
+ *
+ * @event submit
  */
 
 /* Static Properties */
@@ -192,8 +198,8 @@ ve.ui.Surface.prototype.initialize = function () {
 	}
 
 	// The following classes can be used here:
-	// ve-ui-surface-dir-ltr
-	// ve-ui-surface-dir-rtl
+	// * ve-ui-surface-dir-ltr
+	// * ve-ui-surface-dir-rtl
 	this.$element.addClass( 've-ui-surface-dir-' + this.getDir() );
 
 	this.getView().initialize();
@@ -204,15 +210,10 @@ ve.ui.Surface.prototype.initialize = function () {
 /**
  * Get the DOM representation of the surface's current state.
  *
- * @return {HTMLDocument} HTML document
+ * @return {HTMLDocument|string} HTML document (visual mode) or text (source mode)
  */
 ve.ui.Surface.prototype.getDom = function () {
-	// Optimized converter for source mode, which contains only
-	// plain text or paragraphs.
-	if ( this.getMode() === 'source' ) {
-		return this.getModel().getDocument().data.getSourceText();
-	}
-	return ve.dm.converter.getDomFromModel( this.getModel().getDocument() );
+	return this.getModel().getDom();
 };
 
 /**
@@ -221,9 +222,7 @@ ve.ui.Surface.prototype.getDom = function () {
  * @return {string} HTML
  */
 ve.ui.Surface.prototype.getHtml = function () {
-	return this.getMode() === 'source' ?
-		this.getDom() :
-		ve.properInnerHtml( this.getDom().body );
+	return this.getModel().getHtml();
 };
 
 /**
@@ -502,16 +501,16 @@ ve.ui.Surface.prototype.scrollCursorIntoView = function () {
 	}
 
 	// We only care about the focus end of the selection, the anchor never
-	// moves and should be allowed off screen. Thus, we get the start/end
-	// rects, and calculate based on the end.
-	clientRect = this.getView().getSelection().getSelectionStartAndEndRects();
+	// moves and should be allowed off screen. Thus, we collapse the selection
+	// to the anchor point (collapseToTo) before measuring.
+	clientRect = this.getView().getSelection( this.getModel().getSelection().collapseToTo() ).getSelectionBoundingRect();
 	if ( !clientRect ) {
 		return;
 	}
 
 	// We want viewport-relative coordinates, so we need to translate it
 	surfaceRect = this.getBoundingClientRect();
-	clientRect = ve.translateRect( clientRect.end, surfaceRect.left, surfaceRect.top );
+	clientRect = ve.translateRect( clientRect, surfaceRect.left, surfaceRect.top );
 
 	// TODO: this has some long-standing assumptions that we're going to be in
 	// the context we expect. If we get VE in a scrollable div or suchlike,
@@ -744,10 +743,9 @@ ve.ui.Surface.prototype.createProgress = function ( progressCompletePromise, lab
 };
 
 ve.ui.Surface.prototype.showProgress = function () {
-	var dialogs = this.dialogs,
-		progresses = this.progresses;
+	var progresses = this.progresses;
 
-	dialogs.openWindow( 'progress', { progresses: progresses, $returnFocusTo: null } );
+	this.dialogs.openWindow( 'progress', { progresses: progresses, $returnFocusTo: null } );
 	this.progresses = [];
 };
 
@@ -757,11 +755,7 @@ ve.ui.Surface.prototype.showProgress = function () {
  * @return {Object} Import rules
  */
 ve.ui.Surface.prototype.getImportRules = function () {
-	var singleLine = { singleLine: !this.multiline };
-	return {
-		all: ve.extendObject( {}, this.importRules.all, singleLine ),
-		external: ve.extendObject( {}, this.importRules.external, singleLine )
-	};
+	return this.importRules;
 };
 
 /**
@@ -787,14 +781,14 @@ ve.ui.Surface.prototype.initFilibuster = function () {
 	this.filibuster = new ve.Filibuster()
 		.wrapClass( ve.EventSequencer )
 		.wrapNamespace( ve.dm, 've.dm', [
-			// blacklist
+			// Blacklist
 			ve.dm.LinearSelection.prototype.getDescription,
 			ve.dm.TableSelection.prototype.getDescription,
 			ve.dm.NullSelection.prototype.getDescription
 		] )
 		.wrapNamespace( ve.ce, 've.ce' )
 		.wrapNamespace( ve.ui, 've.ui', [
-			// blacklist
+			// Blacklist
 			ve.ui.Surface.prototype.startFilibuster,
 			ve.ui.Surface.prototype.stopFilibuster
 		] )

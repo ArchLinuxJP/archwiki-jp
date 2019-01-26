@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface ContentAction class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -58,11 +58,29 @@ ve.ui.ContentAction.prototype.insert = function ( content, annotate, collapseToE
  * Remove content.
  *
  * @method
+ * @param {string} [key] Trigger remove as if a key were pressed, either 'backspace' or 'delete'
  * @return {boolean} Action was executed
  */
-ve.ui.ContentAction.prototype.remove = function () {
-	this.surface.getModel().getFragment().removeContent();
-	return true;
+ve.ui.ContentAction.prototype.remove = function ( key ) {
+	var e, defaultPrevented = false;
+	if ( key ) {
+		e = {
+			keyCode: key === 'delete' ? OO.ui.Keys.DELETE : OO.ui.Keys.BACKSPACE,
+			preventDefault: function () {
+				defaultPrevented = true;
+			}
+		};
+		ve.ce.keyDownHandlerFactory.executeHandlersForKey(
+			e.keyCode,
+			this.surface.getModel().getSelection().getName(),
+			this.surface.getView(),
+			e
+		);
+		return defaultPrevented;
+	} else {
+		this.surface.getModel().getFragment().removeContent();
+		return true;
+	}
 };
 
 /**

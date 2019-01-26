@@ -26,7 +26,8 @@
 			"MrLeopold",
 			"Mainframe98",
 			"Huhbakker",
-			"Rcdeboer"
+			"Rcdeboer",
+			"Patio"
 		]
 	},
 	"visualeditor": "Visuele tekstverwerker",
@@ -50,6 +51,7 @@
 	"visualeditor-annotationbutton-underline-tooltip": "Onderstrepen",
 	"visualeditor-changedesc-align": "Uitlijning gewijzigd van $1 naar $2",
 	"visualeditor-changedesc-changed": "$1 is gewijzigd van $2 naar $3",
+	"visualeditor-changedesc-comment": "Samenvatting gewijzigd van $1 naar $2",
 	"visualeditor-changedesc-image-size": "Grootte is gewijzigd van $1 naar $2",
 	"visualeditor-changedesc-language": "Taal is gewijzigd van $1 naar $2",
 	"visualeditor-changedesc-link-href": "Doel van koppeling is gewijzigd van $1 naar $2",
@@ -75,7 +77,7 @@
 	"visualeditor-contextitemwidget-label-secondary": "Bewerken",
 	"visualeditor-debugbar-close": "Sluiten",
 	"visualeditor-debugbar-inputdebug": "Input voor foutopsporing",
-	"visualeditor-debugbar-logrange": "Logboek",
+	"visualeditor-debugbar-logrange": "Geselecteerd logboek",
 	"visualeditor-debugbar-showmodel": "Toon model",
 	"visualeditor-debugbar-showtransactions": "Vertalingen tonen",
 	"visualeditor-debugbar-startfilibuster": "Filibuster",
@@ -138,6 +140,7 @@
 	"visualeditor-key-home": "Home",
 	"visualeditor-key-insert": "Insert",
 	"visualeditor-key-left": "Pijltjestoets links",
+	"visualeditor-key-meta": "Meta",
 	"visualeditor-key-page-down": "Page Down",
 	"visualeditor-key-page-up": "Page Up",
 	"visualeditor-key-right": "Pijltjestoets rechts",

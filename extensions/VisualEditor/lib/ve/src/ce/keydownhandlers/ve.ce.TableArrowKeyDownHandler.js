@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable table arrow key down handler
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -81,7 +81,7 @@ ve.ce.TableArrowKeyDownHandler.static.execute = function ( surface, e ) {
 			break;
 		case OO.ui.Keys.TAB:
 			colOffset = e.shiftKey ? -1 : 1;
-			expand = false; // shift-tab is a movement, not an expansion
+			expand = false; // Shift-tab is a movement, not an expansion
 			wrap = true;
 			break;
 	}

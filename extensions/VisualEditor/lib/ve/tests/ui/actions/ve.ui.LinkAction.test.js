@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface Actions LinkAction tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.ui.LinkAction' );
@@ -97,7 +97,7 @@ QUnit.test( 'autolink', function ( assert ) {
 				method: 'autolinkUrl',
 				expectedRangeOrSelection: new ve.Range( 1, 19 ),
 				expectedData: function () {
-					/* no change, no link */
+					// No change, no link
 				},
 				msg: 'Don\'t link if followed by word characters'
 			},
@@ -107,7 +107,7 @@ QUnit.test( 'autolink', function ( assert ) {
 				method: 'autolinkUrl',
 				expectedRangeOrSelection: new ve.Range( 1, 10 ),
 				expectedData: function () {
-					/* no change, no link */
+					// No change, no link
 				},
 				msg: 'Don\'t link if stripping leaves bare protocol'
 			}

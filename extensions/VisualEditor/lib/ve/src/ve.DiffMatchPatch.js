@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DiffMatchPatch implementation for linear model
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /* global diff_match_patch */
@@ -12,8 +12,8 @@
  * @class
  * @extends diff_match_patch
  * @constructor
- * @param {ve.dm.IndexValueStore} oldStore
- * @param {ve.dm.IndexValueStore} newStore
+ * @param {ve.dm.HashValueStore} oldStore
+ * @param {ve.dm.HashValueStore} newStore
  */
 ve.DiffMatchPatch = function VeDiffMatchPatch( oldStore, newStore ) {
 	// Parent constructor
@@ -388,6 +388,8 @@ ve.DiffMatchPatch.prototype.getCleanDiff = function ( oldData, newData, options 
 			}
 		}
 	}
+
+	cleanDiff.timedOut = this.lastDiffTimedOut;
 
 	return cleanDiff;
 };

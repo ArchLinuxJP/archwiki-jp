@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable block image caption node class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -34,6 +34,8 @@ OO.mixinClass( ve.ce.BlockImageCaptionNode, ve.ce.ActiveNode );
 ve.ce.BlockImageCaptionNode.static.name = 'imageCaption';
 
 ve.ce.BlockImageCaptionNode.static.tagName = 'figcaption';
+
+ve.ce.BlockImageCaptionNode.static.isMultiline = false;
 
 /* Registration */
 

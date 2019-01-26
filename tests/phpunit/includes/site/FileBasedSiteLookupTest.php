@@ -27,7 +27,9 @@
  *
  * @author Katie Filbert < aude.wiki@gmail.com >
  */
-class FileBasedSiteLookupTest extends PHPUnit_Framework_TestCase {
+class FileBasedSiteLookupTest extends PHPUnit\Framework\TestCase {
+
+	use MediaWikiCoversValidator;
 
 	protected function setUp() {
 		$this->cacheFile = $this->getCacheFile();
@@ -64,7 +66,7 @@ class FileBasedSiteLookupTest extends PHPUnit_Framework_TestCase {
 	}
 
 	private function getSiteLookup( SiteList $sites ) {
-		$siteLookup = $this->getMockBuilder( 'SiteLookup' )
+		$siteLookup = $this->getMockBuilder( SiteLookup::class )
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -76,7 +78,7 @@ class FileBasedSiteLookupTest extends PHPUnit_Framework_TestCase {
 	}
 
 	private function getSites() {
-		$sites = array();
+		$sites = [];
 
 		$site = new Site();
 		$site->setGlobalId( 'foobar' );

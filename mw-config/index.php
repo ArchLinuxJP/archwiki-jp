@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable Generic.Arrays.DisallowLongArraySyntax
 /**
  * New version of MediaWiki web-based config/installation
  *
@@ -22,6 +23,7 @@
 
 // Bail on old versions of PHP, or if composer has not been run yet to install
 // dependencies. Using dirname( __FILE__ ) here because __DIR__ is PHP5.3+.
+// phpcs:ignore MediaWiki.Usage.DirUsage.FunctionFound
 require_once dirname( __FILE__ ) . '/../includes/PHPVersionCheck.php';
 wfEntryPointCheck( 'mw-config/index.php' );
 
@@ -41,7 +43,6 @@ function wfInstallerMain() {
 	$installer = InstallerOverrides::getWebInstaller( $wgRequest );
 
 	if ( !$installer->startSession() ) {
-
 		if ( $installer->request->getVal( "css" ) ) {
 			// Do not display errors on css pages
 			$installer->outputCss();
@@ -69,6 +70,7 @@ function wfInstallerMain() {
 		$langCode = 'en';
 	}
 	$wgLang = Language::factory( $langCode );
+	RequestContext::getMain()->setLanguage( $wgLang );
 
 	$installer->setParserLanguage( $wgLang );
 
@@ -77,5 +79,4 @@ function wfInstallerMain() {
 	$session = $installer->execute( $session );
 
 	$_SESSION['installData'][$fingerprint] = $session;
-
 }

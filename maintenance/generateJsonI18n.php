@@ -35,7 +35,7 @@ require_once __DIR__ . '/Maintenance.php';
 class GenerateJsonI18n extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Build JSON messages files from a PHP messages file";
+		$this->addDescription( 'Build JSON messages files from a PHP messages file' );
 
 		$this->addArg( 'phpfile', 'PHP file defining a $messages array', false );
 		$this->addArg( 'jsondir', 'Directory to write JSON files to', false );
@@ -55,7 +55,7 @@ class GenerateJsonI18n extends Maintenance {
 
 		if ( $extension ) {
 			if ( $phpfile ) {
-				$this->error( "The phpfile is already specified, conflicts with --extension.", 1 );
+				$this->fatalError( "The phpfile is already specified, conflicts with --extension." );
 			}
 			$phpfile = "$IP/extensions/$extension/$extension.i18n.php";
 		}
@@ -101,27 +101,28 @@ class GenerateJsonI18n extends Maintenance {
 			$this->output( "Creating directory $jsondir.\n" );
 			$success = mkdir( $jsondir );
 			if ( !$success ) {
-				$this->error( "Could not create directory $jsondir", 1 );
+				$this->fatalError( "Could not create directory $jsondir" );
 			}
 		}
 
 		if ( !is_readable( $phpfile ) ) {
-			$this->error( "Error reading $phpfile", 1 );
+			$this->fatalError( "Error reading $phpfile" );
 		}
+		$messages = null;
 		include $phpfile;
 		$phpfileContents = file_get_contents( $phpfile );
 
 		if ( !isset( $messages ) ) {
-			$this->error( "PHP file $phpfile does not define \$messages array", 1 );
+			$this->fatalError( "PHP file $phpfile does not define \$messages array" );
 		}
 
 		if ( !$messages ) {
-			$this->error( "PHP file $phpfile contains an empty \$messages array. " .
-				"Maybe it was already converted?", 1 );
+			$this->fatalError( "PHP file $phpfile contains an empty \$messages array. " .
+				"Maybe it was already converted?" );
 		}
 
 		if ( !isset( $messages['en'] ) || !is_array( $messages['en'] ) ) {
-			$this->error( "PHP file $phpfile does not set language codes", 1 );
+			$this->fatalError( "PHP file $phpfile does not set language codes" );
 		}
 
 		foreach ( $messages as $langcode => $langmsgs ) {
@@ -131,7 +132,7 @@ class GenerateJsonI18n extends Maintenance {
 			) );
 			// Make sure the @metadata key is the first key in the output
 			$langmsgs = array_merge(
-				array( '@metadata' => array( 'authors' => $authors ) ),
+				[ '@metadata' => [ 'authors' => $authors ] ],
 				$langmsgs
 			);
 
@@ -141,7 +142,7 @@ class GenerateJsonI18n extends Maintenance {
 				FormatJson::encode( $langmsgs, "\t", FormatJson::ALL_OK ) . "\n"
 			);
 			if ( $success === false ) {
-				$this->error( "FAILED to write $jsonfile", 1 );
+				$this->fatalError( "FAILED to write $jsonfile" );
 			}
 			$this->output( "$jsonfile\n" );
 		}
@@ -187,9 +188,9 @@ class GenerateJsonI18n extends Maintenance {
 		$matches = null;
 		preg_match_all( '/@author (.*?)$/m', $comment, $matches );
 
-		return $matches && $matches[1] ? $matches[1] : array();
+		return $matches && $matches[1] ? $matches[1] : [];
 	}
 }
 
-$maintClass = "GenerateJsonI18n";
+$maintClass = GenerateJsonI18n::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

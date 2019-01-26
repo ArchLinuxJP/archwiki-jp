@@ -6,6 +6,8 @@ namespace OOUI;
  * Input widget with a text field.
  */
 class TextInputWidget extends InputWidget {
+	use IconElement;
+	use IndicatorElement;
 
 	/* Properties */
 
@@ -24,92 +26,85 @@ class TextInputWidget extends InputWidget {
 	protected $readOnly = false;
 
 	/**
-	 * Allow multiple lines of text.
+	 * Mark as required.
 	 *
 	 * @var boolean
 	 */
-	protected $multiline = false;
+	protected $required = false;
 
 	/**
 	 * @param array $config Configuration options
-	 * @param string $config['type'] HTML tag `type` attribute: 'text', 'password', 'search', 'email'
-	 *   or 'url'. Ignored if `multiline` is true. (default: 'text')
-	 *
-	 *   Some values of `type` result in additional behaviors:
-	 *   - `search`: implies `icon: 'search'` and `indicator: 'clear'`; when clicked, the indicator
-	 *     empties the text field
+	 * @param string $config['type'] HTML tag `type` attribute: 'text', 'password', 'email',
+	 *   'url' or 'number'. (default: 'text')
 	 * @param string $config['placeholder'] Placeholder text
-	 * @param boolean $config['autofocus'] Ask the browser to focus this widget, using the 'autofocus'
+	 * @param bool $config['autofocus'] Ask the browser to focus this widget, using the 'autofocus'
 	 *   HTML attribute (default: false)
-	 * @param boolean $config['readOnly'] Prevent changes (default: false)
+	 * @param bool $config['readOnly'] Prevent changes (default: false)
 	 * @param number $config['maxLength'] Maximum allowed number of characters to input
-	 * @param boolean $config['multiline'] Allow multiple lines of text (default: false)
-	 * @param int $config['rows'] If multiline, number of visible lines in textarea
-	 * @param boolean $config['required'] Mark the field as required.
-	 *   Implies `indicator: 'required'`. (default: false)
-	 * @param boolean $config['autocomplete'] If the field should support autocomplete
+	 *
+	 *   For unfortunate historical reasons, this counts the number of UTF-16 code units rather than
+	 *   Unicode codepoints, which means that codepoints outside the Basic Multilingual Plane (e.g.
+	 *   many emojis) count as 2 characters each.
+	 * @param bool $config['required'] Mark the field as required.
+	 *   Implies `indicator: 'required'`. Note that `false` & setting `indicator: 'required'
+	 *   will result in no indicator shown. (default: false)
+	 * @param bool $config['autocomplete'] If the field should support autocomplete
 	 *   or not (default: true)
+	 * @param bool $config['spellcheck'] If the field should support spellcheck
+	 *   or not (default: browser-dependent)
+	 * @param-taint $config escapes_html
 	 */
-	public function __construct( array $config = array() ) {
+	public function __construct( array $config = [] ) {
 		// Config initialization
-		$config = array_merge( array(
+		$config = array_merge( [
 			'type' => 'text',
 			'readOnly' => false,
 			'autofocus' => false,
 			'required' => false,
 			'autocomplete' => true,
-		), $config );
-		if ( $config['type'] === 'search' ) {
-			if ( !array_key_exists( 'icon', $config ) ) {
-				$config['icon'] = 'search';
-			}
-		}
-		if ( $config['required'] ) {
-			if ( !array_key_exists( 'indicator', $config ) ) {
-				$config['indicator'] = 'required';
-			}
-		}
+		], $config );
 
 		// Parent constructor
 		parent::__construct( $config );
 
 		// Properties
 		$this->type = $this->getSaneType( $config );
-		$this->multiline = isset( $config['multiline'] ) ? (bool)$config['multiline'] : false;
 
-		// Mixins
-		$this->mixin( new IconElement( $this, $config ) );
-		$this->mixin( new IndicatorElement( $this, $config ) );
+		// Traits
+		$this->initializeIconElement( $config );
+		$this->initializeIndicatorElement( $config );
 
 		// Initialization
 		$this
-			->addClasses( array( 'oo-ui-textInputWidget', 'oo-ui-textInputWidget-type-' . $this->type ) )
+			->addClasses( [
+				'oo-ui-textInputWidget',
+				'oo-ui-textInputWidget-type-' . $this->type,
+				'oo-ui-textInputWidget-php',
+			] )
 			->appendContent( $this->icon, $this->indicator );
 		$this->setReadOnly( $config['readOnly'] );
+		$this->setRequired( $config['required'] );
 		if ( isset( $config['placeholder'] ) ) {
-			$this->input->setAttributes( array( 'placeholder' => $config['placeholder'] ) );
+			$this->input->setAttributes( [ 'placeholder' => $config['placeholder'] ] );
 		}
 		if ( isset( $config['maxLength'] ) ) {
-			$this->input->setAttributes( array( 'maxlength' => $config['maxLength'] ) );
+			$this->input->setAttributes( [ 'maxlength' => $config['maxLength'] ] );
 		}
 		if ( $config['autofocus'] ) {
-			$this->input->setAttributes( array( 'autofocus' => 'autofocus' ) );
-		}
-		if ( $config['required'] ) {
-			$this->input->setAttributes( array( 'required' => 'required', 'aria-required' => 'true' ) );
+			$this->input->setAttributes( [ 'autofocus' => 'autofocus' ] );
 		}
 		if ( !$config['autocomplete'] ) {
-			$this->input->setAttributes( array( 'autocomplete' => 'off' ) );
+			$this->input->setAttributes( [ 'autocomplete' => 'off' ] );
 		}
-		if ( $this->multiline && isset( $config['rows'] ) ) {
-			$this->input->setAttributes( array( 'rows' => $config['rows'] ) );
+		if ( isset( $config['spellcheck'] ) ) {
+			$this->input->setAttributes( [ 'spellcheck' => $config['spellcheck'] ? 'true' : 'false' ] );
 		}
 	}
 
 	/**
 	 * Check if the widget is read-only.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isReadOnly() {
 		return $this->readOnly;
@@ -119,61 +114,75 @@ class TextInputWidget extends InputWidget {
 	 * Set the read-only state of the widget. This should probably change the widget's appearance and
 	 * prevent it from being used.
 	 *
-	 * @param boolean $state Make input read-only
-	 * @chainable
+	 * @param bool $state Make input read-only
+	 * @return $this
 	 */
 	public function setReadOnly( $state ) {
 		$this->readOnly = (bool)$state;
 		if ( $this->readOnly ) {
-			$this->input->setAttributes( array( 'readonly' => 'readonly' ) );
+			$this->input->setAttributes( [ 'readonly' => 'readonly' ] );
 		} else {
-			$this->input->removeAttributes( array( 'readonly' ) );
+			$this->input->removeAttributes( [ 'readonly' ] );
+		}
+		return $this;
+	}
+
+	/**
+	 * Check if the widget is required.
+	 *
+	 * @return bool
+	 */
+	public function isRequired() {
+		return $this->required;
+	}
+
+	/**
+	 * Set the required state of the widget.
+	 *
+	 * @param bool $state Make input required
+	 * @return $this
+	 */
+	public function setRequired( $state ) {
+		$this->required = (bool)$state;
+		if ( $this->required ) {
+			$this->input->setAttributes( [ 'required' => 'required', 'aria-required' => 'true' ] );
+			if ( $this->getIndicator() === null ) {
+				$this->setIndicator( 'required' );
+			}
+		} else {
+			$this->input->removeAttributes( [ 'required', 'aria-required' ] );
+			if ( $this->getIndicator() === 'required' ) {
+				$this->setIndicator( null );
+			}
 		}
 		return $this;
 	}
 
 	protected function getInputElement( $config ) {
-		if ( isset( $config['multiline'] ) && $config['multiline'] ) {
-			return new Tag( 'textarea' );
+		if ( $this->getSaneType( $config ) === 'number' ) {
+			return ( new Tag( 'input' ) )->setAttributes( [
+				'step' => 'any',
+				'type' => 'number',
+			] );
 		} else {
-			$input = new Tag( 'input' );
-			$input->setAttributes( array( 'type' => $this->getSaneType( $config ) ) );
-			return $input;
+			return ( new Tag( 'input' ) )->setAttributes( [ 'type' => $this->getSaneType( $config ) ] );
 		}
 	}
 
-	private function getSaneType( $config ) {
-		if ( isset( $config['multiline'] ) && $config['multiline'] ) {
-			return 'multiline';
-		} else {
-			$type = in_array( $config['type'], array( 'text', 'password', 'search', 'email', 'url' ) ) ?
-				$config['type'] :
-				'text';
-			return $type;
-		}
-	}
-
-	/**
-	 * Check if input supports multiple lines.
-	 *
-	 * @return boolean
-	 */
-	public function isMultiline() {
-		return (bool)$this->multiline;
+	protected function getSaneType( $config ) {
+		$allowedTypes = [
+			'text',
+			'password',
+			'email',
+			'url',
+			'number'
+		];
+		return in_array( $config['type'], $allowedTypes ) ? $config['type'] : 'text';
 	}
 
 	public function getConfig( &$config ) {
-		if ( $this->isMultiline() ) {
-			$config['multiline'] = true;
-			$rows = $this->input->getAttribute( 'rows' );
-			if ( $rows !== null ) {
-				$config['rows'] = $rows;
-			}
-		} else {
-			$type = $this->input->getAttribute( 'type' );
-			if ( $type !== 'text' ) {
-				$config['type'] = $type;
-			}
+		if ( $this->type !== 'text' ) {
+			$config['type'] = $this->type;
 		}
 		if ( $this->isReadOnly() ) {
 			$config['readOnly'] = true;

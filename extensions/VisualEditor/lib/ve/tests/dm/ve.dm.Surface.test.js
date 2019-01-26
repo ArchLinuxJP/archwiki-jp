@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Surface tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.dm.Surface' );
@@ -34,11 +34,11 @@ QUnit.test( 'contextChange events', function ( assert ) {
 	var surface = new ve.dm.SurfaceStub( ve.dm.example.preprocessAnnotations( [
 			{ type: 'paragraph' },
 			'F', 'o', 'o',
-			// bold "bar"
+			// Bold "bar"
 			[ 'b', [ ve.dm.example.bold ] ],
 			[ 'a', [ ve.dm.example.bold ] ],
 			[ 'r', [ ve.dm.example.bold ] ],
-			// italic "baz"
+			// Italic "baz"
 			[ 'b', [ ve.dm.example.italic ] ],
 			[ 'a', [ ve.dm.example.italic ] ],
 			[ 'z', [ ve.dm.example.italic ] ],
@@ -72,7 +72,7 @@ QUnit.test( 'contextChange events', function ( assert ) {
 			expected: 0
 		},
 		{
-			// going from collapsed to not is a context change
+			// Going from collapsed to not is a context change
 			title: 'setSelection, expands over plain text',
 			initialSelection: new ve.Range( 1 ),
 			selection: new ve.Range( 1, 2 ),
@@ -100,19 +100,19 @@ QUnit.test( 'contextChange events', function ( assert ) {
 			title: 'setSelection, non-collapsed selection expands into annotated text, other direction',
 			initialSelection: new ve.Range( 12, 11 ),
 			selection: new ve.Range( 12, 8 ),
-			expected: 2 // move + insertion annotations change
+			expected: 2 // Move + insertion annotations change
 		},
 		{
 			title: 'setSelection, move collapsed selection to edge of annotated text',
 			initialSelection: new ve.Range( 2 ),
 			selection: new ve.Range( 4 ),
-			expected: 1 // move + no insertion annotations change
+			expected: 1 // Move + no insertion annotations change
 		},
 		{
 			title: 'setSelection, move collapsed selection to within annotated text',
 			initialSelection: new ve.Range( 2 ),
 			selection: new ve.Range( 5 ),
-			expected: 2 // move + insertion annotations change
+			expected: 2 // Move + insertion annotations change
 		}
 	];
 	for ( i = 0, iLen = tests.length; i < iLen; i++ ) {
@@ -320,6 +320,190 @@ QUnit.test( 'staging', function ( assert ) {
 	surface.undo();
 
 	assert.equalHash( surface.getSelection(), fragment.getSelection(), 'Surface selection matches fragment range' );
+
+} );
+
+QUnit.test( 'getOffsetFromSourceOffset / getSourceOffsetFromOffset / getRangeFromSourceOffsets', function ( assert ) {
+	var i,
+		surface = new ve.dm.SurfaceStub( [
+			{ type: 'paragraph' }, 'f', 'o', 'o', { type: '/paragraph' },
+			{ type: 'paragraph' }, 'b', 'a', { type: '/paragraph' },
+			{ type: 'paragraph' }, 'q', 'u', 'u', 'x', { type: '/paragraph' },
+			{ type: 'internalList' }, { type: '/internalList' }
+		] ),
+		expectedOffsets = [
+			1, 2, 3, 4,
+			6, 7, 8,
+			10, 11, 12, 13, 14
+		],
+		expectedSourceOffsets = [
+			0, 0, 1, 2, 3,
+			4, 4, 5, 6,
+			7, 7, 8, 9, 10, 11,
+			12
+		];
+
+	for ( i = 0; i < expectedOffsets.length; i++ ) {
+		assert.strictEqual( surface.getOffsetFromSourceOffset( i ), expectedOffsets[ i ], 'Correct offset at ' + i );
+	}
+	assert.throws(
+		function () { surface.getOffsetFromSourceOffset( -1 ); },
+		Error, 'Offset -1 is out of bounds' );
+	assert.throws(
+		function () { surface.getOffsetFromSourceOffset( expectedOffsets.length ); },
+		Error, 'Offset ' + expectedOffsets.length + ' is out of bounds'
+	);
+	for ( i = 0; i < expectedSourceOffsets.length; i++ ) {
+		assert.strictEqual( surface.getSourceOffsetFromOffset( i ), expectedSourceOffsets[ i ], 'Correct source offset at ' + i );
+	}
+	assert.throws(
+		function () { surface.getSourceOffsetFromOffset( -1 ); },
+		Error, 'Offset -1 is out of bounds' );
+	assert.throws(
+		function () { surface.getSourceOffsetFromOffset( expectedSourceOffsets.length ); },
+		Error, 'Offset ' + expectedSourceOffsets.length + ' is out of bounds'
+	);
+
+	assert.equalRange( surface.getRangeFromSourceOffsets( 1, 5 ), new ve.Range( 2, 7 ), 'Simple forwards range' );
+	assert.equalRange( surface.getRangeFromSourceOffsets( 6, 2 ), new ve.Range( 8, 3 ), 'Simple backwards range' );
+	assert.equalRange( surface.getRangeFromSourceOffsets( 7, 7 ), new ve.Range( 10 ), 'Collapsed range (2 args)' );
+	assert.equalRange( surface.getRangeFromSourceOffsets( 8 ), new ve.Range( 11 ), 'Collapsed range (1 arg)' );
+} );
+
+QUnit.test( 'autosave', function ( assert ) {
+	var autosaveFailed = 0,
+		done = assert.async(),
+		surface = new ve.dm.SurfaceStub(),
+		fragment = surface.getLinearFragment( new ve.Range( 3 ) ),
+		state = {
+			name: 'name',
+			id: 1
+		};
+
+	assert.deepEqual( surface.restoreChanges(), false, 'restoreChanges returns false when nothing to restore' );
+	assert.deepEqual( surface.storeDocState( state, '<p>foo</p>' ), true, 'storeDocState returns true' );
+	assert.deepEqual( ve.init.platform.getSession( 've-docstate' ), JSON.stringify( state ), 'storeDocState writes doc state to session storage' );
+	assert.deepEqual( ve.init.platform.getSession( 've-dochtml' ), '<p>foo</p>', 'storeDocState writes custom HTML to session storage' );
+	surface.storeDocState( state, '' );
+	assert.deepEqual( ve.init.platform.getSession( 've-dochtml' ), '', 'storeDocState can set HTML to empty string' );
+	surface.storeDocState();
+	assert.deepEqual( ve.init.platform.getSession( 've-dochtml' ), '<p>hi</p>', 'storeDocState writes current HTML to session storage' );
+	assert.deepEqual( ve.init.platform.getSession( 've-docstate' ), null, 'docstate is empty if not provided' );
+
+	fragment.insertContent( ' bar' );
+	surface.breakpoint();
+	assert.deepEqual( ve.init.platform.getSessionList( 've-changes' ), [], 'Changes aren\'t stored before startStoringChanges' );
+
+	surface = new ve.dm.SurfaceStub();
+	fragment = surface.getLinearFragment( new ve.Range( 3 ) );
+	surface.startStoringChanges();
+	surface.storeDocState( state );
+	fragment.insertContent( ' bar' );
+	surface.breakpoint();
+	assert.deepEqual(
+		ve.init.platform.getSessionList( 've-changes' ).map( JSON.parse ),
+		[ {
+			start: 0,
+			transactions: [ [ 3, [ '', ' bar' ], 1 ] ]
+		} ],
+		'First change stored'
+	);
+
+	surface.storeChanges();
+	assert.deepEqual( ve.init.platform.getSessionList( 've-changes' ).length, 1, 'No extra change stored if no changes since last store' );
+
+	fragment.convertNodes( 'heading', { level: 1 } );
+	surface.setLinearSelection( new ve.Range( 5 ) );
+	surface.breakpoint();
+	assert.deepEqual(
+		ve.init.platform.getSessionList( 've-changes' ).map( JSON.parse )[ 1 ],
+		{
+			start: 1,
+			transactions: [ [
+				[ [ { type: 'paragraph' } ], [ { type: 'heading', attributes: { level: 1 } } ] ],
+				6,
+				[ [ { type: '/paragraph' } ], [ { type: '/heading' } ] ]
+			] ]
+		},
+		'Second change stored'
+	);
+	assert.deepEqual(
+		ve.init.platform.getSession( 've-selection' ),
+		JSON.stringify( { type: 'linear', range: { type: 'range', from: 5, to: 5 } } ),
+		'Selection state stored'
+	);
+
+	surface.stopStoringChanges();
+	fragment.collapseToEnd().insertContent( ' quux' );
+	surface.breakpoint();
+	assert.deepEqual(
+		ve.init.platform.getSessionList( 've-changes' ).length, 2, 'Change not stored after stopStoringChanges'
+	);
+
+	assert.throws(
+		function () {
+			surface.restoreChanges();
+		},
+		/Failed to restore/,
+		'Calling restoreChanges on the wrong document state throws "Failed to restore..." error'
+	);
+
+	surface = new ve.dm.SurfaceStub();
+	fragment = null;
+	assert.deepEqual( surface.getHtml(), '<p>hi</p>', 'Document HTML before restoreChanges' );
+	assert.deepEqual( surface.restoreChanges(), true, 'restoreChanges returns true on success' );
+	assert.deepEqual( surface.getHtml(), '<h1>hi bar</h1>', 'Document HTML restored' );
+	assert.deepEqual( surface.getDocument().getCompleteHistoryLength(), 2, 'Document history restored' );
+	setTimeout( function ( surface ) {
+		assert.equalHash( surface.getSelection(), { type: 'linear', range: { type: 'range', from: 5, to: 5 } }, 'Document selection restored (async)' );
+		done();
+	}.bind( this, surface ) );
+
+	ve.init.platform.sessionDisabled = true;
+	assert.deepEqual( surface.restoreChanges(), false, 'restoreChanges returns false if session storage disabled' );
+	ve.init.platform.sessionDisabled = false;
+
+	surface.removeDocStateAndChanges();
+	assert.deepEqual( ve.init.platform.getSession( 've-html' ), null, 'HTML empty after removeDocStateAndChanges' );
+	assert.deepEqual( ve.init.platform.getSession( 've-docstate' ), null, 'Doc state empty after removeDocStateAndChanges' );
+	assert.deepEqual( ve.init.platform.getSessionList( 've-changes' ), [], 'Changes empty after removeDocStateAndChanges' );
+
+	surface = new ve.dm.SurfaceStub();
+	fragment = surface.getLinearFragment( new ve.Range( 3 ) );
+	surface.startStoringChanges();
+	// Pass magic string to only fail when writing HTML
+	assert.deepEqual( surface.storeDocState( state, '__FAIL__' ), false, 'storeDocState returns false when HTML can\'t be stored' );
+	assert.deepEqual( ve.init.platform.getSession( 've-docstate' ), null, 'docstate is wiped if HTML storage failed' );
+
+	ve.init.platform.sessionDisabled = true;
+	surface = new ve.dm.SurfaceStub();
+	fragment = surface.getLinearFragment( new ve.Range( 3 ) );
+	surface.startStoringChanges();
+	assert.deepEqual( surface.storeDocState( state ), false, 'storeDocState returns false when sessionStorage disabled' );
+	fragment.insertContent( ' bar' );
+	surface.breakpoint();
+	assert.deepEqual( ve.init.platform.getSessionList( 've-changes' ).length, 0, 'No changes recorded after storeDocState failure' );
+	ve.init.platform.sessionDisabled = false;
+
+	surface.on( 'autosaveFailed', function () { autosaveFailed++; } );
+	surface.startStoringChanges();
+	surface.storeDocState( state );
+	ve.init.platform.sessionDisabled = true;
+	assert.deepEqual( autosaveFailed, 0, 'Autosave hasn\'t failed before first change' );
+	fragment.insertContent( ' bar' );
+	surface.breakpoint();
+	assert.deepEqual( autosaveFailed, 1, 'Autosave fails after first change' );
+	fragment.insertContent( ' baz' );
+	surface.breakpoint();
+	assert.deepEqual( autosaveFailed, 1, 'Subsequent failures don\'t fire autosaveFailed again' );
+	assert.deepEqual( ve.init.platform.getSessionList( 've-changes' ).length, 0, 'No changes recorded after storeChanges failure' );
+	ve.init.platform.sessionDisabled = false;
+
+	surface.storeDocState( state, '<p>foo</p>' );
+	// This allows callers to call storeDocState after startStoringChanges, e.g. after the first transaction
+	assert.deepEqual( surface.lastStoredChange, 1, 'storeDocState with custom HTML doesn\'t advance the lastStoredChange pointer' );
+	surface.storeDocState( state );
+	assert.deepEqual( surface.lastStoredChange, 5, 'storeDocState without custom HTML advances the lastStoredChange pointer' );
 
 } );
 

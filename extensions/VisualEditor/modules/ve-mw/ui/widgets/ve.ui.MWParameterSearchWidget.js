@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWParameterSearchWidget class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -181,6 +181,6 @@ ve.ui.MWParameterSearchWidget.prototype.addResults = function () {
 
 	this.results.addItems( items );
 	if ( hasQuery ) {
-		this.results.highlightItem( this.results.getFirstSelectableItem() );
+		this.results.highlightItem( this.results.findFirstSelectableItem() );
 	}
 };

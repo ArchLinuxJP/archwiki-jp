@@ -1,7 +1,7 @@
 /*!
  * VisualEditor Initialization Debug Bar styles.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 .ve-ui-debugBar {
@@ -26,12 +26,13 @@
 
 .ve-ui-debugBar-selectionLabel {
 	min-width: 20em;
-	/* Specify a valid second value to fix size in Chrome/FF */
-	font-family: monospace, 'Courier';
+	/* Support: Blink, Gecko, Webkit */
+	/* Specify a valid second value to fix size, see T176636 */
+	font-family: monospace, monospace;
 }
 
 .ve-ui-debugBar-commands-divider {
-	border-right: 1px solid #ddd;
+	border-right: 1px solid #c8ccd1;
 	width: 0;
 }
 
@@ -40,10 +41,10 @@
 }
 
 .ve-ui-debugBar-dump > table {
+	background-color: #f8f9fa;
 	font-size: 0.85em;
-	background-color: #f3f3f3;
 	width: 100%;
-	border: 1px solid #ddd;
+	border: 1px solid #c8ccd1;
 	border-radius: 0;
 	border-top-right-radius: 0.25em;
 	border-top-left-radius: 0.25em;
@@ -54,44 +55,36 @@
 }
 
 .ve-ui-debugBar-dump td {
-	padding: 0.25em 1em;
 	background-color: #fff;
+	padding: 0.25em 1em;
 	vertical-align: top;
 }
 
-.ve-ui-debugBar-dump-linmod-data,
-.ve-ui-debugBar-dump-linmod-metadata {
-	width: 27%;
+.ve-ui-debugBar-dump-linmod-data {
+	width: 50%;
 }
 
 .ve-ui-debugBar-dump th {
+	color: #54595d;
 	padding: 0.5em 1em;
-	color: #555;
 	text-shadow: 0 1px 1px #fff;
 }
 
 .ve-ui-debugBar-dump ol {
+	color: #72777d;
 	padding-left: 1.5em;
-	color: #999;
 }
 
-.ve-ui-debugBar-dump li > span {
+.ve-ui-debugBar-dump li .ve-ui-debugBar-dump-element,
+.ve-ui-debugBar-dump li .ve-ui-debugBar-dump-char,
+.ve-ui-debugBar-dump li .ve-ui-debugBar-dump-achar {
+	background-color: #f8f9fa;
+	color: #000;
 	display: inline-block;
-	background-color: #f3f3f3;
-	border-radius: 0.3em;
-	margin: 0.25em 0 0.25em 0;
+	border-radius: 2px;
+	margin: 0.25em 0.25em 0.25em 0;
 	padding: 0.125em 0.5em;
 	text-shadow: 0 1px 1px #fff;
-	color: #000;
-}
-
-.ve-ui-debugBar-dump li > span > span {
-	color: #aaa;
-	text-shadow: 0 1px 1px #fff;
-}
-
-.ve-ui-debugBar-dump li .ve-ui-debugBar-dump-undefined {
-	color: #aaa;
 }
 
 .ve-ui-debugBar-dump li .ve-ui-debugBar-dump-element {
@@ -106,24 +99,24 @@
 	background-color: #fed;
 }
 
+.ve-ui-debugBar-dump li .ve-ui-debugBar-dump-note {
+	color: #a2a9b1;
+}
+
 .ve-ui-debugBar-filibuster {
+	background-color: #f8f9fa;
 	font-size: 0.875em;
 	margin-top: 2em;
 	display: none;
-	background-color: #f3f3f3;
 	width: 100%;
-	border: 1px solid #ddd;
+	border: 1px solid #c8ccd1;
 	border-radius: 0;
 	border-top-right-radius: 0.25em;
 	border-top-left-radius: 0.25em;
 }
 
-.ve-ui-debugBar-transactions {
-	display: none;
-}
-
 .ve-ui-debugBar-transactions > ol > li {
-	border-left: #f3f3f3 2em solid;
+	border-left: 2em solid #f8f9fa;
 }
 
 .ve-ui-debugBar-transactions ol ol {

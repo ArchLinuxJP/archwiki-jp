@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Transaction class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -25,8 +25,15 @@
  */
 ve.dm.Transaction = function VeDmTransaction( operations, authorId ) {
 	this.operations = operations || [];
+	// TODO: remove this backwards-incompatibility check
+	this.operations.forEach( function ( op ) {
+		if ( op.type && op.type.match( /meta/i ) ) {
+			throw new Error( 'Metadata ops are no longer supported' );
+		}
+	} );
 	this.applied = false;
 	this.authorId = authorId || null;
+	this.isReversed = false;
 };
 
 /* Inheritance */
@@ -51,15 +58,12 @@ OO.initClass( ve.dm.Transaction );
  * @type {Object.<string,Object.<string,string|Object.<string, string>>>}
  */
 ve.dm.Transaction.static.reversers = {
-	annotate: { method: { set: 'clear', clear: 'set' } }, // swap 'set' with 'clear'
-	attribute: { from: 'to', to: 'from' }, // swap .from with .to
-	replace: { // swap .insert with .remove and .insertMetadata with .removeMetadata
+	annotate: { method: { set: 'clear', clear: 'set' } }, // Swap 'set' with 'clear'
+	attribute: { from: 'to', to: 'from' }, // Swap .from with .to
+	replace: { // Swap .insert with .remove
 		insert: 'remove',
-		remove: 'insert',
-		insertMetadata: 'removeMetadata',
-		removeMetadata: 'insertMetadata'
-	},
-	replaceMetadata: { insert: 'remove', remove: 'insert' } // swap .insert with .remove
+		remove: 'insert'
+	}
 };
 
 /* Static Methods */
@@ -69,15 +73,49 @@ ve.dm.Transaction.static.reversers = {
 /**
  * Deserialize a transaction from a JSONable object
  *
- * @param {Object} data Transaction serialized as a JSONable object
+ * Values are either new or deep copied, so there is no reference into the serialized structure
+ * @param {Object|Array} data Transaction serialized as a JSONable object
  * @return {ve.dm.Transaction} Deserialized transaction
  */
 ve.dm.Transaction.static.deserialize = function ( data ) {
-	return new ve.dm.Transaction(
-		// For this plain, serializable array, stringify+parse profiles faster than ve.copy
-		JSON.parse( JSON.stringify( data.operations ) ),
-		data.authorId
-	);
+	function deminifyLinearData( data ) {
+		if ( typeof data === 'string' ) {
+			return data.split( '' );
+		}
+		// Else deep copy. For this plain, serializable array, stringify+parse profiles
+		// faster than ve.copy
+		return JSON.parse( JSON.stringify( data ) );
+	}
+
+	function deminify( op ) {
+		if ( typeof op === 'number' ) {
+			return { type: 'retain', length: op };
+		}
+		if ( Array.isArray( op ) ) {
+			return {
+				type: 'replace',
+				remove: deminifyLinearData( op[ 0 ] ),
+				insert: deminifyLinearData( op[ 1 ] )
+			};
+		}
+		// Else deep copy. For this plain, serializable array, stringify+parse profiles
+		// faster than ve.copy
+		return JSON.parse( JSON.stringify( op ) );
+	}
+
+	if ( Array.isArray( data ) ) {
+		return new ve.dm.Transaction(
+			data.map( deminify )
+		);
+	} else {
+		return new ve.dm.Transaction(
+			// operations
+			data.o.map( deminify ),
+			// authorId
+			data.a
+		);
+	}
+
 };
 
 /* Methods */
@@ -86,13 +124,48 @@ ve.dm.Transaction.static.deserialize = function ( data ) {
  * Serialize the transaction into a JSONable object
  *
  * Values are not necessarily deep copied
- * @return {Object} Serialized transaction
+ * @return {Object|Array} Serialized transaction
  */
 ve.dm.Transaction.prototype.serialize = function () {
-	return {
-		operations: this.operations,
-		authorId: this.authorId
-	};
+	var operations;
+
+	function isSingleCodePoint( x ) {
+		return typeof x === 'string' && x.length === 1;
+	}
+	function minifyLinearData( data ) {
+		if ( data.every( isSingleCodePoint ) ) {
+			return data.join( '' );
+		}
+		return data;
+	}
+
+	function minify( op ) {
+		if ( op.type === 'retain' ) {
+			return op.length;
+		}
+		if (
+			op.type === 'replace' &&
+			!op.insertedDataOffset &&
+			(
+				op.insertedDataLength === undefined ||
+				op.insertedDataLength === op.insert.length
+			)
+		) {
+			return [ minifyLinearData( op.remove ), minifyLinearData( op.insert ) ];
+		}
+		return op;
+	}
+
+	operations = this.operations.map( minify );
+
+	if ( this.authorId !== null ) {
+		return {
+			o: operations,
+			a: this.authorId
+		};
+	} else {
+		return operations;
+	}
 };
 
 /**
@@ -107,15 +180,6 @@ ve.dm.Transaction.prototype.pushRetainOp = function ( length ) {
 // TODO: Bring in adjustRetain from ve.dm.Change and replace ve.dm.TransactionBuilder#pushRetain
 
 /**
- * Push a metadata retain operation
- *
- * @param {number} length Length > 0 of content data to retain
- */
-ve.dm.Transaction.prototype.pushRetainMetadataOp = function ( length ) {
-	this.operations.push( { type: 'retainMetadata', length: length } );
-};
-
-/**
  * Build a replace operation
  *
  * The `insertedDataOffset` and `insertedDataLength` parameters indicate the intended insertion
@@ -124,32 +188,16 @@ ve.dm.Transaction.prototype.pushRetainMetadataOp = function ( length ) {
  *
  * @param {Array} remove Data to remove
  * @param {Array} insert Data to insert, possibly fixed up
- * @param {Array|undefined} removeMetadata Metadata to remove
- * @param {Array|undefined} insertMetadata Metadata to insert
  * @param {number} [insertedDataOffset] Offset of intended insertion within fixed up data
  * @param {number} [insertedDataLength] Length of intended insertion within fixed up data
  */
-ve.dm.Transaction.prototype.pushReplaceOp = function ( remove, insert, removeMetadata, insertMetadata, insertedDataOffset, insertedDataLength ) {
+ve.dm.Transaction.prototype.pushReplaceOp = function ( remove, insert, insertedDataOffset, insertedDataLength ) {
 	var op = { type: 'replace', remove: remove, insert: insert };
-	if ( removeMetadata !== undefined && insertMetadata !== undefined ) {
-		op.removeMetadata = removeMetadata;
-		op.insertMetadata = insertMetadata;
-	}
 	if ( insertedDataOffset !== undefined && insertedDataLength !== undefined ) {
 		op.insertedDataOffset = insertedDataOffset;
 		op.insertedDataLength = insertedDataLength;
 	}
 	this.operations.push( op );
-};
-
-/**
- * Build a replaceMetadata operation
- *
- * @param {Array} remove Metadata to remove
- * @param {Array} insert Metadata to insert
- */
-ve.dm.Transaction.prototype.pushReplaceMetadataOp = function ( remove, insert ) {
-	this.operations.push( { type: 'replaceMetadata', remove: remove, insert: insert } );
 };
 
 /**
@@ -168,10 +216,10 @@ ve.dm.Transaction.prototype.pushAttributeOp = function ( key, from, to ) {
  *
  * @param {string} method Method to use, either "set" or "clear"
  * @param {string} bias Bias, either "start" or "stop"
- * @param {Object} index Store index of annotation object
+ * @param {Object} hash Store hash of annotation object
  */
-ve.dm.Transaction.prototype.pushAnnotateOp = function ( method, bias, index ) {
-	this.operations.push( { type: 'annotate', method: method, bias: bias, index: index } );
+ve.dm.Transaction.prototype.pushAnnotateOp = function ( method, bias, hash ) {
+	this.operations.push( { type: 'annotate', method: method, bias: bias, index: hash } );
 };
 
 /**
@@ -201,7 +249,10 @@ ve.dm.Transaction.prototype.clone = function () {
  * @return {ve.dm.Transaction} Reverse of this transaction
  */
 ve.dm.Transaction.prototype.reversed = function () {
-	var i, len, op, newOp, reverse, prop, tx = new this.constructor();
+	var i, len, op, newOp, reverse, prop,
+		tx = new this.constructor();
+
+	tx.isReversed = !this.isReversed;
 	for ( i = 0, len = this.operations.length; i < len; i++ ) {
 		op = this.operations[ i ];
 		newOp = ve.copy( op );
@@ -235,10 +286,6 @@ ve.dm.Transaction.prototype.isNoOp = function () {
 	if ( this.operations.length === 1 ) {
 		return this.operations[ 0 ].type === 'retain';
 	}
-	if ( this.operations.length === 2 ) {
-		return this.operations[ 0 ].type === 'retain' && this.operations[ 1 ].type === 'retainMetadata';
-	}
-
 	return false;
 };
 
@@ -447,9 +494,6 @@ ve.dm.Transaction.prototype.getModifiedRange = function ( doc, includeInternalLi
 	for ( i = 0, len = this.operations.length; i < len; i++ ) {
 		op = this.operations[ i ];
 		switch ( op.type ) {
-			case 'retainMetadata':
-				continue;
-
 			case 'retain':
 				if ( oldOffset + op.length > docEndOffset ) {
 					break opLoop;

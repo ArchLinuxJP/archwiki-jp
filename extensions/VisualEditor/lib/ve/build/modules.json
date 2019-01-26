@@ -41,9 +41,25 @@
 			"lib/dompurify/purify.js"
 		]
 	},
+	"color-picker": {
+		"scripts": [
+			"lib/color-picker/color-picker.js"
+		],
+		"styles": [
+			"lib/color-picker/color-picker.css"
+		]
+	},
 	"oojs": {
 		"scripts": [
 			"lib/oojs/oojs.jquery.js"
+		],
+		"dependencies": [
+			"jquery"
+		]
+	},
+	"oojs.noJQuery": {
+		"scripts": [
+			"lib/oojs/oojs.js"
 		]
 	},
 	"oojs-ui": {
@@ -266,7 +282,6 @@
 			"src/dm/ve.dm.NodeFactory.js",
 			"src/dm/ve.dm.AnnotationFactory.js",
 			"src/dm/ve.dm.AnnotationSet.js",
-			"src/dm/ve.dm.MetaItemFactory.js",
 			"src/dm/ve.dm.ClassAttributeNode.js",
 			"src/dm/ve.dm.AlignableNode.js",
 			"src/dm/ve.dm.FocusableNode.js",
@@ -299,14 +314,13 @@
 			"src/dm/ve.dm.DocumentSlice.js",
 			"src/dm/ve.dm.TableSlice.js",
 			"src/dm/ve.dm.LinearData.js",
-			"src/dm/ve.dm.IndexValueStore.js",
+			"src/dm/ve.dm.HashValueStore.js",
 			"src/dm/ve.dm.Converter.js",
 			"src/dm/selections/ve.dm.LinearSelection.js",
 			"src/dm/selections/ve.dm.NullSelection.js",
 			"src/dm/selections/ve.dm.TableSelection.js",
 			"src/dm/lineardata/ve.dm.FlatLinearData.js",
 			"src/dm/lineardata/ve.dm.ElementLinearData.js",
-			"src/dm/lineardata/ve.dm.MetaLinearData.js",
 			"src/dm/nodes/ve.dm.GeneratedContentNode.js",
 			"src/dm/nodes/ve.dm.AlienNode.js",
 			"src/dm/nodes/ve.dm.ArticleNode.js",
@@ -378,6 +392,7 @@
 			"src/ce/ve.ce.BranchNode.js",
 			"src/ce/ve.ce.ContentBranchNode.js",
 			"src/ce/ve.ce.LeafNode.js",
+			"src/ce/ve.ce.MetaItem.js",
 			"src/ce/ve.ce.ClassAttributeNode.js",
 			"src/ce/ve.ce.AlignableNode.js",
 			"src/ce/ve.ce.FocusableNode.js",
@@ -602,7 +617,6 @@
 			"src/ui/styles/contextitems/ve.ui.LanguageContextItem.css",
 			"src/ui/styles/contextitems/ve.ui.LinkContextItem.css",
 			"src/ui/styles/contextitems/ve.ui.ToolContextItem.css",
-			"src/ui/styles/ve.ui.Icons.css",
 			"src/ui/styles/ve.ui.Overlay.css",
 			"src/ui/styles/ve.ui.Surface.css",
 			"src/ui/styles/widgets/ve.ui.TargetWidget.css",
@@ -651,7 +665,8 @@
 		],
 		"dependencies": [
 			"dompurify",
-			"socket.io"
+			"socket.io",
+			"color-picker"
 		]
 	},
 	"visualEditor.rebase.build": {
@@ -662,6 +677,10 @@
 	},
 	"visualEditor.test": {
 		"scripts": [
+			"src/ve.utils-es6.js",
+			"src/dm/ve.dm.RebaseDocState.js",
+			"src/dm/ve.dm.RebaseServer.js",
+
 			"tests/ve.qunit.js",
 			"tests/ve.qunit.local.js",
 			"tests/ve.test.utils.js",
@@ -684,7 +703,7 @@
 			"tests/dm/ve.dm.LeafNode.test.js",
 			"tests/dm/nodes/ve.dm.TextNode.test.js",
 			"tests/dm/ve.dm.Document.test.js",
-			"tests/dm/ve.dm.IndexValueStore.test.js",
+			"tests/dm/ve.dm.HashValueStore.test.js",
 			"tests/dm/ve.dm.InternalList.test.js",
 			"tests/dm/ve.dm.LinearData.test.js",
 			"tests/dm/ve.dm.Transaction.test.js",
@@ -707,7 +726,6 @@
 			"tests/dm/selections/ve.dm.TableSelection.test.js",
 			"tests/dm/lineardata/ve.dm.FlatLinearData.test.js",
 			"tests/dm/lineardata/ve.dm.ElementLinearData.test.js",
-			"tests/dm/lineardata/ve.dm.MetaLinearData.test.js",
 			"tests/ce/ve.ce.test.js",
 			"tests/ce/ve.ce.Document.test.js",
 			"tests/ce/ve.ce.Surface.test.js",
@@ -776,29 +794,24 @@
 			"jsdifflib",
 			"qunit",
 			"visualEditor.desktop.standalone",
-			"visualEditor.rebase",
-			"rebaser.build"
+			"visualEditor.rebase"
 		]
 	},
 	"visualEditor.theme.apex": {
 		"styles": [
-			"src/themes/apex/dialogs.css",
-			"src/themes/apex/widgets.css"
+			"src/themes/apex.css"
 		]
 	},
 	"visualEditor.theme.wikimediaui": {
 		"styles": [
-			"src/themes/wikimediaui/dialogs.css",
-			"src/themes/wikimediaui/widgets.css"
+			"src/themes/wikimediaui.css"
 		]
 	},
 	"visualEditor.desktop": {
 		"dependencies": [
-			"oojs-ui-apex",
 			"visualEditor.core",
 			"visualEditor.desktop.build",
-			"visualEditor.theme.apex",
-			"visualEditor.diffing.standalone"
+			"visualEditor.theme.apex"
 		]
 	},
 	"visualEditor.desktop.build": {
@@ -815,7 +828,6 @@
 	},
 	"visualEditor.mobile": {
 		"dependencies": [
-			"oojs-ui-wikimediaui",
 			"visualEditor.core",
 			"visualEditor.mobile.build",
 			"visualEditor.theme.wikimediaui",
@@ -857,7 +869,8 @@
 			{ "file": "src/ui/styles/ve.ui.DebugBar.css", "debug": true }
 		],
 		"dependencies": [
-			"visualEditor.base.build"
+			"visualEditor.base.build",
+			"visualEditor.diffing.standalone"
 		]
 	},
 	"visualEditor.desktop.standalone": {
@@ -865,6 +878,7 @@
 			"src/init/sa/ve.init.sa.DesktopTarget.js"
 		],
 		"dependencies": [
+			"oojs-ui-apex",
 			"visualEditor.standalone",
 			"visualEditor.desktop"
 		]
@@ -882,8 +896,17 @@
 			"src/init/sa/ve.init.sa.MobileTarget.js"
 		],
 		"dependencies": [
+			"oojs-ui-wikimediaui",
 			"visualEditor.standalone",
 			"visualEditor.mobile"
+		]
+	},
+	"visualEditor.mobile.standalone.dist": {
+		"scripts": [
+			"src/init/sa/ve.init.sa.MobileTarget.js"
+		],
+		"dependencies": [
+			"visualEditor.standalone.wikimediaui.dist"
 		]
 	},
 	"visualEditor.standalone.demo": {
@@ -933,7 +956,7 @@
 	"rebaser.build": {
 		"scripts": [
 			"src/ve.utils-es6.js",
-			"src/dm/ve.dm.IndexValueStore.js",
+			"src/dm/ve.dm.HashValueStore.js",
 			"src/dm/ve.dm.Transaction.js",
 			"src/dm/ve.dm.Change.js",
 			"src/dm/ve.dm.RebaseDocState.js",
@@ -945,7 +968,7 @@
 			"src/dm/selections/ve.dm.TableSelection.js"
 		],
 		"dependencies": [
-			"oojs"
+			"oojs.noJQuery"
 		]
 	},
 	"visualEditor.build": {

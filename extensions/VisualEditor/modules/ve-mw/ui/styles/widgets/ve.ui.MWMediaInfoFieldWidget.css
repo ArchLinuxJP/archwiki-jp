@@ -1,15 +1,18 @@
 /*!
  * VisualEditor MediaWiki UserInterface MWMediaInfoFieldWidget styles.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
+.ve-ui-mwMediaInfoFieldWidget {
+	position: relative;
+}
+
 .ve-ui-mwMediaInfoFieldWidget.oo-ui-iconElement .ve-ui-mwMediaInfoFieldWidget-icon {
-	width: 1.9em;
 	margin: 0.05em;
-	height: 1.9em;
 	position: absolute;
+	top: auto;
 	opacity: 0.5;
 }
 

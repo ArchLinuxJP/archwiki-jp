@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWTemplateTitleInputWidget class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -117,6 +117,9 @@ ve.ui.MWTemplateTitleInputWidget.prototype.getLookupRequest = function () {
 					}
 				}
 				// Return the original response
+				return originalResponse;
+			}, function () {
+				// API request failed; most likely, we're on a wiki which doesn't have TemplateData.
 				return originalResponse;
 			} )
 			.promise( { abort: function () {} } );

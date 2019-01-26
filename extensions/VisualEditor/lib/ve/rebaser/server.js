@@ -1,13 +1,14 @@
 /*!
  * VisualEditor rebase server script.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /* eslint-disable no-console */
 
-var rebaseServer, pendingForDoc, artificialDelay, logStream, handlers,
+var rebaseServer, pendingForDoc, artificialDelay, palette, logStream, handlers,
 	port = 8081,
+	startTimestamp,
 	fs = require( 'fs' ),
 	express = require( 'express' ),
 	app = express(),
@@ -26,14 +27,18 @@ function logEvent( event ) {
 }
 
 function logServerEvent( event ) {
-	var key;
+	var key,
+		ob = {};
+	ob.timestamp = Date.now() - startTimestamp;
+	ob.clientId = 'server';
 	for ( key in event ) {
 		if ( event[ key ] instanceof ve.dm.Change ) {
-			event[ key ] = event[ key ].serialize( true );
+			ob[ key ] = event[ key ].serialize( true );
+		} else {
+			ob[ key ] = event[ key ];
 		}
 	}
-	event.clientId = 'server';
-	logEvent( event );
+	logEvent( ob );
 }
 
 function wait( timeout ) {
@@ -51,11 +56,19 @@ docNamespaces = new Map();
 lastAuthorForDoc = new Map();
 pendingForDoc = new Map();
 artificialDelay = parseInt( process.argv[ 2 ] ) || 0;
+palette = [
+	'1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd',
+	'8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf',
+	'aec7e8', 'ffbb78', '98df8a', 'ff9896', 'c5b0d5',
+	'c49c94', 'f7b6d2', 'c7c7c7', 'dbdb8d', '9edae5'
+];
 
 function* welcomeNewClient( socket, docName, authorId ) {
 	var state, authorData;
 	yield rebaseServer.updateDocState( docName, authorId, null, {
-		displayName: 'User ' + authorId // TODO: i18n
+		// TODO: i18n
+		displayName: 'User ' + authorId,
+		displayColor: palette[ authorId % palette.length ]
 	} );
 
 	state = yield rebaseServer.getDocState( docName );
@@ -64,11 +77,16 @@ function* welcomeNewClient( socket, docName, authorId ) {
 	socket.emit( 'registered', {
 		authorId: authorId,
 		authorName: authorData.displayName,
+		authorColor: authorData.displayColor,
 		token: authorData.token
 	} );
 	docNamespaces.get( docName ).emit( 'nameChange', {
 		authorId: authorId,
 		authorName: authorData.displayName
+	} );
+	docNamespaces.get( docName ).emit( 'colorChange', {
+		authorId: authorId,
+		authorColor: authorData.displayColor
 	} );
 	// HACK Catch the client up on the current state by sending it the entire history
 	// Ideally we'd be able to initialize the client using HTML, but that's hard, see
@@ -83,7 +101,6 @@ function* welcomeNewClient( socket, docName, authorId ) {
 
 function* onSubmitChange( context, data ) {
 	var change, applied;
-	yield wait( artificialDelay );
 	change = ve.dm.Change.static.deserialize( data.change, null, true );
 	applied = yield rebaseServer.applyChange( context.docName, context.authorId, data.backtrack, change );
 	if ( !applied.isEmpty() ) {
@@ -104,6 +121,22 @@ function* onChangeName( context, newName ) {
 		doc: context.docName,
 		authorId: context.authorId,
 		newName: newName
+	} );
+}
+
+function* onChangeColor( context, newColor ) {
+	yield rebaseServer.updateDocState( context.docName, context.authorId, null, {
+		displayColor: newColor
+	} );
+	docNamespaces.get( context.docName ).emit( 'colorChange', {
+		authorId: context.authorId,
+		authorColor: newColor
+	} );
+	logServerEvent( {
+		type: 'colorChange',
+		doc: context.docName,
+		authorId: context.authorId,
+		newColor: newColor
 	} );
 }
 
@@ -137,7 +170,9 @@ function* onUsurp( context, data ) {
 
 function* onDisconnect( context ) {
 	yield rebaseServer.updateDocState( context.docName, context.authorId, null, {
-		active: false
+		active: false,
+		continueBase: null,
+		rejections: null
 	} );
 	docNamespaces.get( context.docName ).emit( 'authorDisconnect', context.authorId );
 	logServerEvent( {
@@ -147,25 +182,31 @@ function* onDisconnect( context ) {
 	} );
 }
 
-function addStep( docName, generatorFunc ) {
-	var pending = Promise.resolve( pendingForDoc.get( docName ) );
-	pending = pending
+function addStep( docName, generatorFunc, addDelay ) {
+	var pending,
+		parallel = [ Promise.resolve( pendingForDoc.get( docName ) ) ];
+	if ( addDelay && artificialDelay > 0 ) {
+		parallel.push( wait( artificialDelay ) );
+	}
+	pending = Promise.all( parallel )
 		.then( function () {
 			return ve.spawn( generatorFunc );
 		} )
 		.catch( logError );
-	pendingForDoc.set( pending );
+	pendingForDoc.set( docName, pending );
 }
 
 handlers = {
 	submitChange: onSubmitChange,
 	changeName: onChangeName,
+	changeColor: onChangeColor,
 	usurp: onUsurp,
 	disconnect: onDisconnect
 };
 
 function handleEvent( context, eventName, data ) {
-	addStep( context.docName, handlers[ eventName ]( context, data ) );
+	var addDelay = eventName === 'submitChange';
+	addStep( context.docName, handlers[ eventName ]( context, data ), addDelay );
 }
 
 function makeConnectionHandler( docName ) {
@@ -193,9 +234,15 @@ function makeConnectionHandler( docName ) {
 			socket.on( eventName, handleEvent.bind( null, context, eventName ) );
 		}
 		socket.on( 'logEvent', function ( event ) {
-			event.clientId = context.authorId;
-			event.doc = docName;
-			logEvent( event );
+			var key,
+				ob = {};
+			ob.recvTimestamp = Date.now() - startTimestamp;
+			ob.clientId = context.authorId;
+			ob.doc = docName;
+			for ( key in event ) {
+				ob[ key ] = event[ key ];
+			}
+			logEvent( ob );
 		} );
 	};
 }
@@ -231,5 +278,7 @@ io.on( 'connection', function ( socket ) {
 	}
 } );
 
+startTimestamp = Date.now();
+logServerEvent( { type: 'restart' } );
 http.listen( port );
 console.log( 'Listening on ' + port + ' (artificial delay ' + artificialDelay + ' ms)' );

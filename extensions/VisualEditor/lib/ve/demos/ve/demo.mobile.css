@@ -1,10 +1,14 @@
 /*!
  * VisualEditor mobile demo
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /* Demo */
+
+body {
+	font: normal 0.875em/1.5 sans-serif;
+}
 
 .ve-demo-logo {
 	padding-right: 1.1em;

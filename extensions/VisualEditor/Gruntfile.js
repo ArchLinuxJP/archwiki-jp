@@ -11,7 +11,9 @@ module.exports = function ( grunt ) {
 	var modules = grunt.file.readJSON( 'lib/ve/build/modules.json' ),
 		screenshotOptions = {
 			reporter: 'spec',
-			timeout: 40000,
+			// TODO: Work out how to catch this timeout and continue.
+			// For now just make it very long.
+			timeout: 5 * 60 * 1000,
 			require: [
 				function () {
 					// eslint-disable-next-line no-undef, no-implicit-globals
@@ -21,7 +23,9 @@ module.exports = function ( grunt ) {
 		},
 		screenshotOptionsAll = {
 			reporter: 'spec',
-			timeout: 40000,
+			// TODO: Work out how to catch this timeout and continue.
+			// For now just make it very long.
+			timeout: 5 * 60 * 1000,
 			require: [
 				function () {
 					// eslint-disable-next-line no-undef, no-implicit-globals
@@ -94,20 +98,38 @@ module.exports = function ( grunt ) {
 			}
 		},
 		image: {
-			options: {
-				zopflipng: true,
-				pngout: true,
-				optipng: true,
-				advpng: true,
-				pngcrush: true
+			pngs: {
+				options: {
+					zopflipng: true,
+					pngout: true,
+					optipng: true,
+					advpng: true,
+					pngcrush: true
+				},
+				'screenshots-en': {
+					expand: true,
+					src: 'screenshots/*-en.png'
+				},
+				'screenshots-all': {
+					expand: true,
+					src: 'screenshots/*.png'
+				}
 			},
-			'screenshots-en': {
+			svgs: {
+				options: {
+					svgo: [
+						'--pretty',
+						'--enable=removeRasterImages',
+						'--enable=sortAttrs',
+						'--disable=cleanupIDs',
+						'--disable=removeDesc',
+						'--disable=removeTitle',
+						'--disable=removeViewBox',
+						'--disable=removeXMLProcInst'
+					]
+				},
 				expand: true,
-				src: 'screenshots/*-en.png'
-			},
-			'screenshots-all': {
-				expand: true,
-				src: 'screenshots/*.png'
+				src: 'images/*.svg'
 			}
 		},
 		tyops: {
@@ -116,6 +138,7 @@ module.exports = function ( grunt ) {
 			},
 			src: [
 				'**/*.{js,json,less,css,txt}',
+				'!package-lock.json',
 				'!build/typos.json',
 				'!lib/**',
 				'!{docs,node_modules,vendor}/**',
@@ -142,7 +165,7 @@ module.exports = function ( grunt ) {
 		},
 		banana: {
 			all: [
-				'modules/ve-{mw,wmf}/i18n/'
+				'i18n/{ve-mw,ve-wmf}'
 			]
 		},
 		jsonlint: {
@@ -196,14 +219,14 @@ module.exports = function ( grunt ) {
 	grunt.registerTask( 'lint', [ 'tyops', 'eslint', 'stylelint', 'jsonlint', 'banana' ] );
 	grunt.registerTask( 'test', [ 'build', 'lint' ] );
 	grunt.registerTask( 'test-ci', [ 'git-status' ] );
-	grunt.registerTask( 'screenshots', [ 'mochaTest:screenshots-en', 'image:screenshots-en' ] );
-	grunt.registerTask( 'screenshots-all', [ 'mochaTest:screenshots-all', 'image:screenshots-all' ] );
+	grunt.registerTask( 'screenshots', [ 'mochaTest:screenshots-en', 'image:pngs' ] );
+	grunt.registerTask( 'screenshots-all', [ 'mochaTest:screenshots-all', 'image:pngs' ] );
 	grunt.registerTask( 'default', 'test' );
 
 	if ( process.env.JENKINS_HOME ) {
 		grunt.renameTask( 'test', 'test-internal' );
 		grunt.registerTask( 'test', [ 'test-internal', 'test-ci' ] );
 	} else {
-		grunt.registerTask( 'ci', [ 'test', 'test-ci' ] );
+		grunt.registerTask( 'ci', [ 'test', 'image:svgs', 'test-ci' ] );
 	}
 };

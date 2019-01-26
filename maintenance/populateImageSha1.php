@@ -31,7 +31,7 @@ require_once __DIR__ . '/Maintenance.php';
 class PopulateImageSha1 extends LoggedUpdateMaintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Populate the img_sha1 field";
+		$this->addDescription( 'Populate the img_sha1 field' );
 		$this->addOption( 'force', "Recalculate sha1 for rows that already have a value" );
 		$this->addOption( 'multiversiononly', "Calculate only for files with several versions" );
 		$this->addOption( 'method', "Use 'pipe' to pipe to mysql command line,\n" .
@@ -67,36 +67,34 @@ class PopulateImageSha1 extends LoggedUpdateMaintenance {
 		$isRegen = ( $force || $file != '' ); // forced recalculation?
 
 		$t = -microtime( true );
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = $this->getDB( DB_MASTER );
 		if ( $file != '' ) {
 			$res = $dbw->select(
 				'image',
-				array( 'img_name' ),
-				array( 'img_name' => $file ),
+				[ 'img_name' ],
+				[ 'img_name' => $file ],
 				__METHOD__
 			);
 			if ( !$res ) {
-				$this->error( "No such file: $file", true );
-
-				return false;
+				$this->fatalError( "No such file: $file" );
 			}
 			$this->output( "Populating img_sha1 field for specified files\n" );
 		} else {
 			if ( $this->hasOption( 'multiversiononly' ) ) {
-				$conds = array();
+				$conds = [];
 				$this->output( "Populating and recalculating img_sha1 field for versioned files\n" );
 			} elseif ( $force ) {
-				$conds = array();
+				$conds = [];
 				$this->output( "Populating and recalculating img_sha1 field\n" );
 			} else {
-				$conds = array( 'img_sha1' => '' );
+				$conds = [ 'img_sha1' => '' ];
 				$this->output( "Populating img_sha1 field\n" );
 			}
 			if ( $this->hasOption( 'multiversiononly' ) ) {
 				$res = $dbw->select( 'oldimage',
-					array( 'img_name' => 'DISTINCT(oi_name)' ), $conds, __METHOD__ );
+					[ 'img_name' => 'DISTINCT(oi_name)' ], $conds, __METHOD__ );
 			} else {
-				$res = $dbw->select( 'image', array( 'img_name' ), $conds, __METHOD__ );
+				$res = $dbw->select( 'image', [ 'img_name' ], $conds, __METHOD__ );
 			}
 		}
 
@@ -119,7 +117,7 @@ class PopulateImageSha1 extends LoggedUpdateMaintenance {
 		$numRows = $res->numRows();
 		$i = 0;
 		foreach ( $res as $row ) {
-			if ( $i % $this->mBatchSize == 0 ) {
+			if ( $i % $this->getBatchSize() == 0 ) {
 				$this->output( sprintf(
 					"Done %d of %d, %5.3f%%  \r", $i, $numRows, $i / $numRows * 100 ) );
 				wfWaitForSlaves();
@@ -180,5 +178,5 @@ class PopulateImageSha1 extends LoggedUpdateMaintenance {
 	}
 }
 
-$maintClass = "PopulateImageSha1";
+$maintClass = PopulateImageSha1::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

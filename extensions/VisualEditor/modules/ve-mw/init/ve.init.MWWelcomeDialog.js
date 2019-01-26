@@ -1,7 +1,7 @@
 /*!
  * VisualEditor user interface MWWelcomeDialog class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -34,8 +34,6 @@ mw.libs.ve.WelcomeDialog.static.name = 'welcome';
 
 mw.libs.ve.WelcomeDialog.static.size = 'medium';
 
-mw.libs.ve.WelcomeDialog.static.verbose = true;
-
 mw.libs.ve.WelcomeDialog.static.actions = [
 	{
 		action: 'switch-wte',
@@ -62,15 +60,12 @@ mw.libs.ve.WelcomeDialog.prototype.getSetupProcess = function ( data ) {
 	// Provide default title and message
 	data = $.extend( {
 		title: mw.msg( 'visualeditor-welcomedialog-title', mw.user, mw.config.get( 'wgSiteName' ) ),
-		message: $( '<div>' ).addClass( 'visualeditor-welcomedialog-content' )
+		message: $( '<span>' )
+			.addClass( 'visualeditor-welcomedialog-content' )
 			.append(
-				$( '<span>' )
-					.addClass( 'visualeditor-welcomedialog-content-text' )
-					.append(
-						document.createTextNode( mw.msg( 'visualeditor-welcomedialog-content' ) ),
-						$( '<br>' ),
-						document.createTextNode( mw.msg( 'visualeditor-welcomedialog-content-thanks' ) )
-					)
+				document.createTextNode( mw.msg( 'visualeditor-welcomedialog-content' ) ),
+				$( '<br>' ),
+				document.createTextNode( mw.msg( 'visualeditor-welcomedialog-content-thanks' ) )
 			)
 	}, data );
 

@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface TriggerRegistry class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -195,6 +195,9 @@ ve.ui.triggerRegistry.register(
 );
 ve.ui.triggerRegistry.register(
 	'selectAll', { mac: new ve.ui.Trigger( 'cmd+a' ), pc: new ve.ui.Trigger( 'ctrl+a' ) }
+);
+ve.ui.triggerRegistry.register(
+	'delete', { mac: new ve.ui.Trigger( 'ctrl+d' ) }
 );
 ve.ui.triggerRegistry.register(
 	'pasteSpecial', {

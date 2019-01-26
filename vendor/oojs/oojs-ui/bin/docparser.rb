@@ -8,7 +8,7 @@ def bad_input file, text
 end
 
 def parse_dir dirname
-	Dir.entries(dirname).map{|filename|
+	Dir.entries(dirname).sort.map{|filename|
 		if filename == '.' || filename == '..'
 			nil
 		else
@@ -18,7 +18,15 @@ def parse_dir dirname
 end
 
 def cleanup_class_name class_name
-	class_name.sub(/OO\.ui\./, '')
+	class_name.sub(/OO\.ui\./, '').sub(/mixin\./, '')
+end
+
+def extract_default_from_description item
+	m = item[:description].match(/\(default: (.+?)\)\s*?$/i)
+	return if !m
+	# modify `item` in-place
+	item[:default] = m[1]
+	item[:description] = m.pre_match
 end
 
 def parse_file filename
@@ -31,8 +39,7 @@ def parse_file filename
 
 	# ewwww
 	# some docblocks are missing and we really need them
-	text = text.sub(/(?<!\*\/\n)^class/, "/**\n*/\nclass")
-	# text = text.sub('public static $targetPropertyName', "/**\n*/\npublic static $targetPropertyName")
+	text = text.sub(/(?<!\*\/\n)^(class|trait)/, "/**\n*/\n\\1")
 
 	# find all documentation blocks, together with the following line (unless it contains another docblock)
 	docblocks = text.scan(/\/\*\*[\s\S]+?\*\/\n[ \t]*(?:(?=\/\*\*)|.*)/)
@@ -58,7 +65,7 @@ def parse_file filename
 		}
 		valid_for_all = %w[name description].map(&:to_sym)
 		valid_per_kind = {
-			class:    valid_for_all + %w[parent mixins methods properties events abstract].map(&:to_sym),
+			class:    valid_for_all + %w[parent mixins methods properties events abstract mixin].map(&:to_sym),
 			method:   valid_for_all + %w[params config return visibility static].map(&:to_sym),
 			property: valid_for_all + %w[type static].map(&:to_sym),
 			event:    valid_for_all + %w[params].map(&:to_sym),
@@ -66,6 +73,7 @@ def parse_file filename
 
 		js_class_constructor = false
 		js_class_constructor_desc = ''
+		php_trait_constructor = false
 		ignore = false
 
 		comment, code_line = d.split '*/'
@@ -73,9 +81,13 @@ def parse_file filename
 			next if comment_line.strip == '/**'
 			comment_line.sub!(/^[ \t]*\*[ \t]?/, '') # strip leading '*' and whitespace
 
-			m = comment_line.match(/^@(\w+)[ \t]*(.*)/)
+			m = comment_line.match(/^@([\w-]+)(?:[ \t]+(.+))?/)
 			if !m
+				# this is a continuation of previous item's description
 				previous_item[:description] << comment_line + "\n"
+				if filetype == :php
+					extract_default_from_description(previous_item)
+				end
 				next
 			end
 
@@ -94,6 +106,7 @@ def parse_file filename
 				kind = :method
 			when 'class'
 				kind = :class
+				data[:name] = cleanup_class_name(content.strip) if content && !content.strip.empty?
 			when 'method'
 				kind = :method
 			when 'property', 'var'
@@ -116,12 +129,14 @@ def parse_file filename
 			when 'param'
 				case filetype
 				when :js
-					type, name, default, description = content.match(/^\{(.+?)\} \[?([\w.$]+?)(?:=(.+?))?\]?( .+)?$/).captures
+					type, name, default, description =
+						content.match(/^\{(?:\.\.\.)?(.+?)\} \[?([\w.$]+?)(?:=(.+?))?\]?( .+)?$/).captures
 					next if type == 'Object' && name == 'config'
 					data[:params] << {name: name, type: cleanup_class_name(type), description: description || '', default: default}
 					previous_item = data[:params][-1]
 				when :php
-					type, name, config, description = content.match(/^(\S+) \&?\$(\w+)(?:\['(\w+)'\])?( .+)?$/).captures
+					type, name, config, description =
+						content.match(/^(\S+) \&?(?:\.\.\.)?\$(\w+)(?:\['(\w+)'\])?( .+)?$/).captures
 					next if type == 'array' && name == 'config' && !config
 					if config && name == 'config'
 						data[:config] << {name: config, type: cleanup_class_name(type), description: description || ''}
@@ -129,6 +144,9 @@ def parse_file filename
 					else
 						data[:params] << {name: name, type: cleanup_class_name(type), description: description || ''}
 						previous_item = data[:params][-1]
+					end
+					if filetype == :php
+						extract_default_from_description(previous_item)
 					end
 				end
 			when 'cfg' # JS only
@@ -162,11 +180,11 @@ def parse_file filename
 				data[:static] = true
 			when 'abstract'
 				data[:abstract] = true
-			when 'ignore'
+			when 'ignore', 'inheritdoc'
 				ignore = true
 			when 'inheritable', 'deprecated', 'singleton', 'throws',
-				 'chainable', 'fires', 'localdoc', 'inheritdoc', 'member',
-				 'see'
+				 'chainable', 'fires', 'localdoc', 'member',
+				 'see', 'uses', 'param-taint'
 				# skip
 			else
 				bad_input filename, comment_line
@@ -179,7 +197,7 @@ def parse_file filename
 		if code_line && code_line.strip != ''
 			case filetype
 			when :js
-				m = code_line.match(/(?:(static|prototype)\.)?(\w+) =/)
+				m = code_line.match(/(?:(static|prototype|mixin)\.)?(\w+) =/)
 				if !m
 					bad_input filename, code_line.strip
 					next
@@ -187,12 +205,13 @@ def parse_file filename
 				kind_, name = m.captures
 				data[:static] = true if kind_ == 'static'
 				kind = {'static' => :property, 'prototype' => :method}[ kind_.strip ] if kind_ && !kind
-				data[:name] = cleanup_class_name(name)
+				data[:mixin] = true if kind_ == 'mixin'
+				data[:name] ||= cleanup_class_name(name)
 			when :php
 				m = code_line.match(/
 					\s*
 					(?:(public|protected|private)\s)?
-					(?:(static)\s)?(function\s|class\s|\$)
+					(?:(static)\s)?(function\s|class\s|trait\s|\$)
 					(\w+)
 					(?:\sextends\s(\w+))?
 				/x)
@@ -201,11 +220,13 @@ def parse_file filename
 					next
 				end
 				visibility, static, kind_, name, parent = m.captures
-				kind = {'$' => :property, 'function' => :method, 'class' => :class}[ kind_.strip ]
+				kind = {'$' => :property, 'function' => :method, 'class' => :class, 'trait' => :class}[ kind_.strip ]
 				data[:visibility] = {'private' => :private, 'protected' => :protected, 'public' => :public}[ visibility ] || :public
+				data[:mixin] = true if kind_.strip == 'trait'
 				data[:static] = true if static
 				data[:parent] = cleanup_class_name(parent) if parent
-				data[:name] = cleanup_class_name(name)
+				data[:name] ||= cleanup_class_name(name)
+				php_trait_constructor = true if kind == :method && data[:name] == 'initialize' + current_class[:name]
 			end
 		end
 
@@ -220,7 +241,8 @@ def parse_file filename
 		end
 
 		# standardize
-		if data[:name] == '__construct' || js_class_constructor
+		# (also handle fake constructors for traits)
+		if data[:name] == '__construct' || js_class_constructor || php_trait_constructor
 			data[:name] = '#constructor'
 		end
 
@@ -231,15 +253,17 @@ def parse_file filename
 				property: :properties,
 				event: :events,
 			}
-			current_class[keys[kind]] << data.select{|k, _v| valid_per_kind[kind].include? k }
-			previous_item = current_class[keys[kind]]
+			if current_class
+				current_class[keys[kind]] << data.select{|k, _v| valid_per_kind[kind].include? k }
+				previous_item = current_class[keys[kind]]
+			end
 		end
 	}
 
 	# this is evil, assumes we only have one class in a file, but we'd need a proper parser to do it better
 	if current_class
 		current_class[:mixins] +=
-			text.scan(/\$this->mixin\( .*?new (\w+)\( \$this/).flatten.map(&method(:cleanup_class_name))
+			text.scan(/^[ \t]*use (\w+)(?: ?\{|;)/).flatten.map(&method(:cleanup_class_name))
 	end
 
 	output << current_class if current_class

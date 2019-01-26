@@ -1,8 +1,8 @@
 /*!
  * VisualEditor ContentEditable MWReferencesListNode class.
  *
- * @copyright 2011-2017 Cite VisualEditor Team and others; see AUTHORS.txt
- * @license The MIT License (MIT); see LICENSE.txt
+ * @copyright 2011-2018 VisualEditor Team's Cite sub-team and others; see AUTHORS.txt
+ * @license MIT
  */
 
 /**
@@ -26,15 +26,17 @@ ve.ce.MWReferencesListNode = function VeCeMWReferencesListNode() {
 	// Properties
 	this.internalList = null;
 	this.listNode = null;
+	this.modified = false;
 
 	// DOM changes
 	this.$element.addClass( 've-ce-mwReferencesListNode' );
 	this.$reflist = $( '<ol>' ).addClass( 'mw-references references' );
+	this.$originalRefList = null;
 	this.$refmsg = $( '<p>' )
 		.addClass( 've-ce-mwReferencesListNode-muted' );
 
 	// Events
-	this.model.connect( this, { attributeChange: 'onAttributeChange' } );
+	this.getModel().connect( this, { attributeChange: 'onAttributeChange' } );
 
 	this.updateDebounced = ve.debounce( this.update.bind( this ) );
 
@@ -73,7 +75,7 @@ ve.ce.MWReferencesListNode.static.getDescription = function ( model ) {
  * @method
  */
 ve.ce.MWReferencesListNode.prototype.onSetup = function () {
-	this.internalList = this.model.getDocument().getInternalList();
+	this.internalList = this.getModel().getDocument().getInternalList();
 	this.listNode = this.internalList.getListNode();
 
 	this.internalList.connect( this, { update: 'onInternalListUpdate' } );
@@ -109,7 +111,8 @@ ve.ce.MWReferencesListNode.prototype.onTeardown = function () {
  */
 ve.ce.MWReferencesListNode.prototype.onInternalListUpdate = function ( groupsChanged ) {
 	// Only update if this group has been changed
-	if ( groupsChanged.indexOf( this.model.getAttribute( 'listGroup' ) ) !== -1 ) {
+	if ( groupsChanged.indexOf( this.getModel().getAttribute( 'listGroup' ) ) !== -1 ) {
+		this.modified = true;
 		this.updateDebounced();
 	}
 };
@@ -125,6 +128,7 @@ ve.ce.MWReferencesListNode.prototype.onAttributeChange = function ( key ) {
 	switch ( key ) {
 		case 'listGroup':
 			this.updateDebounced();
+			this.modified = true;
 			break;
 		case 'isResponsive':
 			this.updateClasses();
@@ -150,35 +154,35 @@ ve.ce.MWReferencesListNode.prototype.onListNodeUpdate = function () {
  * Update the references list.
  */
 ve.ce.MWReferencesListNode.prototype.update = function () {
-	var i, j, iLen, jLen, index, firstNode, key, keyedNodes, modelNode, viewNode,
-		$li, $refSpan, $link,
-		internalList = this.model.getDocument().internalList,
-		refGroup = this.model.getAttribute( 'refGroup' ),
-		listGroup = this.model.getAttribute( 'listGroup' ),
-		nodes = internalList.getNodeGroup( listGroup );
+	var i, j, iLen, jLen, index, firstNode, key, keyedNodes, modelNode, refPreview,
+		$li, $refSpan, $link, internalList, refGroup, listGroup, nodes,
+		model = this.getModel();
 
-	function updateGeneratedContent( viewNode, $li ) {
-		// HACK: PHP parser doesn't wrap single lines in a paragraph
-		if (
-			viewNode.$element.children().length === 1 &&
-			viewNode.$element.children( 'p' ).length === 1
-		) {
-			// unwrap inner
-			viewNode.$element.children().replaceWith(
-				viewNode.$element.children().contents()
-			);
-		}
-		$li.append(
-			$( '<span>' )
-				.addClass( 'reference-text' )
-				.append( viewNode.$element )
-		);
-
-		// Since this is running after content generation has finished, it's
-		// safe to destroy the view.
-		viewNode.destroy();
+	// Check the node hasn't been destroyed, as this method is debounced.
+	if ( !model ) {
+		return;
 	}
 
+	internalList = model.getDocument().internalList;
+	refGroup = model.getAttribute( 'refGroup' );
+	listGroup = model.getAttribute( 'listGroup' );
+	nodes = internalList.getNodeGroup( listGroup );
+
+	// Just use Parsoid-provided DOM for first rendering
+	// NB: Technically this.modified could be reset to false if this
+	// node is re-attached, but that is an unlikely edge case.
+	if ( !this.modified && model.getElement().originalDomElementsHash ) {
+		this.$originalRefList = $( model.getStore().value(
+			model.getElement().originalDomElementsHash
+		) );
+		this.$element.append( this.$originalRefList );
+		return;
+	}
+
+	if ( this.$originalRefList ) {
+		this.$originalRefList.remove();
+		this.$originalRefList = null;
+	}
 	this.$reflist.detach().empty();
 	this.$refmsg.detach();
 
@@ -223,10 +227,10 @@ ve.ce.MWReferencesListNode.prototype.update = function () {
 			$li = $( '<li>' );
 
 			if ( keyedNodes.length > 1 ) {
-				$refSpan = $( '<span rel="mw:referencedBy">' );
+				$refSpan = $( '<span>' ).attr( 'rel', 'mw:referencedBy' );
 				for ( j = 0, jLen = keyedNodes.length; j < jLen; j++ ) {
 					$link = $( '<a>' ).append(
-						$( '<span class="mw-linkback-text">' )
+						$( '<span>' ).addClass( 'mw-linkback-text' )
 							.text( ( j + 1 ) + ' ' )
 					);
 					if ( refGroup !== '' ) {
@@ -236,8 +240,9 @@ ve.ce.MWReferencesListNode.prototype.update = function () {
 				}
 				$li.append( $refSpan );
 			} else {
-				$link = $( '<a rel="mw:referencedBy">' ).append(
-					$( '<span class="mw-linkback-text">' ).text( '↑ ' )
+				$link = $( '<a>' ).attr( 'rel', 'mw:referencedBy' ).append(
+					$( '<span>' ).addClass( 'mw-linkback-text' )
+						.text( '↑ ' )
 				);
 				if ( refGroup !== '' ) {
 					$link.attr( 'data-mw-group', refGroup );
@@ -248,22 +253,17 @@ ve.ce.MWReferencesListNode.prototype.update = function () {
 			// Generate reference HTML from first item in key
 			modelNode = internalList.getItemNode( firstNode.getAttribute( 'listIndex' ) );
 			if ( modelNode && modelNode.length ) {
-				viewNode = new ve.ce.InternalItemNode( modelNode );
-
-				ve.ce.GeneratedContentNode.static.awaitGeneratedContent( viewNode )
-					.then( updateGeneratedContent.bind( this, viewNode, $li ) );
-
-				// Because this update runs a number of times when using the
-				// basic dialog, disconnect the model here rather than waiting
-				// for when it's destroyed after the generated content is
-				// finished. Failing to do this causes teardown errors with
-				// basic citations.
-				modelNode.disconnect( viewNode );
+				refPreview = new ve.ui.MWPreviewElement( modelNode, { useView: true } );
+				$li.append(
+					$( '<span>' )
+						.addClass( 'reference-text' )
+						.append( refPreview.$element )
+				);
 			} else {
 				$li.append(
 					$( '<span>' )
 						.addClass( 've-ce-mwReferencesListNode-muted' )
-						.text( ve.msg( 'cite-ve-referenceslist-missingref' ) )
+						.text( ve.msg( 'cite-ve-referenceslist-missingref-in-list' ) )
 				);
 			}
 
@@ -280,7 +280,7 @@ ve.ce.MWReferencesListNode.prototype.update = function () {
  * Currently used to set responsive layout
  */
 ve.ce.MWReferencesListNode.prototype.updateClasses = function () {
-	var isResponsive = this.model.getAttribute( 'isResponsive' );
+	var isResponsive = this.getModel().getAttribute( 'isResponsive' );
 
 	this.$element
 		.toggleClass( 'mw-references-wrap', isResponsive )

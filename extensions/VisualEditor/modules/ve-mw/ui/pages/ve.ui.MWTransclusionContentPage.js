@@ -1,7 +1,7 @@
 /*!
  * VisualEditor user interface MWTransclusionContentPage class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -15,6 +15,7 @@
  * @param {ve.dm.MWTransclusionContentModel} content Transclusion content
  * @param {string} name Unique symbolic name of page
  * @param {Object} [config] Configuration options
+ * @cfg {jQuery} [$overlay] Overlay to render dropdowns in
  */
 ve.ui.MWTransclusionContentPage = function VeUiMWTransclusionContentPage( content, name, config ) {
 	// Configuration initialization

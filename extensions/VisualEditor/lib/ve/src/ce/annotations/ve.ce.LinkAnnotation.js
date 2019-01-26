@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable LinkAnnotation class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -65,10 +65,10 @@ ve.ce.LinkAnnotation.static.makeNail = function ( type ) {
 		nail.src = ve.inputDebug ? ve.ce.nailImgDataUri : ve.ce.minImgDataUri;
 	}
 	// The following classes can be used here:
-	// ve-ce-nail-pre-open
-	// ve-ce-nail-pre-close
-	// ve-ce-nail-post-open
-	// ve-ce-nail-post-close
+	// * ve-ce-nail-pre-open
+	// * ve-ce-nail-pre-close
+	// * ve-ce-nail-post-open
+	// * ve-ce-nail-post-close
 	nail.className = 've-ce-nail ve-ce-nail-' + type + ( ve.inputDebug ? ' ve-ce-nail-debug' : '' );
 	return nail;
 };

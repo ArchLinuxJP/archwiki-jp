@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface DesktopContext class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -21,6 +21,7 @@ ve.ui.DesktopContext = function VeUiDesktopContext() {
 	// Properties
 	this.popup = new OO.ui.PopupWidget( {
 		hideWhenOutOfView: false,
+		autoFlip: false,
 		$container: this.surface.$element
 	} );
 	this.position = null;

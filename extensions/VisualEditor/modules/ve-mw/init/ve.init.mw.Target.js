@@ -1,7 +1,7 @@
 /*!
  * VisualEditor MediaWiki Initialization Target class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -187,18 +187,27 @@ ve.init.mw.Target.prototype.createModelFromDom = function () {
 
 /**
  * @inheritdoc
+ * @param {number} [section] Section
  */
-ve.init.mw.Target.static.parseDocument = function ( documentString, mode ) {
-	var doc;
+ve.init.mw.Target.static.parseDocument = function ( documentString, mode, section ) {
+	var doc, sectionNode;
 	if ( mode === 'source' ) {
-		// Add trailing linebreak to wikitext documents for consistency
-		// with old editor and usability. Will be stripped on save. T156609
-		documentString += '\n';
 		// Parent method
 		doc = ve.init.mw.Target.super.static.parseDocument.call( this, documentString, mode );
 	} else {
 		// Parsoid documents are XHTML so we can use parseXhtml which fixed some IE issues.
 		doc = ve.parseXhtml( documentString );
+		if ( section !== undefined ) {
+			sectionNode = doc.body.querySelector( '[data-mw-section-id="' + section + '"]' );
+			doc.body.innerHTML = '';
+			if ( sectionNode ) {
+				doc.body.appendChild( sectionNode );
+			}
+		}
+		// Strip Parsoid sections
+		ve.unwrapParsoidSections( doc.body );
+		// Strip legacy IDs, for example in section headings
+		ve.stripParsoidFallbackIds( doc.body );
 	}
 	// Fix relative or missing base URL if needed
 	this.fixBase( doc );
@@ -263,12 +272,14 @@ ve.init.mw.Target.prototype.getHtml = function ( newDoc, oldDoc ) {
 			'script, ' + // T54884, T65229, T96533, T103430
 			'noscript, ' + // T144891
 			'object, ' + // T65229
-			'style, ' + // T55252
+			'style:not( [ data-mw ] ), ' + // T55252, but allow <style data-mw/> e.g. TemplateStyles T188143
 			'embed, ' + // T53521, T54791, T65121
+			'img[src^="data:"], ' + // T192392
 			'div[id="myEventWatcherDiv"], ' + // T53423
 			'div[id="sendToInstapaperResults"], ' + // T63776
 			'div[id="kloutify"], ' + // T69006
-			'div[id^="mittoHidden"]' // T70900
+			'div[id^="mittoHidden"], ' + // T70900
+			'div.donut-container' // Web of Trust (T189148)
 		)
 		.remove();
 	// Add doctype manually
@@ -310,9 +321,6 @@ ve.init.mw.Target.prototype.createSurface = function ( dmDoc, config ) {
 		// Preserve empty linebreaks on paste in source editor
 		importRules.all.keepEmptyContentBranches = true;
 		config = this.getSurfaceConfig( ve.extendObject( {}, config, {
-			commandRegistry: ve.ui.wikitextCommandRegistry,
-			sequenceRegistry: ve.ui.wikitextSequenceRegistry,
-			dataTransferHandlerFactory: ve.ui.wikitextDataTransferHandlerFactory,
 			importRules: importRules
 		} ) );
 		return new ve.ui.MWWikitextSurface( dmDoc, config );
@@ -320,8 +328,6 @@ ve.init.mw.Target.prototype.createSurface = function ( dmDoc, config ) {
 
 	// Parent method
 	surface = ve.init.mw.Target.super.prototype.createSurface.apply( this, arguments );
-
-	surface.$element.addClass( this.protectedClasses );
 
 	documentView = surface.getView().getDocument();
 
@@ -339,6 +345,20 @@ ve.init.mw.Target.prototype.createSurface = function ( dmDoc, config ) {
 	onLangChange();
 
 	return surface;
+};
+
+/**
+ * @inheritdoc
+ */
+ve.init.mw.Target.prototype.getSurfaceConfig = function ( config ) {
+	// If we're not asking for a specific mode's config, use the default mode.
+	config = ve.extendObject( { mode: this.defaultMode }, config );
+	return ve.init.mw.Target.super.prototype.getSurfaceConfig.call( this, ve.extendObject( {
+		// Provide the wikitext versions of the registries, if we're using source mode
+		commandRegistry: config.mode === 'source' ? ve.ui.wikitextCommandRegistry : ve.ui.commandRegistry,
+		sequenceRegistry: config.mode === 'source' ? ve.ui.wikitextSequenceRegistry : ve.ui.sequenceRegistry,
+		dataTransferHandlerFactory: config.mode === 'source' ? ve.ui.wikitextDataTransferHandlerFactory : ve.ui.dataTransferHandlerFactory
+	}, config ) );
 };
 
 /**
@@ -522,4 +542,22 @@ ve.init.mw.Target.prototype.getWikitextFragment = function ( doc, useRevision, i
 	};
 
 	return promise;
+};
+
+/**
+ * Parse a fragment of wikitext into HTML
+ *
+ * @param {string} wikitext Wikitext
+ * @param {boolean} pst Perform pre-save transform
+ * @param {ve.dm.Document} [doc] Parse for a specific document
+ * @return {jQuery.Promise} Abortable promise
+ */
+ve.init.mw.Target.prototype.parseWikitextFragment = function ( wikitext, pst ) {
+	return new mw.Api().post( {
+		action: 'visualeditor',
+		paction: 'parsefragment',
+		page: this.pageName,
+		wikitext: wikitext,
+		pst: pst
+	} );
 };

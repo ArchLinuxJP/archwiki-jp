@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWWikitextStringTransferHandler class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -103,12 +103,7 @@ ve.ui.MWWikitextStringTransferHandler.prototype.process = function () {
 	}
 
 	// Convert wikitext to html using Parsoid.
-	this.parsoidRequest = new mw.Api().post( {
-		action: 'visualeditor',
-		paction: 'parsefragment',
-		page: mw.config.get( 'wgRelevantPageName' ),
-		wikitext: wikitext
-	} );
+	this.parsoidRequest = ve.init.target.parseWikitextFragment( wikitext, false, this.surface.getModel().getDocument() );
 
 	// Don't immediately chain, as this.parsoidRequest must be abortable
 	this.parsoidRequest.then( function ( response ) {
@@ -127,6 +122,9 @@ ve.ui.MWWikitextStringTransferHandler.prototype.process = function () {
 				elementsWithIds[ i ].removeAttribute( 'id' );
 			}
 		}
+
+		// Strip legacy IDs, for example in section headings
+		ve.stripParsoidFallbackIds( htmlDoc.body );
 
 		// Pass an empty object for the second argument (importRules) so that clipboard mode is used
 		// TODO: Fix that API

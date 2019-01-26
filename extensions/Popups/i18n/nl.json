@@ -1,0 +1,40 @@
+{
+	"@metadata": {
+		"authors": [
+			"SPQRobin",
+			"Siebrand",
+			"Sjoerddebruin",
+			"Robin0van0der0vliet",
+			"MedShot",
+			"HanV",
+			"Robin van der Vliet",
+			"Mainframe98",
+			"Romaine",
+			"Dinosaur918",
+			"Mar(c)"
+		]
+	},
+	"popups-message": "Pop-uppagina's",
+	"popups-desc": "Toont voorvertoningen wanneer de gebruiker met de muis over paginakoppelingen gaat.",
+	"popups-settings-title": "Paginavoorvertoning",
+	"popups-settings-option-simple": "Inschakelen",
+	"popups-settings-option-simple-description": "Bekijk de inleidende paragraaf en een eventuele afbeelding van een pagina.",
+	"popups-settings-option-advanced": "Geavanceerd",
+	"popups-settings-option-advanced-description": "Voorvertoningen van koppelingen weergeven en toegang krijgen tot bewerkingsmenu's. Dit wordt door veel bewerkers gebruikt.",
+	"popups-settings-option-off": "Uitschakelen",
+	"popups-settings-save": "Opslaan",
+	"popups-settings-help-ok": "Afronden",
+	"popups-settings-cancel": "Annuleren",
+	"popups-settings-help": "U kan voorvertoningen terug inschakelen met behulp van een link onderaan de pagina.",
+	"popups-settings-enable": "Voorvertoningen inschakelen",
+	"popups-preview-no-preview": "Er was een probleem met het weergeven van deze voorvertoning",
+	"popups-preview-footer-read": "Ga naar deze pagina",
+	"popups-preview-disambiguation": "Deze titel heeft meerdere betekenissen",
+	"popups-preview-disambiguation-link": "Toon vergelijkbare pagina's",
+	"prefs-reading": "Leesvoorkeuren",
+	"popups-prefs-optin-title": "Paginavoorvertoningen\n\nKrijg snelle voorvertoningen onder een onderwerp tijdens het lezen",
+	"popups-prefs-optin-enabled-label": "Inschakelen",
+	"popups-prefs-optin-disabled-label": "Uitschakelen",
+	"popups-prefs-disable-nav-gadgets-info": "Om paginavoorvertoningen te kunnen inschakelen, moet u eerst Navigatiepop-ups uitschakelen [[$1 | op het Uitbreidingen-tabblad]]",
+	"popups-prefs-conflicting-gadgets-info": "Bepaalde uitbreidingen en andere aanpassingen kunnen de prestaties van deze functie beïnvloeden. Als u problemen ondervindt, controleer dan uw gadgets en gebruikersscripts, inclusief de globale."
+}

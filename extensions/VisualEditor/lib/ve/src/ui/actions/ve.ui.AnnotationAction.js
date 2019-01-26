@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface AnnotationAction class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -101,6 +101,8 @@ ve.ui.AnnotationAction.prototype.toggle = function ( name, data ) {
 		} else {
 			fragment.annotateContent( 'clear', name );
 		}
+	} else if ( surfaceModel.sourceMode ) {
+		return false;
 	} else {
 		insertionAnnotations = surfaceModel.getInsertionAnnotations();
 		existingAnnotations = insertionAnnotations.getAnnotationsByName( annotation.name );

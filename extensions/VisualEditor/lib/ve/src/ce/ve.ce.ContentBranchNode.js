@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable ContentBranchNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -268,7 +268,7 @@ ve.ce.ContentBranchNode.prototype.getRenderedContents = function () {
 		dmSurface = ceSurface.getModel();
 		dmSelection = dmSurface.getTranslatedSelection();
 		if ( dmSelection instanceof ve.dm.LinearSelection && dmSelection.isCollapsed() ) {
-			// subtract 1 for CBN opening tag
+			// Subtract 1 for CBN opening tag
 			relCursor = dmSelection.getRange().start - this.getOffset() - 1;
 		}
 	}
@@ -285,8 +285,8 @@ ve.ce.ContentBranchNode.prototype.getRenderedContents = function () {
 			childLength = ( typeof htmlItem === 'string' ) ? 1 : 2;
 			if ( offset <= relCursor && relCursor < offset + childLength ) {
 				unicorn = [
-					{}, // unique object, for testing object equality later
-					dmSurface.getInsertionAnnotations().storeIndexes
+					{}, // Unique object, for testing object equality later
+					dmSurface.getInsertionAnnotations().storeHashes
 				];
 				annotatedHtml.splice( i, 0, unicorn );
 				break;
@@ -296,8 +296,8 @@ ve.ce.ContentBranchNode.prototype.getRenderedContents = function () {
 		// Special case for final position
 		if ( i === ilen && offset === relCursor ) {
 			unicorn = [
-				{}, // unique object, for testing object equality later
-				dmSurface.getInsertionAnnotations().storeIndexes
+				{}, // Unique object, for testing object equality later
+				dmSurface.getInsertionAnnotations().storeHashes
 			];
 			annotatedHtml.push( unicorn );
 		}
@@ -475,17 +475,18 @@ ve.ce.ContentBranchNode.prototype.renderContents = function () {
 };
 
 /**
- * Handle teardown event.
- *
- * @method
+ * @inheritdoc
  */
-ve.ce.ContentBranchNode.prototype.onTeardown = function () {
-	var ceSurface = this.getRoot().getSurface();
+ve.ce.ContentBranchNode.prototype.detach = function () {
+	if ( this.getRoot() ) {
+		// This should be true, as the root is removed in the parent detach
+		// method which hasn't run yet. However, just in case a node gets
+		// double-detached...
+		this.getRoot().getSurface().setNotUnicorning( this );
+	}
 
 	// Parent method
-	ve.ce.ContentBranchNode.super.prototype.onTeardown.call( this );
-
-	ceSurface.setNotUnicorning( this );
+	ve.ce.ContentBranchNode.super.prototype.detach.call( this );
 };
 
 /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * Resource loader module for providing language names.
+ * ResourceLoader module for providing language names.
  *
  * By default these names will be autonyms however other extensions may
  * provided language names in the context language (e.g. cldr extension)
@@ -28,9 +28,9 @@
 /**
  * ResourceLoader module for populating language specific data.
  */
-class ResourceLoaderLanguageNamesModule extends ResourceLoaderModule {
+class ResourceLoaderLanguageNamesModule extends ResourceLoaderFileModule {
 
-	protected $targets = array( 'desktop', 'mobile' );
+	protected $targets = [ 'desktop', 'mobile' ];
 
 	/**
 	 * @param ResourceLoaderContext $context
@@ -50,21 +50,21 @@ class ResourceLoaderLanguageNamesModule extends ResourceLoaderModule {
 	public function getScript( ResourceLoaderContext $context ) {
 		return Xml::encodeJsCall(
 			'mw.language.setData',
-			array(
+			[
 				$context->getLanguage(),
 				'languageNames',
 				$this->getData( $context )
-			),
+			],
 			ResourceLoader::inDebugMode()
 		);
 	}
 
 	/**
-	 * @param ResourceLoaderContext $context
+	 * @param ResourceLoaderContext|null $context
 	 * @return array
 	 */
 	public function getDependencies( ResourceLoaderContext $context = null ) {
-		return array( 'mediawiki.language.init' );
+		return [ 'mediawiki.language' ];
 	}
 
 	/**

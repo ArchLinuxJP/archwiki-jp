@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable TableCellNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -23,9 +23,7 @@ ve.ce.TableCellNode = function VeCeTableCellNode() {
 	ve.ce.TableCellableNode.call( this );
 	ve.ce.ContentEditableNode.call( this );
 
-	this.editing = false;
-	// CE nodes initialize to true
-	this.setContentEditable();
+	this.setEditing( false );
 
 	// Events
 	this.model.connect( this, {
@@ -62,8 +60,8 @@ ve.ce.TableCellNode.prototype.initialize = function () {
 	// DOM changes
 	this.$element
 		// The following classes can be used here:
-		// ve-ce-tableCellNode-data
-		// ve-ce-tableCellNode-header
+		// * ve-ce-tableCellNode-data
+		// * ve-ce-tableCellNode-header
 		.addClass( 've-ce-tableCellNode ve-ce-tableCellNode-' + this.model.getAttribute( 'style' ) );
 
 	// Set attributes (keep in sync with #onSetup)
@@ -87,7 +85,14 @@ ve.ce.TableCellNode.prototype.setEditing = function ( enable ) {
 	this.editing = enable;
 	this.$element.toggleClass( 've-ce-tableCellNode-editing', enable );
 	this.setContentEditable();
-	this.getRoot().getSurface().setActiveNode( enable ? this : null );
+	if ( this.getRoot() ) {
+		this.getRoot().getSurface().setActiveNode( enable ? this : null );
+	}
+	if ( enable ) {
+		this.$element.removeAttr( 'title' );
+	} else {
+		this.$element.attr( 'title', ve.msg( 'visualeditor-tablecell-tooltip' ) );
+	}
 };
 
 /**
@@ -129,8 +134,8 @@ ve.ce.TableCellNode.prototype.onAttributeChange = function ( key, from, to ) {
 			break;
 		case 'style':
 			// The following classes can be used here:
-			// ve-ce-tableCellNode-data
-			// ve-ce-tableCellNode-header
+			// * ve-ce-tableCellNode-data
+			// * ve-ce-tableCellNode-header
 			this.$element
 				.removeClass( 've-ce-tableCellNode-' + from )
 				.addClass( 've-ce-tableCellNode-' + to );

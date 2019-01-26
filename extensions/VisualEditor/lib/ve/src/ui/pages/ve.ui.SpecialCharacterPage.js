@@ -1,7 +1,7 @@
 /*!
  * VisualEditor user interface SpecialCharacterPage class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -35,6 +35,9 @@ ve.ui.SpecialCharacterPage = function VeUiSpecialCharacterPage( name, config ) {
 		if ( !source && characters[ character ].source ) {
 			continue;
 		}
+		if ( character === 'attributes' ) {
+			continue;
+		}
 		characterNode = document.createElement( 'div' );
 		characterNode.className = 've-ui-specialCharacterPage-character';
 		if ( characters[ character ].titleMsg ) {
@@ -46,6 +49,11 @@ ve.ui.SpecialCharacterPage = function VeUiSpecialCharacterPage( name, config ) {
 		characterNode.textContent = character;
 		$.data( characterNode, 'character', characters[ character ] );
 		charactersNode.appendChild( characterNode );
+	}
+
+	if ( characters.attributes ) {
+		$characters.attr( 'lang', characters.attributes.lang );
+		$characters.attr( 'dir', characters.attributes.dir );
 	}
 
 	this.$element

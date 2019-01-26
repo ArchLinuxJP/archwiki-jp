@@ -19,6 +19,7 @@
  *
  * @file
  */
+use Wikimedia\Rdbms\LikeMatch;
 
 /**
  * Some functions to help implement an external link filter for spam control.
@@ -37,11 +38,12 @@ class LinkFilter {
 	 *
 	 * @param Content $content Content to check
 	 * @param string $filterEntry Domainparts, see makeRegex() for more details
+	 * @param string $protocol 'http://' or 'https://'
 	 * @return int 0 if no match or 1 if there's at least one match
 	 */
-	static function matchEntry( Content $content, $filterEntry ) {
+	public static function matchEntry( Content $content, $filterEntry, $protocol = 'http://' ) {
 		if ( !( $content instanceof TextContent ) ) {
-			//TODO: handle other types of content too.
+			// TODO: handle other types of content too.
 			//      Maybe create ContentHandler::matchFilter( LinkFilter ).
 			//      Think about a common base class for LinkFilter and MagicWord.
 			return 0;
@@ -49,7 +51,7 @@ class LinkFilter {
 
 		$text = $content->getNativeData();
 
-		$regex = LinkFilter::makeRegex( $filterEntry );
+		$regex = self::makeRegex( $filterEntry, $protocol );
 		return preg_match( $regex, $text );
 	}
 
@@ -58,10 +60,12 @@ class LinkFilter {
 	 *
 	 * @param string $filterEntry URL, if it begins with "*.", it'll be
 	 *        replaced to match any subdomain
+	 * @param string $protocol 'http://' or 'https://'
+	 *
 	 * @return string Regex pattern, for preg_match()
 	 */
-	private static function makeRegex( $filterEntry ) {
-		$regex = '!http://';
+	private static function makeRegex( $filterEntry, $protocol ) {
+		$regex = '!' . preg_quote( $protocol, '!' );
 		if ( substr( $filterEntry, 0, 2 ) == '*.' ) {
 			$regex .= '(?:[A-Za-z0-9.-]+\.|)';
 			$filterEntry = substr( $filterEntry, 2 );
@@ -71,7 +75,7 @@ class LinkFilter {
 	}
 
 	/**
-	 * Make an array to be used for calls to DatabaseBase::buildLike(), which
+	 * Make an array to be used for calls to Database::buildLike(), which
 	 * will match the specified string. There are several kinds of filter entry:
 	 *     *.domain.com    -  Produces http://com.domain.%, matches domain.com
 	 *                        and www.domain.com
@@ -89,10 +93,10 @@ class LinkFilter {
 	 *
 	 * @param string $filterEntry Domainparts
 	 * @param string $protocol Protocol (default http://)
-	 * @return array Array to be passed to DatabaseBase::buildLike() or false on error
+	 * @return array|bool Array to be passed to Database::buildLike() or false on error
 	 */
 	public static function makeLikeArray( $filterEntry, $protocol = 'http://' ) {
-		$db = wfGetDB( DB_SLAVE );
+		$db = wfGetDB( DB_REPLICA );
 
 		$target = $protocol . $filterEntry;
 		$bits = wfParseUrl( $target );

@@ -1,7 +1,7 @@
 /*!
  * VisualEditor Logger class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 /* global Set */
 
@@ -305,7 +305,7 @@ ve.Filibuster.prototype.wrapNamespace = function ( ns, nsName, blacklist ) {
 		} else if ( typeof prop === 'function' ) {
 			this.wrapFunction( ns, nsName, propName );
 		} else if ( $.isPlainObject( prop ) ) {
-			// might be a namespace; recurse
+			// Might be a namespace; recurse
 			this.wrapNamespace( prop, nsName + '.' + propName, blacklist );
 		}
 	}
@@ -505,7 +505,7 @@ ve.Filibuster.static.clonePlain = function ( val, seen ) {
 	} else if ( val.constructor === ve.dm.AnnotationSet ) {
 		return {
 			've.dm.AnnotationSet': val.getStore()
-				.values( val.getIndexes() )
+				.values( val.getHashes() )
 				.map( function ( annotation ) {
 					return annotation.name;
 				} )

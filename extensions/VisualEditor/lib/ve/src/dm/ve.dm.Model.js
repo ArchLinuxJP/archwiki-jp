@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Model class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -215,8 +215,8 @@ ve.dm.Model.static.getHashObject = function ( dataElement ) {
 		type: dataElement.type,
 		attributes: dataElement.attributes
 	};
-	if ( dataElement.originalDomElementsIndex !== undefined ) {
-		hash.originalDomElementsIndex = dataElement.originalDomElementsIndex;
+	if ( dataElement.originalDomElementsHash !== undefined ) {
+		hash.originalDomElementsHash = dataElement.originalDomElementsHash;
 	}
 	return hash;
 };
@@ -247,7 +247,7 @@ ve.dm.Model.static.getAllowedRdfaTypes = function () {
  * @param {Object} attributeChanges Attribute changes, keyed list containing objects with from and to properties
  * @param {Object} attributes New attributes
  * @param {Object} element New element
- * @return {string[]} Descriptions
+ * @return {Array} Descriptions, list of strings or jQuery objects
  */
 ve.dm.Model.static.describeChanges = function ( attributeChanges ) {
 	var key, change,
@@ -266,7 +266,7 @@ ve.dm.Model.static.describeChanges = function ( attributeChanges ) {
  *
  * @param {string} key Attribute key
  * @param {Object} change Change object with from and to properties
- * @return {string|null} Description, or null if nothing to describe
+ * @return {string|jQuery|null} Description (string or jQuery object), or null if nothing to describe
  */
 ve.dm.Model.static.describeChange = function ( key, change ) {
 	if ( ( typeof change.from === 'object' && change.from !== null ) || ( typeof change.to === 'object' && change.to !== null ) ) {
@@ -329,10 +329,10 @@ ve.dm.Model.prototype.getElement = function () {
 };
 
 /**
- * Get a reference to the index-value store used by the element.
+ * Get a reference to the hash-value store used by the element.
  *
  * @method
- * @return {ve.dm.IndexValueStore} Index-value store
+ * @return {ve.dm.HashValueStore} Hash-value store
  */
 ve.dm.Model.prototype.getStore = function () {
 	return this.store;
@@ -388,20 +388,20 @@ ve.dm.Model.prototype.getAttributes = function ( prefix ) {
 /**
  * Get the DOM element(s) this model was originally converted from, if any.
  *
- * @return {number|undefined} Store index of DOM elements this model was converted from
+ * @return {string|undefined} Store hash of DOM elements this model was converted from
  */
-ve.dm.Model.prototype.getOriginalDomElementsIndex = function () {
-	return this.element ? this.element.originalDomElementsIndex : undefined;
+ve.dm.Model.prototype.getOriginalDomElementsHash = function () {
+	return this.element ? this.element.originalDomElementsHash : undefined;
 };
 
 /**
  * Get the DOM element(s) this model was originally converted from, if any.
  *
- * @param {ve.dm.IndexValueStore} store Index value store where the DOM elements are stored
+ * @param {ve.dm.HashValueStore} store Hash value store where the DOM elements are stored
  * @return {HTMLElement[]} DOM elements this model was converted from, empty if not applicable
  */
 ve.dm.Model.prototype.getOriginalDomElements = function ( store ) {
-	return store.value( this.getOriginalDomElementsIndex() ) || [];
+	return store.value( this.getOriginalDomElementsHash() ) || [];
 };
 
 /**

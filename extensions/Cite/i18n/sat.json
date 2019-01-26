@@ -1,8 +1,11 @@
 {
 	"@metadata": {
 		"authors": [
-			"Albinus"
+			"Albinus",
+			"Manik Soren",
+			"Fagunkoyel Hansdah"
 		]
 	},
-	"cite_error": "Kath bhul:$1"
+	"cite_error": "ᱛᱩᱢᱟᱹᱞ ᱦᱩᱲᱟᱹᱜ:$1",
+	"cite_warning": "ᱛᱩᱢᱟᱹᱞ ᱦᱩᱥᱭᱟᱹᱨ: $1"
 }

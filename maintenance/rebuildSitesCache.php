@@ -32,13 +32,13 @@ class RebuildSitesCache extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 
-		$this->mDescription = "Cache sites as json for file-based lookup.";
+		$this->addDescription( 'Cache sites as json for file-based lookup.' );
 		$this->addOption( 'file', 'File to output the json to', false, true );
 	}
 
 	public function execute() {
 		$sitesCacheFileBuilder = new SitesCacheFileBuilder(
-			new DBSiteStore(),
+			\MediaWiki\MediaWikiServices::getInstance()->getSiteLookup(),
 			$this->getCacheFile()
 		);
 
@@ -55,7 +55,7 @@ class RebuildSitesCache extends Maintenance {
 			$jsonFile = $this->getConfig()->get( 'SitesCacheFile' );
 
 			if ( $jsonFile === false ) {
-				$this->error( 'Error: No file set in configuration for SitesCacheFile.', 1 );
+				$this->fatalError( 'Error: No file set in configuration for SitesCacheFile.' );
 			}
 		}
 
@@ -64,5 +64,5 @@ class RebuildSitesCache extends Maintenance {
 
 }
 
-$maintClass = "RebuildSitesCache";
+$maintClass = RebuildSitesCache::class;
 require_once RUN_MAINTENANCE_IF_MAIN;

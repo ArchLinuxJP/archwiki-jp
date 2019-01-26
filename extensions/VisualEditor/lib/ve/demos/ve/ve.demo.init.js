@@ -1,7 +1,7 @@
 /*!
  * VisualEditor standalone demo
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 new ve.init.sa.Platform( ve.messagePaths ).getInitializedPromise().done( function () {
@@ -11,6 +11,7 @@ new ve.init.sa.Platform( ve.messagePaths ).getInitializedPromise().done( functio
 		// eslint-disable-next-line new-cap
 		target = new ve.demo.target(),
 		hashChanging = false,
+		$divider = $( '<span>' ).addClass( 've-demo-toolbar-divider' ).text( '\u00a0' ),
 
 		currentLang = ve.init.platform.getUserLanguages()[ 0 ],
 		currentDir = target.$element.css( 'direction' ) || 'ltr',
@@ -112,9 +113,9 @@ new ve.init.sa.Platform( ve.messagePaths ).getInitializedPromise().done( functio
 	$toolbar.append(
 		$( '<div>' ).addClass( 've-demo-toolbar-commands' ).append(
 			addSurfaceContainerButton.$element,
-			$( '<span class="ve-demo-toolbar-divider">&nbsp;</span>' ),
+			$divider.clone(),
 			languageInput.$element,
-			$( '<span class="ve-demo-toolbar-divider">&nbsp;</span>' ),
+			$divider.clone(),
 			deviceSelect.$element
 		)
 	);
@@ -128,7 +129,7 @@ new ve.init.sa.Platform( ve.messagePaths ).getInitializedPromise().done( functio
 		}
 		if ( history.replaceState ) {
 			for ( i = 0; i < ve.demo.surfaceContainers.length; i++ ) {
-				pages.push( ve.demo.surfaceContainers[ i ].pageMenu.getSelectedItem().getData() );
+				pages.push( ve.demo.surfaceContainers[ i ].pageMenu.findSelectedItem().getData() );
 			}
 			history.replaceState( null, document.title, '#!' + pages.join( ',' ) );
 		}
@@ -138,7 +139,7 @@ new ve.init.sa.Platform( ve.messagePaths ).getInitializedPromise().done( functio
 		var surfaceContainer;
 
 		if ( !page && ve.demo.surfaceContainers.length ) {
-			page = ve.demo.surfaceContainers[ ve.demo.surfaceContainers.length - 1 ].pageMenu.getSelectedItem().getData();
+			page = ve.demo.surfaceContainers[ ve.demo.surfaceContainers.length - 1 ].pageMenu.findSelectedItem().getData();
 		}
 
 		surfaceContainer = new ve.demo.SurfaceContainer( target, page, currentLang, currentDir );
@@ -153,7 +154,7 @@ new ve.init.sa.Platform( ve.messagePaths ).getInitializedPromise().done( functio
 
 	function createSurfacesFromHash( hash ) {
 		var i, pages = [];
-		if ( /^#!(?:pages|localStorage)\/.+$/.test( hash ) ) {
+		if ( /^#!(?:pages|localStorage|sessionStorage)\/.+$/.test( hash ) ) {
 			pages = hash.slice( 2 ).split( ',' );
 		}
 		if ( pages.length ) {

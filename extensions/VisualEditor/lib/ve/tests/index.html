@@ -34,6 +34,9 @@
 		<script src="../lib/oojs-ui/oojs-ui-toolbars.js"></script>
 		<script src="../lib/oojs-ui/oojs-ui-windows.js"></script>
 
+		<!-- oojs-ui-apex -->
+		<script src="../lib/oojs-ui/oojs-ui-apex.js"></script>
+
 		<!-- CLDRPluralRuleParser -->
 		<script src="../lib/jquery.i18n/libs/CLDRPluralRuleParser/src/CLDRPluralRuleParser.js"></script>
 
@@ -91,14 +94,6 @@
 		<script src="../src/init/ve.init.Platform.js"></script>
 		<script src="../src/init/ve.init.Target.js"></script>
 
-		<!-- visualEditor.standalone.build -->
-		<script src="../src/init/sa/ve.init.sa.js"></script>
-		<script src="../src/init/sa/ve.init.sa.Platform.js"></script>
-		<script src="../src/init/sa/ve.init.sa.Target.js"></script>
-
-		<!-- oojs-ui-apex -->
-		<script src="../lib/oojs-ui/oojs-ui-apex.js"></script>
-
 		<!-- visualEditor.core.build -->
 		<script src="../src/ve.Range.js"></script>
 		<script src="../src/ve.SelectionState.js"></script>
@@ -116,7 +111,6 @@
 		<script src="../src/dm/ve.dm.NodeFactory.js"></script>
 		<script src="../src/dm/ve.dm.AnnotationFactory.js"></script>
 		<script src="../src/dm/ve.dm.AnnotationSet.js"></script>
-		<script src="../src/dm/ve.dm.MetaItemFactory.js"></script>
 		<script src="../src/dm/ve.dm.ClassAttributeNode.js"></script>
 		<script src="../src/dm/ve.dm.AlignableNode.js"></script>
 		<script src="../src/dm/ve.dm.FocusableNode.js"></script>
@@ -149,14 +143,13 @@
 		<script src="../src/dm/ve.dm.DocumentSlice.js"></script>
 		<script src="../src/dm/ve.dm.TableSlice.js"></script>
 		<script src="../src/dm/ve.dm.LinearData.js"></script>
-		<script src="../src/dm/ve.dm.IndexValueStore.js"></script>
+		<script src="../src/dm/ve.dm.HashValueStore.js"></script>
 		<script src="../src/dm/ve.dm.Converter.js"></script>
 		<script src="../src/dm/selections/ve.dm.LinearSelection.js"></script>
 		<script src="../src/dm/selections/ve.dm.NullSelection.js"></script>
 		<script src="../src/dm/selections/ve.dm.TableSelection.js"></script>
 		<script src="../src/dm/lineardata/ve.dm.FlatLinearData.js"></script>
 		<script src="../src/dm/lineardata/ve.dm.ElementLinearData.js"></script>
-		<script src="../src/dm/lineardata/ve.dm.MetaLinearData.js"></script>
 		<script src="../src/dm/nodes/ve.dm.GeneratedContentNode.js"></script>
 		<script src="../src/dm/nodes/ve.dm.AlienNode.js"></script>
 		<script src="../src/dm/nodes/ve.dm.ArticleNode.js"></script>
@@ -227,6 +220,7 @@
 		<script src="../src/ce/ve.ce.BranchNode.js"></script>
 		<script src="../src/ce/ve.ce.ContentBranchNode.js"></script>
 		<script src="../src/ce/ve.ce.LeafNode.js"></script>
+		<script src="../src/ce/ve.ce.MetaItem.js"></script>
 		<script src="../src/ce/ve.ce.ClassAttributeNode.js"></script>
 		<script src="../src/ce/ve.ce.AlignableNode.js"></script>
 		<script src="../src/ce/ve.ce.FocusableNode.js"></script>
@@ -410,10 +404,6 @@
 		<script src="../src/ui/inspectors/ve.ui.LanguageInspector.js"></script>
 		<script src="../src/ui/pages/ve.ui.SpecialCharacterPage.js"></script>
 
-		<!-- visualEditor.desktop.build -->
-		<script src="../src/ui/contexts/ve.ui.DesktopContext.js"></script>
-		<script src="../src/ui/windowmanagers/ve.ui.DesktopInspectorWindowManager.js"></script>
-
 		<!-- treeDiffer -->
 		<script src="../lib/treeDiffer/treeDiffer-dist.js"></script>
 
@@ -430,6 +420,15 @@
 		<!-- visualEditor.diffing.standalone -->
 		<script src="../src/ui/dialogs/ve.ui.DiffDialog.js"></script>
 
+		<!-- visualEditor.standalone.build -->
+		<script src="../src/init/sa/ve.init.sa.js"></script>
+		<script src="../src/init/sa/ve.init.sa.Platform.js"></script>
+		<script src="../src/init/sa/ve.init.sa.Target.js"></script>
+
+		<!-- visualEditor.desktop.build -->
+		<script src="../src/ui/contexts/ve.ui.DesktopContext.js"></script>
+		<script src="../src/ui/windowmanagers/ve.ui.DesktopInspectorWindowManager.js"></script>
+
 		<!-- visualEditor.desktop.standalone -->
 		<script src="../src/init/sa/ve.init.sa.DesktopTarget.js"></script>
 
@@ -439,26 +438,19 @@
 		<!-- socket.io -->
 		<script src="../lib/socket.io-client/socket.io.min.js"></script>
 
+		<!-- color-picker -->
+		<script src="../lib/color-picker/color-picker.js"></script>
+
 		<!-- visualEditor.rebase -->
 		<script src="../src/dm/ve.dm.RebaseClient.js"></script>
 		<script src="../src/dm/ve.dm.SurfaceSynchronizer.js"></script>
 		<script src="../src/ui/widgets/ve.ui.AuthorItemWidget.js"></script>
 		<script src="../src/ui/tools/ve.ui.AuthorListPopupTool.js"></script>
 
-		<!-- rebaser.build -->
+		<!-- visualEditor.test -->
 		<script src="../src/ve.utils-es6.js"></script>
-		<script src="../src/dm/ve.dm.IndexValueStore.js"></script>
-		<script src="../src/dm/ve.dm.Transaction.js"></script>
-		<script src="../src/dm/ve.dm.Change.js"></script>
 		<script src="../src/dm/ve.dm.RebaseDocState.js"></script>
 		<script src="../src/dm/ve.dm.RebaseServer.js"></script>
-		<script src="../src/ve.Range.js"></script>
-		<script src="../src/dm/ve.dm.Selection.js"></script>
-		<script src="../src/dm/selections/ve.dm.NullSelection.js"></script>
-		<script src="../src/dm/selections/ve.dm.LinearSelection.js"></script>
-		<script src="../src/dm/selections/ve.dm.TableSelection.js"></script>
-
-		<!-- visualEditor.test -->
 		<script src="../tests/ve.qunit.js"></script>
 		<script src="../tests/ve.qunit.local.js"></script>
 		<script src="../tests/ve.test.utils.js"></script>
@@ -481,7 +473,7 @@
 		<script src="../tests/dm/ve.dm.LeafNode.test.js"></script>
 		<script src="../tests/dm/nodes/ve.dm.TextNode.test.js"></script>
 		<script src="../tests/dm/ve.dm.Document.test.js"></script>
-		<script src="../tests/dm/ve.dm.IndexValueStore.test.js"></script>
+		<script src="../tests/dm/ve.dm.HashValueStore.test.js"></script>
 		<script src="../tests/dm/ve.dm.InternalList.test.js"></script>
 		<script src="../tests/dm/ve.dm.LinearData.test.js"></script>
 		<script src="../tests/dm/ve.dm.Transaction.test.js"></script>
@@ -504,7 +496,6 @@
 		<script src="../tests/dm/selections/ve.dm.TableSelection.test.js"></script>
 		<script src="../tests/dm/lineardata/ve.dm.FlatLinearData.test.js"></script>
 		<script src="../tests/dm/lineardata/ve.dm.ElementLinearData.test.js"></script>
-		<script src="../tests/dm/lineardata/ve.dm.MetaLinearData.test.js"></script>
 		<script src="../tests/ce/ve.ce.test.js"></script>
 		<script src="../tests/ce/ve.ce.Document.test.js"></script>
 		<script src="../tests/ce/ve.ce.Surface.test.js"></script>

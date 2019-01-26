@@ -1,0 +1,5 @@
+/docs/js/
+/.nyc_output/
+/node_modules/
+/vendor/
+/composer.lock

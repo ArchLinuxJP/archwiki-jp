@@ -1,52 +1,34 @@
 /*!
- * OOjs UI v0.23.0
- * https://www.mediawiki.org/wiki/OOjs_UI
+ * OOUI v0.26.3
+ * https://www.mediawiki.org/wiki/OOUI
  *
- * Copyright 2011–2017 OOjs UI Team and other contributors.
+ * Copyright 2011–2018 OOUI Team and other contributors.
  * Released under the MIT license
  * http://oojs.mit-license.org
  *
- * Date: 2017-09-05T21:24:03Z
+ * Date: 2018-04-10T22:15:43Z
  */
 .oo-ui-icon-menu {
-  background-image: url('themes/apex/images/icons/menu.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/menu.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/menu.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/apex/images/icons/menu.png');
+  background-image: url('themes/wikimediaui/images/icons/menu.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/menu.svg');
 }
 .oo-ui-icon-stripeFlow {
-  background-image: url('themes/apex/images/icons/stripeFlow-rtl.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/stripeFlow-rtl.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/stripeFlow-rtl.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/apex/images/icons/stripeFlow-rtl.png');
-}
-.oo-ui-icon-stripeSideMenu {
-  background-image: url('themes/apex/images/icons/draggable.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/draggable.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/draggable.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/apex/images/icons/draggable.png');
+  background-image: url('themes/wikimediaui/images/icons/stripeFlow-rtl.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/stripeFlow-rtl.svg');
 }
 .oo-ui-icon-stripeSummary {
-  background-image: url('themes/apex/images/icons/stripeSummary-rtl.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/stripeSummary-rtl.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/stripeSummary-rtl.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/apex/images/icons/stripeSummary-rtl.png');
+  background-image: url('themes/wikimediaui/images/icons/stripeSummary-rtl.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/stripeSummary-rtl.svg');
 }
 .oo-ui-icon-stripeToC {
-  background-image: url('themes/apex/images/icons/stripeToC-rtl.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/stripeToC-rtl.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/stripeToC-rtl.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/apex/images/icons/stripeToC-rtl.png');
+  background-image: url('themes/wikimediaui/images/icons/stripeToC-rtl.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/stripeToC-rtl.svg');
 }
 .oo-ui-icon-viewCompact {
-  background-image: url('themes/apex/images/icons/viewCompact.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/viewCompact.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/viewCompact.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/apex/images/icons/viewCompact.png');
+  background-image: url('themes/wikimediaui/images/icons/viewCompact.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/viewCompact.svg');
 }
 .oo-ui-icon-viewDetails {
-  background-image: url('themes/apex/images/icons/viewDetails-rtl.png');
-  background-image: -webkit-linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/viewDetails-rtl.svg');
-  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/apex/images/icons/viewDetails-rtl.svg');
-  background-image: -o-linear-gradient(transparent, transparent), url('themes/apex/images/icons/viewDetails-rtl.png');
+  background-image: url('themes/wikimediaui/images/icons/viewDetails-rtl.png');
+  background-image: linear-gradient(transparent, transparent), /* @embed */ url('themes/wikimediaui/images/icons/viewDetails-rtl.svg');
 }

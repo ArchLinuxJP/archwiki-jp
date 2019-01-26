@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Surface class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -30,15 +30,29 @@ OO.inheritClass( ve.ce.MWWikitextSurface, ve.ce.Surface );
  * @inheritdoc
  */
 ve.ce.MWWikitextSurface.prototype.onCopy = function ( e ) {
-	var originalSelection, scrollTop,
+	var originalSelection, scrollTop, slice, clipboardKey,
 		view = this,
 		clipboardData = e.originalEvent.clipboardData,
 		text = this.getModel().getFragment().getText( true ).replace( /\n\n/g, '\n' );
+
+	if ( !text ) {
+		return;
+	}
 
 	if ( clipboardData ) {
 		// Disable the default event so we can override the data
 		e.preventDefault();
 		clipboardData.setData( 'text/plain', text );
+		// We're not going to set HTML, but for browsers that support custom data, set a clipboard key
+		if ( ve.isClipboardDataFormatsSupported( e, true ) ) {
+			slice = this.model.documentModel.shallowCloneFromSelection( this.getModel().getSelection() );
+			this.clipboardIndex++;
+			clipboardKey = this.clipboardId + '-' + this.clipboardIndex;
+			this.clipboard = { slice: slice, hash: null };
+			// Clone the elements in the slice
+			slice.data.cloneElements( true );
+			clipboardData.setData( 'text/xcustom', clipboardKey );
+		}
 	} else {
 		originalSelection = new ve.SelectionState( this.nativeSelection );
 
@@ -47,7 +61,7 @@ ve.ce.MWWikitextSurface.prototype.onCopy = function ( e ) {
 
 		// Prevent surface observation due to native range changing
 		this.surfaceObserver.disable();
-		this.$pasteTarget.append( this.pasteTargetInput.$element );
+		this.$pasteTarget.empty().append( this.pasteTargetInput.$element );
 		this.pasteTargetInput.setValue( text ).select();
 
 		// Restore scroll position after changing focus
@@ -63,7 +77,7 @@ ve.ce.MWWikitextSurface.prototype.onCopy = function ( e ) {
 			view.surfaceObserver.clear();
 			view.surfaceObserver.enable();
 			// Detach input
-			this.pasteTargetInput.$element.detach();
+			view.pasteTargetInput.$element.detach();
 		} );
 	}
 };

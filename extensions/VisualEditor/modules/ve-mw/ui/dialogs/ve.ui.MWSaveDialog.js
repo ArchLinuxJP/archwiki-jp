@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface MWSaveDialog class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -22,7 +22,8 @@ ve.ui.MWSaveDialog = function VeUiMwSaveDialog( config ) {
 	ve.ui.MWSaveDialog.super.call( this, config );
 
 	// Properties
-	this.editSummaryByteLimit = 255;
+	this.editSummaryByteLimit = mw.config.get( 'wgCommentByteLimit' );
+	this.editSummaryCodePointLimit = mw.config.get( 'wgCommentCodePointLimit' );
 	this.restoring = false;
 	this.messages = {};
 	this.setupDeferred = $.Deferred();
@@ -57,9 +58,8 @@ ve.ui.MWSaveDialog.static.actions = [
 		action: 'save',
 		// May be overridden by config.saveButtonLabel
 		label: OO.ui.deferMsg( 'visualeditor-savedialog-label-review' ),
-		flags: [ 'primary', 'constructive' ],
-		modes: [ 'save', 'review', 'preview' ],
-		accessKey: 's'
+		flags: [ 'primary', 'progressive' ],
+		modes: [ 'save', 'review', 'preview' ]
 	},
 	{
 		label: OO.ui.deferMsg( 'visualeditor-savedialog-label-resume-editing' ),
@@ -84,7 +84,7 @@ ve.ui.MWSaveDialog.static.actions = [
 	{
 		action: 'resolve',
 		label: OO.ui.deferMsg( 'visualeditor-savedialog-label-resolve-conflict' ),
-		flags: [ 'primary', 'constructive' ],
+		flags: [ 'primary', 'progressive' ],
 		modes: 'conflict'
 	},
 	{
@@ -134,7 +134,7 @@ ve.ui.MWSaveDialog.static.actions = [
  * Set review content and show review panel.
  *
  * @param {jQuery.Promise} wikitextDiffPromise Wikitext diff HTML promise
- * @param {jQuery.Promise} [visualDiffGeneratorPromise] Visual diff promise
+ * @param {jQuery.Promise} visualDiffGeneratorPromise Visual diff promise
  * @param {HTMLDocument} [baseDoc] Base document against which to normalise links when rendering visualDiff
  */
 ve.ui.MWSaveDialog.prototype.setDiffAndReview = function ( wikitextDiffPromise, visualDiffGeneratorPromise, baseDoc ) {
@@ -142,26 +142,24 @@ ve.ui.MWSaveDialog.prototype.setDiffAndReview = function ( wikitextDiffPromise, 
 
 	this.clearDiff();
 
+	function createDiffElement( visualDiff ) {
+		var diffElement = new ve.ui.DiffElement( visualDiff );
+		diffElement.$document.addClass( 'mw-body-content mw-parser-output' );
+		// Run styles so links render with their appropriate classes
+		ve.init.platform.linkCache.styleParsoidElements( diffElement.$document, baseDoc );
+		return diffElement;
+	}
+
 	// Visual diff
 	this.$reviewVisualDiff.append( new OO.ui.ProgressBarWidget().$element );
-	if ( visualDiffGeneratorPromise ) {
-		// Don't generate the DiffElement until the tab is switched to
-		this.getDiffElementPromise = function () {
-			return visualDiffGeneratorPromise.then( function ( visualDiff ) {
-				var diffElement = new ve.ui.DiffElement( visualDiff() );
-				diffElement.$document.addClass( 'mw-body-content' );
-				// Run styles so links render with their appropriate classes
-				ve.init.platform.linkCache.styleParsoidElements( diffElement.$document, baseDoc );
-				return diffElement;
-			} );
-		};
-		this.baseDoc = baseDoc;
-		this.reviewModeButtonSelect.getItemFromData( 'visual' ).setDisabled( false );
-	} else {
-		// TODO: Support visual diffs in source mode (epic)
-		this.reviewModeButtonSelect.getItemFromData( 'visual' ).setDisabled( true );
-		this.reviewModeButtonSelect.selectItemByData( 'source' );
-	}
+	// Don't generate the DiffElement until the tab is switched to
+	this.getDiffElementPromise = function () {
+		return visualDiffGeneratorPromise.then( function ( visualDiffGenerator ) {
+			return createDiffElement( visualDiffGenerator() );
+		} );
+	};
+
+	this.baseDoc = baseDoc;
 
 	// Wikitext diff
 	this.$reviewWikitextDiff.append( new OO.ui.ProgressBarWidget().$element );
@@ -191,13 +189,27 @@ ve.ui.MWSaveDialog.prototype.setDiffAndReview = function ( wikitextDiffPromise, 
  * @param {HTMLDocument} [baseDoc] Base document against which to normalise links, if document provided
  */
 ve.ui.MWSaveDialog.prototype.showPreview = function ( docOrMsg, baseDoc ) {
-	var body, contents,
-		categories = [];
+	var body, contents, $heading, redirectMeta,
+		$redirect = $(),
+		categories = [],
+		modules = [];
 
 	if ( docOrMsg instanceof HTMLDocument ) {
+		// Extract required modules for stylesheet tags (avoids re-loading styles)
+		Array.prototype.forEach.call( docOrMsg.head.querySelectorAll( 'link[rel~=stylesheet]' ), function ( link ) {
+			var uri = new mw.Uri( link.href );
+			if ( uri.query.modules ) {
+				modules = modules.concat( ve.expandModuleNames( uri.query.modules ) );
+			}
+		} );
+		// Remove skin-specific modules (T187075)
+		modules = modules.filter( function ( module ) {
+			return module.indexOf( 'skins.' ) !== 0;
+		} );
+		mw.loader.using( modules );
 		body = docOrMsg.body;
 		// Take a snapshot of all categories
-		Array.prototype.forEach.call( body.querySelectorAll( 'link[rel="mw:PageProp/Category"]' ), function ( element ) {
+		Array.prototype.forEach.call( body.querySelectorAll( 'link[rel~="mw:PageProp/Category"]' ), function ( element ) {
 			categories.push( ve.dm.MWCategoryMetaItem.static.toDataElement( [ element ] ).attributes.category );
 		} );
 		// Import body to current document, then resolve attributes against original document (parseDocument called #fixBase)
@@ -205,14 +217,42 @@ ve.ui.MWSaveDialog.prototype.showPreview = function ( docOrMsg, baseDoc ) {
 
 		// TODO: This code is very similar to ve.ui.PreviewElement+ve.ui.MWPreviewElement
 		ve.resolveAttributes( body, docOrMsg, ve.dm.Converter.static.computedAttributes );
-		ve.targetLinksToNewWindow( body );
-		// Add styles so links render with their appropriate classes
-		ve.init.platform.linkCache.styleParsoidElements( $( body ), baseDoc );
 
 		// Remove metadata
 		contents = ve.filterMetaElements( Array.prototype.slice.call( body.childNodes ) );
 
+		$heading = $( '<h1>' ).addClass( 'firstHeading' );
+
+		// Document title will only be set if wikitext contains {{DISPLAYTITLE}}
+		if ( docOrMsg.title ) {
+			// HACK: Parse title as it can contain basic wikitext (T122976)
+			new mw.Api().post( {
+				action: 'parse',
+				title: ve.init.target.pageName,
+				prop: 'displaytitle',
+				text: '{{DISPLAYTITLE:' + docOrMsg.title + '}}\n'
+			} ).then( function ( response ) {
+				if ( ve.getProp( response, 'parse', 'displaytitle' ) ) {
+					$heading.html( response.parse.displaytitle );
+				}
+			} );
+		}
+
+		// Redirect
+		redirectMeta = body.querySelector( 'link[rel="mw:PageProp/redirect"]' );
+		if ( redirectMeta ) {
+			$redirect = ve.init.mw.ArticleTarget.static.buildRedirectMsg(
+				ve.dm.MWInternalLinkAnnotation.static.getTargetDataFromHref(
+					redirectMeta.getAttribute( 'href' ),
+					document
+				).title
+			);
+		}
+
 		this.$previewViewer.empty().append(
+			// TODO: This won't work with formatted titles (T122976)
+			$heading.text( docOrMsg.title || mw.Title.newFromText( ve.init.target.pageName ).getPrefixedText() ),
+			$redirect,
 			$( '<div>' ).addClass( 'mw-content-' + mw.config.get( 'wgVisualEditor' ).pageLanguageDir ).append(
 				contents
 			)
@@ -225,11 +265,15 @@ ve.ui.MWSaveDialog.prototype.showPreview = function ( docOrMsg, baseDoc ) {
 					document.createTextNode( ve.msg( 'pagecategories', categories.length ) + ve.msg( 'colon-separator' ) ),
 					$( '<ul>' ).append( categories.map( function ( category ) {
 						var title = mw.Title.newFromText( category );
-						return $( '<li>' ).append( $( '<a>' ).attr( 'href', title.getUrl() ).text( title.getMainText() ) );
+						return $( '<li>' ).append( $( '<a>' ).attr( 'rel', 'mw:WikiLink' ).attr( 'href', title.getUrl() ).text( title.getMainText() ) );
 					} ) )
 				)
 			);
 		}
+
+		ve.targetLinksToNewWindow( this.$previewViewer[ 0 ] );
+		// Add styles so links render with their appropriate classes
+		ve.init.platform.linkCache.styleParsoidElements( this.$previewViewer, baseDoc );
 
 		// Run hooks so other things can alter the document
 		mw.hook( 'wikipage.content' ).fire( this.$previewViewer );
@@ -404,7 +448,7 @@ ve.ui.MWSaveDialog.prototype.showMessage = function ( name, message, options ) {
 		if ( options.wrap === undefined ) {
 			options.wrap = 'warning';
 		}
-		$message = $( '<div class="ve-ui-mwSaveDialog-message"></div>' );
+		$message = $( '<div>' ).addClass( 've-ui-mwSaveDialog-message' );
 		if ( options.wrap !== false ) {
 			$message.append( $( '<p>' ).append(
 				// visualeditor-savedialog-label-error
@@ -499,8 +543,8 @@ ve.ui.MWSaveDialog.prototype.setEditSummary = function ( summary ) {
  * @inheritdoc
  */
 ve.ui.MWSaveDialog.prototype.initialize = function () {
-	var saveAccessKey,
-		dialog = this;
+	var dialog = this,
+		mwString = require( 'mediawiki.String' );
 
 	// Parent method
 	ve.ui.MWSaveDialog.super.prototype.initialize.call( this );
@@ -517,14 +561,15 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 	// Byte counter in edit summary
 	this.editSummaryCountLabel = new OO.ui.LabelWidget( {
 		classes: [ 've-ui-mwSaveDialog-editSummary-count' ],
-		label: String( this.editSummaryByteLimit ),
-		title: ve.msg( 'visualeditor-editsummary-bytes-remaining' )
+		label: String( this.editSummaryCodePointLimit || this.editSummaryByteLimit ),
+		title: ve.msg( this.editSummaryCodePointLimit ?
+			'visualeditor-editsummary-characters-remaining' : 'visualeditor-editsummary-bytes-remaining' )
 	} );
 
 	// Save panel
 	this.$editSummaryLabel = $( '<div>' ).addClass( 've-ui-mwSaveDialog-summaryLabel' )
 		.html( ve.init.platform.getParsedMessage( 'summary' ) )
-		.find( 'a' ).attr( 'target', '_blank' ).end();
+		.find( 'a' ).attr( 'target', '_blank' ).attr( 'rel', 'noopener' ).end();
 	this.editSummaryInput = new OO.ui.MultilineTextInputWidget( {
 		placeholder: ve.msg( 'visualeditor-editsummary' ),
 		classes: [ 've-ui-mwSaveDialog-summary' ],
@@ -548,17 +593,29 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 			);
 		}
 	} );
-	// Limit byte length, and display the remaining bytes
-	this.editSummaryInput.$input.byteLimit( this.editSummaryByteLimit );
-	this.editSummaryInput.on( 'change', function () {
-		dialog.changedEditSummary = true;
-		// TODO: This looks a bit weird, there is no unit in the UI, just numbers
-		// Users likely assume characters but then it seems to count down quicker
-		// than expected. Facing users with the word "byte" is bad? (bug 40035)
-		dialog.editSummaryCountLabel.setLabel(
-			String( dialog.editSummaryByteLimit - $.byteLength( dialog.editSummaryInput.getValue() ) )
-		);
-	} );
+	// Limit length, and display the remaining bytes/characters
+	if ( this.editSummaryCodePointLimit ) {
+		this.editSummaryInput.$input.codePointLimit( this.editSummaryCodePointLimit );
+		this.editSummaryInput.on( 'change', function () {
+			dialog.changedEditSummary = true;
+			dialog.editSummaryCountLabel.setLabel(
+				String( dialog.editSummaryCodePointLimit -
+					mwString.codePointLength( dialog.editSummaryInput.getValue() ) )
+			);
+		} );
+	} else {
+		this.editSummaryInput.$input.byteLimit( this.editSummaryByteLimit );
+		this.editSummaryInput.on( 'change', function () {
+			// TODO: This looks a bit weird, there is no unit in the UI, just numbers
+			// Users likely assume characters but then it seems to count down quicker
+			// than expected. Facing users with the word "byte" is bad? (bug 40035)
+			dialog.changedEditSummary = true;
+			dialog.editSummaryCountLabel.setLabel(
+				String( dialog.editSummaryByteLimit -
+					mwString.byteLength( dialog.editSummaryInput.getValue() ) )
+			);
+		} );
+	}
 
 	this.$saveCheckboxes = $( '<div>' ).addClass( 've-ui-mwSaveDialog-checkboxes' );
 	this.$saveOptions = $( '<div>' ).addClass( 've-ui-mwSaveDialog-options' ).append(
@@ -569,7 +626,7 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 	this.$saveFoot = $( '<div>' ).addClass( 've-ui-mwSaveDialog-foot' ).append(
 		$( '<p>' ).addClass( 've-ui-mwSaveDialog-license' )
 			.html( ve.init.platform.getParsedMessage( 'copyrightwarning' ) )
-			.find( 'a' ).attr( 'target', '_blank' ).end()
+			.find( 'a' ).attr( 'target', '_blank' ).attr( 'rel', 'noopener' ).end()
 	);
 	this.savePanel.$element.append(
 		this.$editSummaryLabel,
@@ -596,8 +653,6 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 		],
 		classes: [ 've-ui-mwSaveDialog-reviewMode' ]
 	} );
-	// TODO: Make 'visual' the default
-	this.reviewModeButtonSelect.selectItemByData( 'source' );
 	this.reviewModeButtonSelect.connect( this, { select: 'updateReviewMode' } );
 
 	this.$reviewEditSummary = $( '<span>' ).addClass( 've-ui-mwSaveDialog-summaryPreview' ).addClass( 'comment' );
@@ -619,7 +674,7 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 		scrollable: true,
 		padded: true
 	} );
-	this.$previewViewer = $( '<div>' ).addClass( 'mw-body-content' );
+	this.$previewViewer = $( '<div>' ).addClass( 'mw-body-content mw-parser-output' );
 	this.previewPanel.$element
 		// Make focusable for keyboard accessible scrolling
 		.prop( 'tabIndex', 0 )
@@ -633,7 +688,7 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 	} );
 	this.$conflict = $( '<div>' ).addClass( 've-ui-mwSaveDialog-conflict' )
 		.html( ve.init.platform.getParsedMessage( 'visualeditor-editconflict' ) )
-		.find( 'a' ).attr( 'target', '_blank' ).end();
+		.find( 'a' ).attr( 'target', '_blank' ).attr( 'rel', 'noopener' ).end();
 	this.conflictPanel.$element.append( this.$conflict );
 
 	// Panel stack
@@ -644,14 +699,6 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 		this.conflictPanel
 	] );
 
-	// Save button for "save" panel
-	saveAccessKey = ve.msg( 'accesskey-save' );
-	if ( saveAccessKey !== '-' && saveAccessKey !== '' ) {
-		this.actions.forEach( { actions: 'save' }, function ( action ) {
-			action.setAccessKey( saveAccessKey );
-		} );
-	}
-
 	// Initialization
 	this.$body.append( this.panels.$element );
 
@@ -660,7 +707,18 @@ ve.ui.MWSaveDialog.prototype.initialize = function () {
 
 ve.ui.MWSaveDialog.prototype.updateReviewMode = function () {
 	var dialog = this,
-		isVisual = this.reviewModeButtonSelect.getSelectedItem().getData() === 'visual';
+		diffMode = this.reviewModeButtonSelect.findSelectedItem().getData(),
+		surfaceMode = ve.init.target.getSurface().getMode(),
+		isVisual = diffMode === 'visual';
+
+	if ( !this.hasDiff ) {
+		return;
+	}
+
+	// Config values used here:
+	// * visualeditor-diffmode-visual
+	// * visualeditor-diffmode-source
+	ve.userConfig( 'visualeditor-diffmode-' + surfaceMode, diffMode );
 
 	// Hack: cache report action so it is getable even when hidden (see T174497)
 	if ( !this.report ) {
@@ -695,7 +753,9 @@ ve.ui.MWSaveDialog.prototype.setDimensions = function () {
 	// Parent method
 	ve.ui.MWSaveDialog.parent.prototype.setDimensions.apply( this, arguments );
 
-	this.positionDiffElement();
+	if ( !this.positioning ) {
+		this.positionDiffElement();
+	}
 };
 
 /**
@@ -708,9 +768,12 @@ ve.ui.MWSaveDialog.prototype.positionDiffElement = function () {
 	if ( this.panels.getCurrentItem() === this.reviewPanel ) {
 		setTimeout( function () {
 			dialog.withoutSizeTransitions( function () {
-				if ( dialog.diffElement && dialog.isVisible() ) {
+				// This is delayed, so check the visual diff is still visible
+				if ( dialog.diffElement && dialog.isVisible() && dialog.reviewModeButtonSelect.findSelectedItem().getData() === 'visual' ) {
 					dialog.diffElement.positionDescriptions();
+					dialog.positioning = true;
 					dialog.updateSize();
+					dialog.positioning = false;
 				}
 			} );
 		}, OO.ui.theme.getDialogTransitionDuration() );
@@ -732,6 +795,8 @@ ve.ui.MWSaveDialog.prototype.positionDiffElement = function () {
 ve.ui.MWSaveDialog.prototype.getSetupProcess = function ( data ) {
 	return ve.ui.MWSaveDialog.super.prototype.getSetupProcess.call( this, data )
 		.next( function () {
+			var surfaceMode = ve.init.target.getSurface().getMode();
+
 			this.canReview = !!data.canReview;
 			this.canPreview = !!data.canPreview;
 			this.setupCheckboxes( data.checkboxFields || [] );
@@ -746,6 +811,13 @@ ve.ui.MWSaveDialog.prototype.getSetupProcess = function ( data ) {
 					this.setEditSummary( data.editSummary );
 				}
 			}
+
+			// Config values used here:
+			// * visualeditor-diffmode-visual
+			// * visualeditor-diffmode-source
+			this.reviewModeButtonSelect.selectItemByData(
+				ve.userConfig( 'visualeditor-diffmode-' + surfaceMode ) || surfaceMode
+			);
 
 			// Old messages should not persist
 			this.clearAllMessages();

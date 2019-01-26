@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Change tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.dm.Change' );
@@ -27,10 +27,8 @@ QUnit.test( 'rebaseTransactions', function ( assert ) {
 		},
 		{
 			type: 'replace',
-			remove: [ [ 'b', [ ve.dm.example.boldIndex ] ] ],
-			insert: [ 'b', 'a', 'r' ],
-			insertedDataOffset: 0,
-			insertedDataLength: 3
+			remove: [ [ 'b', [ ve.dm.example.boldHash ] ] ],
+			insert: [ 'b', 'a', 'r' ]
 		},
 		{
 			type: 'retain',
@@ -46,9 +44,7 @@ QUnit.test( 'rebaseTransactions', function ( assert ) {
 		{
 			type: 'replace',
 			remove: [ 'a' ],
-			insert: [ 'f', 'o', 'o' ],
-			insertedDataOffset: 0,
-			insertedDataLength: 3
+			insert: [ 'f', 'o', 'o' ]
 		},
 		{
 			type: 'retain',
@@ -64,9 +60,7 @@ QUnit.test( 'rebaseTransactions', function ( assert ) {
 		{
 			type: 'replace',
 			remove: [ 'a' ],
-			insert: [ 'f', 'o', 'o' ],
-			insertedDataOffset: 0,
-			insertedDataLength: 3
+			insert: [ 'f', 'o', 'o' ]
 		},
 		{
 			type: 'retain',
@@ -97,9 +91,7 @@ QUnit.test( 'rebaseTransactions', function ( assert ) {
 		{
 			type: 'replace',
 			remove: [],
-			insert: [ 'x' ],
-			insertedDataOffset: 0,
-			insertedDataLength: 1
+			insert: [ 'x' ]
 		},
 		{
 			type: 'retain',
@@ -115,9 +107,7 @@ QUnit.test( 'rebaseTransactions', function ( assert ) {
 		{
 			type: 'replace',
 			remove: [],
-			insert: [ 'y' ],
-			insertedDataOffset: 0,
-			insertedDataLength: 1
+			insert: [ 'y' ]
 		},
 		{
 			type: 'retain',
@@ -134,53 +124,53 @@ QUnit.test( 'Change operations', function ( assert ) {
 				ve.dm.example.createExampleDocumentFromData( origData )
 			);
 		},
-		noVals = new ve.dm.IndexValueStore(),
+		emptyStore = new ve.dm.HashValueStore(),
 		surface = newSurface(),
 		doc = surface.documentModel,
 		b = ve.dm.example.bold,
 		i = ve.dm.example.italic,
 		u = ve.dm.example.underline,
-		bIndex = [ ve.dm.example.boldIndex ],
-		iIndex = [ ve.dm.example.italicIndex ],
-		uIndex = [ ve.dm.example.underlineIndex ],
+		bHash = [ ve.dm.example.boldHash ],
+		iHash = [ ve.dm.example.italicHash ],
+		uHash = [ ve.dm.example.underlineHash ],
 		TxInsert = ve.dm.TransactionBuilder.static.newFromInsertion,
 		TxReplace = ve.dm.TransactionBuilder.static.newFromReplacement,
 		TxRemove = ve.dm.TransactionBuilder.static.newFromRemoval,
 		TxAnnotate = ve.dm.TransactionBuilder.static.newFromAnnotation,
 		insert1 = new ve.dm.Change( 0, [
-			TxInsert( doc, 1, [ [ 'o', bIndex ] ] ),
-			TxInsert( doc, 2, [ [ 'n', bIndex ] ] ),
-			TxInsert( doc, 3, [ [ 'e', bIndex ] ] ),
+			TxInsert( doc, 1, [ [ 'o', bHash ] ] ),
+			TxInsert( doc, 2, [ [ 'n', bHash ] ] ),
+			TxInsert( doc, 3, [ [ 'e', bHash ] ] ),
 			TxInsert( doc, 4, [ ' ' ] )
-		], [ new ve.dm.IndexValueStore( [ b ] ), noVals, noVals, noVals ], {
+		], [ new ve.dm.HashValueStore( [ b ] ), emptyStore, emptyStore, emptyStore ], {
 			1: new ve.dm.LinearSelection( doc, new ve.Range( 7, 7 ) )
 		} ),
 		insert2 = new ve.dm.Change( 0, [
-			TxInsert( doc, 1, [ [ 't', iIndex ] ] ),
-			TxInsert( doc, 2, [ [ 'w', iIndex ] ] ),
-			TxInsert( doc, 3, [ [ 'o', iIndex ] ] ),
+			TxInsert( doc, 1, [ [ 't', iHash ] ] ),
+			TxInsert( doc, 2, [ [ 'w', iHash ] ] ),
+			TxInsert( doc, 3, [ [ 'o', iHash ] ] ),
 			TxInsert( doc, 4, [ ' ' ] )
-		], [ new ve.dm.IndexValueStore( [ i ] ), noVals, noVals, noVals ], {
+		], [ new ve.dm.HashValueStore( [ i ] ), emptyStore, emptyStore, emptyStore ], {
 			2: new ve.dm.LinearSelection( doc, new ve.Range( 1, 1 ) )
 		} ),
 		underline3 = new ve.dm.Change( 0, [
 			TxAnnotate( doc, new ve.Range( 1, 6 ), 'set', u )
-		], [ new ve.dm.IndexValueStore( [ u ] ) ], {} );
+		], [ new ve.dm.HashValueStore( [ u ] ) ], {} );
 
 	insert2.applyTo( surface );
 	assert.deepEqual(
 		doc.data.data.slice( 1, -1 ),
-		[ [ 't', iIndex ], [ 'w', iIndex ], [ 'o', iIndex ], ' ', 't', 'h', 'r', 'e', 'e' ],
+		[ [ 't', iHash ], [ 'w', iHash ], [ 'o', iHash ], ' ', 't', 'h', 'r', 'e', 'e' ],
 		'Apply insert2'
 	);
 
 	replace2 = new ve.dm.Change( 4, [
 		TxReplace( doc, new ve.Range( 1, 4 ), [ 'T', 'W', 'O' ] )
-	], [ noVals ], {} );
+	], [ emptyStore ], {} );
 
 	remove2 = new ve.dm.Change( 4, [
 		TxRemove( doc, new ve.Range( 1, 4 ) )
-	], [ noVals ], {} );
+	], [ emptyStore ], {} );
 
 	change = insert2.reversed();
 	assert.deepEqual( change.start, 4, 'start for insert2.reversed()' );
@@ -193,13 +183,13 @@ QUnit.test( 'Change operations', function ( assert ) {
 	assert.deepEqual(
 		surface.documentModel.data.data.slice( 1, -1 ),
 		[
-			[ 'o', bIndex ],
-			[ 'n', bIndex ],
-			[ 'e', bIndex ],
+			[ 'o', bHash ],
+			[ 'n', bHash ],
+			[ 'e', bHash ],
 			' ',
-			[ 't', iIndex ],
-			[ 'w', iIndex ],
-			[ 'o', iIndex ],
+			[ 't', iHash ],
+			[ 'w', iHash ],
+			[ 'o', iHash ],
 			' ',
 			't',
 			'h',
@@ -222,19 +212,19 @@ QUnit.test( 'Change operations', function ( assert ) {
 	assert.deepEqual(
 		surface.documentModel.data.data.slice( 1, -1 ),
 		[
-			[ 'o', bIndex ],
-			[ 'n', bIndex ],
-			[ 'e', bIndex ],
+			[ 'o', bHash ],
+			[ 'n', bHash ],
+			[ 'e', bHash ],
 			' ',
 			'T',
 			'W',
 			'O',
 			' ',
-			[ 't', uIndex ],
-			[ 'h', uIndex ],
-			[ 'r', uIndex ],
-			[ 'e', uIndex ],
-			[ 'e', uIndex ]
+			[ 't', uHash ],
+			[ 'h', uHash ],
+			[ 'r', uHash ],
+			[ 'e', uHash ],
+			[ 'e', uHash ]
 		],
 		'Apply insert1 then insert2*replace2 then underline3'
 	);
@@ -276,6 +266,46 @@ QUnit.test( 'Change operations', function ( assert ) {
 	);
 } );
 
+QUnit.test( 'Rebase with conflicting annotations', function ( assert ) {
+	var setBold, remove, result,
+		origData = [ { type: 'paragraph' }, 'A', { type: '/paragraph' } ],
+		newSurface = function () {
+			return new ve.dm.Surface(
+				ve.dm.example.createExampleDocumentFromData( origData )
+			);
+		},
+		surface = newSurface(),
+		doc = surface.documentModel,
+		TxRemove = ve.dm.TransactionBuilder.static.newFromRemoval,
+		TxAnnotate = ve.dm.TransactionBuilder.static.newFromAnnotation,
+		b = ve.dm.example.bold,
+		emptyStore = new ve.dm.HashValueStore(),
+		bStore = new ve.dm.HashValueStore( [ b ] );
+
+	assert.expect( 3 );
+
+	// Canonical history: text gets removed
+	remove = new ve.dm.Change( 1, [ TxRemove( doc, new ve.Range( 1, 2 ) ) ], [ emptyStore ], {} );
+	// Doomed conflicting history: text gets bolded
+	setBold = new ve.dm.Change( 1, [ TxAnnotate( doc, new ve.Range( 1, 2 ), 'set', b ) ], [ bStore ], {} );
+	result = ve.dm.Change.static.rebaseUncommittedChange( remove, setBold );
+	assert.deepEqual(
+		result.rebased.serialize(),
+		new ve.dm.Change( 2, [], [], {} ).serialize(),
+		'Nothing got rebased'
+	);
+	assert.deepEqual(
+		result.rejected.serialize(),
+		setBold.serialize(),
+		'setBold got rejected'
+	);
+	assert.deepEqual(
+		result.transposedHistory.serialize(),
+		remove.serialize(),
+		'remove got transposed'
+	);
+} );
+
 QUnit.test( 'Serialize/deserialize', function ( assert ) {
 	var origData = [ { type: 'paragraph' }, 'b', 'a', 'r', { type: '/paragraph' } ],
 		newSurface = function () {
@@ -284,47 +314,22 @@ QUnit.test( 'Serialize/deserialize', function ( assert ) {
 			);
 		},
 		surface = newSurface(),
-		noVals = new ve.dm.IndexValueStore(),
+		emptyStore = new ve.dm.HashValueStore(),
 		doc = surface.documentModel,
 		b = ve.dm.example.bold,
-		bIndex = [ ve.dm.example.boldIndex ],
+		bHash = [ ve.dm.example.boldHash ],
 		TxInsert = ve.dm.TransactionBuilder.static.newFromInsertion,
 		change = new ve.dm.Change( 0, [
-			TxInsert( doc, 1, [ [ 'f', bIndex ] ] ),
+			TxInsert( doc, 1, [ [ 'f', bHash ] ] ),
 			// Second insert is too short, as first insert wasn't applied to the doc
-			TxInsert( doc, 2, [ [ 'u', bIndex ] ] )
-		], [ new ve.dm.IndexValueStore( [ b ] ), noVals ], {} ),
+			TxInsert( doc, 2, [ [ 'u', bHash ] ] )
+		], [ new ve.dm.HashValueStore( [ b ] ), emptyStore ], {} ),
+		simpleChange = new ve.dm.Change( 0, [ TxInsert( doc, 1, [ 'a' ] ) ], [ emptyStore ] ),
 		serialized = {
 			start: 0,
 			transactions: [
-				{
-					authorId: null,
-					operations: [
-						{ type: 'retain', length: 1 },
-						{
-							type: 'replace',
-							remove: [],
-							insert: [ [ 'f', bIndex ] ],
-							insertedDataOffset: 0,
-							insertedDataLength: 1
-						},
-						{ type: 'retain', length: 4 }
-					]
-				},
-				{
-					authorId: null,
-					operations: [
-						{ type: 'retain', length: 2 },
-						{
-							type: 'replace',
-							remove: [],
-							insert: [ [ 'u', bIndex ] ],
-							insertedDataOffset: 0,
-							insertedDataLength: 1
-						},
-						{ type: 'retain', length: 4 }
-					]
-				}
+				[ 1, [ '', [ [ 'f', bHash ] ] ], 4 ],
+				'u'
 			],
 			stores: [
 				{
@@ -337,43 +342,35 @@ QUnit.test( 'Serialize/deserialize', function ( assert ) {
 							}
 						}
 					},
-					hashes: bIndex
+					hashes: bHash
 				},
-				{
-					hashStore: {},
-					hashes: []
-				}
-			],
-			selections: {}
+				null
+			]
+		},
+		simpleSerialized = {
+			start: 0,
+			transactions: [ [ 1, [ '', 'a' ], 4 ] ]
 		},
 		unsanitized = {
 			start: 0,
-			transactions: [ {
-				authorId: 'fred',
-				operations: [ { type: 'retain', length: 2 } ]
-			} ],
+			transactions: [ { a: 'fred', o: [ 2 ] } ],
 			stores: [ { hashes: [ 'xx' ], hashStore: { xx: {
 				type: 'domNodeArray',
 				value: [
 					'<script></script>',
 					'<p onclick="alert(\'gotcha!\')"></p>'
 				]
-			} } } ],
-			selections: {}
+			} } } ]
 		},
 		sanitized = {
 			start: 0,
-			transactions: [ {
-				authorId: 'fred',
-				operations: [ { type: 'retain', length: 2 } ]
-			} ],
+			transactions: [ { a: 'fred', o: [ 2 ] } ],
 			stores: [ { hashes: [ 'xx' ], hashStore: { xx: {
 				type: 'domNodeArray',
 				value: [
 					'<p></p>'
 				]
-			} } } ],
-			selections: {}
+			} } } ]
 		};
 
 	// Fixup second insert
@@ -392,7 +389,7 @@ QUnit.test( 'Serialize/deserialize', function ( assert ) {
 			return store.hashStore;
 		} ),
 		serialized.stores.map( function ( store ) {
-			return store.hashStore;
+			return store ? store.hashStore : {};
 		} ),
 		'Deserialize, preserving store values'
 	);
@@ -402,7 +399,7 @@ QUnit.test( 'Serialize/deserialize', function ( assert ) {
 			return store.hashStore;
 		} ),
 		serialized.stores.map( function ( store ) {
-			return store.hashStore;
+			return store ? store.hashStore : {};
 		} ),
 		'Deserialize, not preserving store values'
 	);
@@ -418,6 +415,147 @@ QUnit.test( 'Serialize/deserialize', function ( assert ) {
 		sanitized,
 		'Unsanitized round trips into sanitized'
 	);
+
+	assert.deepEqual( simpleChange.serialize(), simpleSerialized, 'Serialize (simple)' );
+
+	assert.deepEqual(
+		ve.dm.Change.static.deserialize( simpleSerialized, doc ).serialize(),
+		simpleSerialized,
+		'Deserialize and reserialize (simple)'
+	);
+
+	assert.deepEqual(
+		ve.dm.Change.static.deserialize( simpleSerialized, doc, true ).stores.map( function ( store ) {
+			return store.hashStore;
+		} ),
+		[ {} ],
+		'Deserialize, preserving store values (simple)'
+	);
+
+} );
+
+QUnit.test( 'Minified serialization', function ( assert ) {
+	var serialized, deserialized;
+	serialized = {
+		start: 0,
+		transactions: [
+			// Type some individual code units
+			[ 1, [ '', 'T' ], 3 ],
+			'h', 'e', ' ', 'r', 'e',
+			// Type in whole words like some IMEs
+			'd panda jumps over', 'the ', 'automaton',
+			// Italicize some text
+			[
+				5,
+				{
+					type: 'annotate',
+					method: 'set',
+					bias: 'start',
+					index: 'he4e7c54e2204d10b'
+				},
+				9,
+				{
+					type: 'annotate',
+					method: 'set',
+					bias: 'stop',
+					index: 'he4e7c54e2204d10b'
+				},
+				28
+			],
+			// Type over the italicized text
+			[
+				5,
+				[
+					[
+						[ 'r', [ 'he4e7c54e2204d10b' ] ],
+						[ 'e', [ 'he4e7c54e2204d10b' ] ],
+						[ 'd', [ 'he4e7c54e2204d10b' ] ],
+						[ ' ', [ 'he4e7c54e2204d10b' ] ],
+						[ 'p', [ 'he4e7c54e2204d10b' ] ],
+						[ 'a', [ 'he4e7c54e2204d10b' ] ],
+						[ 'n', [ 'he4e7c54e2204d10b' ] ],
+						[ 'd', [ 'he4e7c54e2204d10b' ] ],
+						[ 'a', [ 'he4e7c54e2204d10b' ] ]
+					],
+					[
+						[ 'q', [ 'he4e7c54e2204d10b' ] ]
+					]
+				],
+				28
+			],
+			'u', 'i', 'c', 'k', ' ', 'bro', 'wn ', 'fox',
+			// Bold some text
+			[
+				36,
+				{
+					type: 'annotate',
+					method: 'set',
+					bias: 'start',
+					index: 'hfbe3cfe099b83e1e'
+				},
+				9,
+				{
+					type: 'annotate',
+					method: 'set',
+					bias: 'stop',
+					index: 'hfbe3cfe099b83e1e'
+				},
+				3
+			],
+			// Type over the bolded text
+			[
+				36,
+				[
+					[
+						[ 'a', [ 'hfbe3cfe099b83e1e' ] ],
+						[ 'u', [ 'hfbe3cfe099b83e1e' ] ],
+						[ 't', [ 'hfbe3cfe099b83e1e' ] ],
+						[ 'o', [ 'hfbe3cfe099b83e1e' ] ],
+						[ 'm', [ 'hfbe3cfe099b83e1e' ] ],
+						[ 'a', [ 'hfbe3cfe099b83e1e' ] ],
+						[ 't', [ 'hfbe3cfe099b83e1e' ] ],
+						[ 'o', [ 'hfbe3cfe099b83e1e' ] ],
+						[ 'n', [ 'hfbe3cfe099b83e1e' ] ]
+					],
+					[
+						[ 'l', [ 'hfbe3cfe099b83e1e' ] ]
+					]
+				],
+				3
+			],
+			'a', 'z', 'y', ' ', 'd', 'o', 'g', '.'
+		],
+		stores: [
+			null, null, null, null, null, null, null, null, null,
+			{
+				hashes: [ 'he4e7c54e2204d10b' ],
+				hashStore: {
+					he4e7c54e2204d10b: {
+						type: 'annotation',
+						value: { type: 'textStyle/italic' }
+					}
+				}
+			},
+			null, null, null, null, null, null, null, null, null,
+			{
+				hashes: [ 'hfbe3cfe099b83e1e' ],
+				hashStore: {
+					hfbe3cfe099b83e1e: {
+						type: 'annotation',
+						value: { type: 'textStyle/bold' }
+					}
+				}
+			},
+			null, null, null, null, null, null, null, null, null
+		]
+	};
+	assert.expect( 1 );
+	deserialized = ve.dm.Change.static.deserialize( serialized );
+	assert.deepEqual(
+		deserialized.serialize(),
+		serialized,
+		'Deserialize-serialize round trip'
+	);
 } );
 
 QUnit.test( 'Same-offset typing', function ( assert ) {
@@ -426,7 +564,7 @@ QUnit.test( 'Same-offset typing', function ( assert ) {
 			{ type: 'paragraph' },
 			{ type: '/paragraph' }
 		] ) ),
-		noVals = new ve.dm.IndexValueStore(),
+		emptyStore = new ve.dm.HashValueStore(),
 		doc = surface.documentModel,
 		clear = function () {
 			surface.change( doc.completeHistory.map( function ( tx ) {
@@ -437,16 +575,16 @@ QUnit.test( 'Same-offset typing', function ( assert ) {
 		TxInsert = ve.dm.TransactionBuilder.static.newFromInsertion;
 
 	// 'ab' and 'cd' typed at the same offset
-	a = new ve.dm.Change( 0, [ TxInsert( doc, 1, [ 'a' ] ) ], [ noVals ], {} );
+	a = new ve.dm.Change( 0, [ TxInsert( doc, 1, [ 'a' ] ) ], [ emptyStore ], {} );
 	a.transactions[ 0 ].authorId = 1;
 	a.applyTo( surface );
-	b = new ve.dm.Change( 1, [ TxInsert( doc, 2, [ 'b' ] ) ], [ noVals ], {} );
+	b = new ve.dm.Change( 1, [ TxInsert( doc, 2, [ 'b' ] ) ], [ emptyStore ], {} );
 	b.transactions[ 0 ].authorId = 1;
 	clear();
-	c = new ve.dm.Change( 0, [ TxInsert( doc, 1, [ 'c' ] ) ], [ noVals ], {} );
+	c = new ve.dm.Change( 0, [ TxInsert( doc, 1, [ 'c' ] ) ], [ emptyStore ], {} );
 	c.transactions[ 0 ].authorId = 2;
 	c.applyTo( surface );
-	d = new ve.dm.Change( 1, [ TxInsert( doc, 2, [ 'd' ] ) ], [ noVals ], {} );
+	d = new ve.dm.Change( 1, [ TxInsert( doc, 2, [ 'd' ] ) ], [ emptyStore ], {} );
 	d.transactions[ 0 ].authorId = 2;
 	c.reversed().applyTo( surface );
 

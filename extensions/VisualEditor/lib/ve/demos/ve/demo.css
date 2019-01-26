@@ -1,7 +1,7 @@
 /*!
  * VisualEditor standalone demo
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 body {
@@ -67,6 +67,15 @@ body {
 
 .ve-demo-toolbar .ve-ui-languageInputWidget-directionSelect {
 	margin: 0;
+}
+
+.ve-demo-toolbar-commands {
+	margin-bottom: -0.5em;
+}
+
+.ve-demo-toolbar-divider,
+.ve-demo-toolbar-commands > .oo-ui-widget {
+	margin-bottom: 0.5em;
 }
 
 .ve-demo-toolbar-commands > .oo-ui-widget > .oo-ui-fieldLayout {

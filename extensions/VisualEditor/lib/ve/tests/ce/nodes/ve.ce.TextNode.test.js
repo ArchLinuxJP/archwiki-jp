@@ -1,7 +1,7 @@
 /*!
  * VisualEditor ContentEditable TextNode tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.ce.TextNode' );
@@ -10,7 +10,7 @@ QUnit.module( 've.ce.TextNode' );
 
 QUnit.test( 'getAnnotatedHtml', function ( assert ) {
 	var i, len, cases, doc,
-		store = new ve.dm.IndexValueStore();
+		store = new ve.dm.HashValueStore();
 
 	cases = [
 		{

@@ -1,7 +1,7 @@
 /*!
  * VisualEditor user interface MWTemplatePlaceholderPage class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -15,7 +15,7 @@
  * @param {ve.dm.MWTemplatePlaceholderModel} placeholder Template placeholder
  * @param {string} name Unique symbolic name of page
  * @param {Object} [config] Configuration options
- * @cfg {jQuery} [$overlay] Overlay for dropdowns
+ * @cfg {jQuery} [$overlay] Overlay to render dropdowns in
  */
 ve.ui.MWTemplatePlaceholderPage = function VeUiMWTemplatePlaceholderPage( placeholder, name, config ) {
 	var addTemplateActionFieldLayout;
@@ -41,7 +41,7 @@ ve.ui.MWTemplatePlaceholderPage = function VeUiMWTemplatePlaceholderPage( placeh
 
 	this.addTemplateButton = new OO.ui.ButtonWidget( {
 		label: ve.msg( 'visualeditor-dialog-transclusion-add-template' ),
-		flags: [ 'constructive' ],
+		flags: [ 'progressive' ],
 		classes: [ 've-ui-mwTransclusionDialog-addButton' ],
 		disabled: true
 	} )
@@ -107,9 +107,9 @@ ve.ui.MWTemplatePlaceholderPage.prototype.onAddTemplate = function () {
 		menu = this.addTemplateInput.getLookupMenu();
 
 	if ( menu.isVisible() ) {
-		menu.chooseItem( menu.getSelectedItem() );
+		menu.chooseItem( menu.findSelectedItem() );
 	}
-	name = this.addTemplateInput.getTitle();
+	name = this.addTemplateInput.getMWTitle();
 	if ( !name ) {
 		// Invalid titles return null, so abort here.
 		return;
@@ -124,7 +124,7 @@ ve.ui.MWTemplatePlaceholderPage.prototype.onAddTemplate = function () {
 };
 
 ve.ui.MWTemplatePlaceholderPage.prototype.onTemplateInputChange = function () {
-	this.addTemplateButton.setDisabled( this.addTemplateInput.getTitle() === null );
+	this.addTemplateButton.setDisabled( this.addTemplateInput.getMWTitle() === null );
 };
 
 ve.ui.MWTemplatePlaceholderPage.prototype.onRemoveButtonClick = function () {

@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel Transaction tests.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 QUnit.module( 've.dm.TransactionBuilder' );
@@ -50,7 +50,6 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 		doc = ve.dm.example.createExampleDocument(),
 		isolationDoc = ve.dm.example.createExampleDocument( 'isolationData' ),
 		complexTableDoc = ve.dm.example.createExampleDocument( 'complexTable' ),
-		listWithMetaDoc = ve.dm.example.createExampleDocument( 'listWithMeta' ),
 		doc2 = new ve.dm.Document(
 			ve.dm.example.preprocessAnnotations( [ { type: 'paragraph' }, { type: '/paragraph' }, { type: 'internalList' }, { type: '/internalList' } ] )
 		),
@@ -64,9 +63,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ { type: 'paragraph' }, '1', { type: '/paragraph' } ],
-						insertedDataOffset: 0,
-						insertedDataLength: 3
+						insert: [ { type: 'paragraph' }, '1', { type: '/paragraph' } ]
 					},
 					{ type: 'retain', length: 63 }
 				]
@@ -78,9 +75,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ { type: 'paragraph' }, '1', { type: '/paragraph' } ],
-						insertedDataOffset: 0,
-						insertedDataLength: 3
+						insert: [ { type: 'paragraph' }, '1', { type: '/paragraph' } ]
 					},
 					{ type: 'retain', length: 2 }
 				]
@@ -92,9 +87,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ '1', { type: '/paragraph' }, { type: 'paragraph' } ],
-						insertedDataOffset: 0,
-						insertedDataLength: 3
+						insert: [ '1', { type: '/paragraph' }, { type: 'paragraph' } ]
 					},
 					{ type: 'retain', length: 53 }
 				]
@@ -121,9 +114,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ { type: 'paragraph' }, 'F', 'O', 'O', { type: '/paragraph' } ],
-						insertedDataOffset: 0,
-						insertedDataLength: 5
+						insert: [ { type: 'paragraph' }, 'F', 'O', 'O', { type: '/paragraph' } ]
 					},
 					{ type: 'retain', length: 51 }
 				],
@@ -180,9 +171,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ 'F', 'O', 'O' ],
-						insertedDataOffset: 0,
-						insertedDataLength: 3
+						insert: [ 'F', 'O', 'O' ]
 					},
 					{ type: 'retain', length: 47 }
 				]
@@ -194,9 +183,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ 'F', 'O', 'O' ],
-						insertedDataOffset: 0,
-						insertedDataLength: 3
+						insert: [ 'F', 'O', 'O' ]
 					},
 					{ type: 'retain', length: 61 }
 				]
@@ -208,9 +195,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ 'F', { type: '/paragraph' }, { type: 'paragraph' }, 'O', { type: '/paragraph' }, { type: 'paragraph' }, 'O' ],
-						insertedDataOffset: 0,
-						insertedDataLength: 7
+						insert: [ 'F', { type: '/paragraph' }, { type: 'paragraph' }, 'O', { type: '/paragraph' }, { type: 'paragraph' }, 'O' ]
 					},
 					{ type: 'retain', length: 47 }
 				],
@@ -238,9 +223,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ { type: 'paragraph' }, 'F', 'O', 'O', { type: '/paragraph' }, { type: 'paragraph' }, 'B', 'A', 'R', { type: '/paragraph' } ],
-						insertedDataOffset: 0,
-						insertedDataLength: 10
+						insert: [ { type: 'paragraph' }, 'F', 'O', 'O', { type: '/paragraph' }, { type: 'paragraph' }, 'B', 'A', 'R', { type: '/paragraph' } ]
 					},
 					{ type: 'retain', length: 54 }
 				],
@@ -287,9 +270,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ 'F', 'O', 'O', { type: '/paragraph' }, { type: 'paragraph' }, 'B', 'A', 'R' ],
-						insertedDataOffset: 0,
-						insertedDataLength: 8
+						insert: [ 'F', 'O', 'O', { type: '/paragraph' }, { type: 'paragraph' }, 'B', 'A', 'R' ]
 					},
 					{ type: 'retain', length: 3 }
 				]
@@ -301,9 +282,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ 'F', 'O', 'O', { type: '/paragraph' }, { type: 'paragraph' }, 'B', 'A', 'R', { type: '/paragraph' }, { type: 'paragraph' }, 'B', 'A', 'Z' ],
-						insertedDataOffset: 0,
-						insertedDataLength: 13
+						insert: [ 'F', 'O', 'O', { type: '/paragraph' }, { type: 'paragraph' }, 'B', 'A', 'R', { type: '/paragraph' }, { type: 'paragraph' }, 'B', 'A', 'Z' ]
 					},
 					{ type: 'retain', length: 3 }
 				]
@@ -314,9 +293,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ { type: 'paragraph' }, 'F', 'O', 'O', { type: '/paragraph' } ],
-						insertedDataOffset: 0,
-						insertedDataLength: 5
+						insert: [ { type: 'paragraph' }, 'F', 'O', 'O', { type: '/paragraph' } ]
 					},
 					{ type: 'retain', length: 4 }
 				],
@@ -329,9 +306,7 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ { type: 'paragraph' }, 'B', 'A', 'R', { type: '/paragraph' } ],
-						insertedDataOffset: 0,
-						insertedDataLength: 5
+						insert: [ { type: 'paragraph' }, 'B', 'A', 'R', { type: '/paragraph' } ]
 					},
 					{ type: 'retain', length: 2 }
 				],
@@ -385,20 +360,6 @@ QUnit.test( 'newFromInsertion', function ( assert ) {
 					{ type: 'retain', length: 13 }
 				],
 				range: new ve.Range( 43, 48 )
-			},
-			'preserving trailing metadata': {
-				args: [ listWithMetaDoc, 4, [ 'b' ] ],
-				ops: [
-					{ type: 'retain', length: 4 },
-					{
-						type: 'replace',
-						remove: [],
-						insert: [ 'b' ],
-						insertedDataOffset: 0,
-						insertedDataLength: 1
-					},
-					{ type: 'retain', length: 10 }
-				]
 			}
 			// TODO test cases for unclosed openings
 			// TODO test cases for (currently failing) unopened closings use case
@@ -423,7 +384,6 @@ QUnit.test( 'newFromRemoval', function ( assert ) {
 		doc = ve.dm.example.createExampleDocument( 'data' ),
 		alienDoc = ve.dm.example.createExampleDocument( 'alienData' ),
 		alienWithEmptyDoc = ve.dm.example.createExampleDocument( 'alienWithEmptyData' ),
-		metaDoc = ve.dm.example.createExampleDocument( 'withMeta' ),
 		internalDoc = ve.dm.example.createExampleDocument( 'internalData' ),
 		cases = {
 			'content in first element': {
@@ -665,25 +625,6 @@ QUnit.test( 'newFromRemoval', function ( assert ) {
 					{ type: 'retain', length: 6 }
 				]
 			},
-			'removing content spanning metadata': {
-				args: [ metaDoc, new ve.Range( 7, 9 ) ],
-				ops: [
-					{ type: 'retain', length: 7 },
-					{
-						type: 'replace',
-						remove: [ 'B', 'a' ],
-						insert: [],
-						removeMetadata: metaDoc.getMetadata().slice( 7, 9 ),
-						insertMetadata: []
-					},
-					{
-						type: 'replaceMetadata',
-						remove: [],
-						insert: ve.dm.MetaLinearData.static.merge( metaDoc.getMetadata().slice( 7, 9 ) )[ 0 ]
-					},
-					{ type: 'retain', length: 4 }
-				]
-			},
 			'selection including internal nodes doesn\'t remove them': {
 				args: [ internalDoc, new ve.Range( 2, 24 ) ],
 				ops: [
@@ -762,45 +703,40 @@ QUnit.test( 'newFromReplacement', function ( assert ) {
 	var i, key,
 		doc = ve.dm.example.createExampleDocument(),
 		metaDoc = ve.dm.example.createExampleDocument( 'withMeta' ),
+
 		cases = {
 			'replace, preserving metadata': {
-				args: [ metaDoc, new ve.Range( 1, 9 ), [ 'X', 'Y' ] ],
+				args: [ metaDoc, new ve.Range( 6, 21 ), [ 'X', 'Y' ] ],
 				ops: [
-					{ type: 'retain', length: 1 },
+					{ type: 'retain', length: 4 },
+					{
+						type: 'replace',
+						insert: metaDoc.getData( new ve.Range( 6, 21 ) )
+							.filter( function ( item ) {
+								return item.type === 'alienMeta' ||
+									item.type === '/alienMeta';
+							} ),
+						remove: []
+					},
+					{ type: 'retain', length: 2 },
 					{
 						type: 'replace',
 						insert: [ 'X', 'Y' ],
-						insertMetadata: [
-							metaDoc.getMetadata()[ 4 ].concat(
-								metaDoc.getMetadata()[ 7 ]
-							),
-							undefined
-						],
-						insertedDataLength: 2,
-						insertedDataOffset: 0,
-						remove: [ 'F', 'o', 'o', 'B', 'a', 'r', 'B', 'a' ],
-						removeMetadata: metaDoc.getMetadata().slice( 1, 9 )
+						remove: metaDoc.getData( new ve.Range( 6, 21 ) )
 					},
-					{ type: 'retain', length: 4 }
+					{ type: 'retain', length: 14 }
 				]
 			},
 			'replace, removing metadata': {
-				args: [ metaDoc, new ve.Range( 1, 9 ), [ 'X', 'Y' ], true ],
+				args: [ metaDoc, new ve.Range( 6, 21 ), [ 'X', 'Y' ], true ],
 				ops: [
-					{ type: 'retain', length: 1 },
+					{ type: 'retain', length: 6 },
 					{
 						type: 'replace',
 						insert: [ 'X', 'Y' ],
-						insertMetadata: [
-							undefined,
-							undefined
-						],
-						insertedDataLength: 2,
-						insertedDataOffset: 0,
-						remove: [ 'F', 'o', 'o', 'B', 'a', 'r', 'B', 'a' ],
-						removeMetadata: metaDoc.getMetadata().slice( 1, 9 )
+						remove: metaDoc.getData( new ve.Range( 6, 21 ) )
 					},
-					{ type: 'retain', length: 4 }
+					{ type: 'retain', length: 14 }
 				]
 			}
 		};
@@ -885,8 +821,8 @@ QUnit.test( 'newFromDocumentInsertion', function ( assert ) {
 						remove: doc.getData( new ve.Range( 6, 14 ) )
 							.concat( doc.getData( new ve.Range( 19, 20 ) ) ),
 						insert: doc.getData( new ve.Range( 6, 15 ) )
-							.concat( [ [ doc.data.getData( 15 ), [ ve.dm.example.boldIndex ] ] ] )
-							.concat( [ [ doc.data.getData( 16 ), [ ve.dm.example.boldIndex ] ] ] )
+							.concat( [ [ doc.data.getData( 15 ), [ ve.dm.example.boldHash ] ] ] )
+							.concat( [ [ doc.data.getData( 16 ), [ ve.dm.example.boldHash ] ] ] )
 							.concat( doc.getData( new ve.Range( 17, 20 ) ) )
 					},
 					{ type: 'retain', length: 7 }
@@ -1030,7 +966,7 @@ QUnit.test( 'newFromDocumentInsertion', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ { type: 'paragraph' }, 'F', [ 'o', [ ve.dm.example.boldIndex ] ], 'o', { type: '/paragraph' } ]
+						insert: [ { type: 'paragraph' }, 'F', [ 'o', [ ve.dm.example.boldHash ] ], 'o', { type: '/paragraph' } ]
 					},
 					{ type: 'retain', length: 6 },
 					{
@@ -1049,7 +985,7 @@ QUnit.test( 'newFromDocumentInsertion', function ( assert ) {
 	for ( i = 0; i < cases.length; i++ ) {
 		doc = ve.dm.example.createExampleDocument( cases[ i ].doc );
 		if ( cases[ i ].newDocData ) {
-			store2 = new ve.dm.IndexValueStore();
+			store2 = new ve.dm.HashValueStore();
 			doc2 = new ve.dm.Document( ve.dm.example.preprocessAnnotations( cases[ i ].newDocData, store2 ) );
 			removalOps = [];
 		} else if ( cases[ i ].range ) {
@@ -1162,14 +1098,14 @@ QUnit.test( 'newFromAnnotation', function ( assert ) {
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 1 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 61 }
 				]
@@ -1182,28 +1118,28 @@ QUnit.test( 'newFromAnnotation', function ( assert ) {
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 1 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 1 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 1 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 59 }
 				]
@@ -1216,28 +1152,28 @@ QUnit.test( 'newFromAnnotation', function ( assert ) {
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.strongIndex
+						index: ve.dm.example.strongHash
 					},
 					{ type: 'retain', length: 1 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.strongIndex
+						index: ve.dm.example.strongHash
 					},
 					{ type: 'retain', length: 1 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.strongIndex
+						index: ve.dm.example.strongHash
 					},
 					{ type: 'retain', length: 1 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.strongIndex
+						index: ve.dm.example.strongHash
 					},
 					{ type: 'retain', length: 59 }
 				]
@@ -1250,14 +1186,14 @@ QUnit.test( 'newFromAnnotation', function ( assert ) {
 						type: 'annotate',
 						method: 'clear',
 						bias: 'start',
-						index: ve.dm.example.strongIndex
+						index: ve.dm.example.strongHash
 					},
 					{ type: 'retain', length: 3 },
 					{
 						type: 'annotate',
 						method: 'clear',
 						bias: 'stop',
-						index: ve.dm.example.strongIndex
+						index: ve.dm.example.strongHash
 					},
 					{ type: 'retain', length: 3 }
 				]
@@ -1276,28 +1212,28 @@ QUnit.test( 'newFromAnnotation', function ( assert ) {
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 1 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 6 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 1 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 52 }
 				]
@@ -1310,14 +1246,14 @@ QUnit.test( 'newFromAnnotation', function ( assert ) {
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 4 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 21 }
 				]
@@ -1330,28 +1266,28 @@ QUnit.test( 'newFromAnnotation', function ( assert ) {
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 3 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 2 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 3 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 21 }
 				]
@@ -1364,42 +1300,42 @@ QUnit.test( 'newFromAnnotation', function ( assert ) {
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 3 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 2 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 3 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 15 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 3 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.boldIndex
+						index: ve.dm.example.boldHash
 					},
 					{ type: 'retain', length: 3 }
 				]
@@ -1600,7 +1536,12 @@ QUnit.test( 'newFromWrap', function ( assert ) {
 		doc = ve.dm.example.createExampleDocument(),
 		metaDoc = ve.dm.example.createExampleDocument( 'withMeta' ),
 		listMetaDoc = ve.dm.example.createExampleDocument( 'listWithMeta' ),
-		listDoc = ve.dm.example.createExampleDocumentFromObject( 'listDoc', null, { listDoc: listMetaDoc.getData() } ),
+		listDoc = ve.dm.example.createExampleDocumentFromObject( 'listDoc', null, {
+			listDoc: listMetaDoc.getData().filter( function ( item ) {
+				return item.type !== 'alienMeta' &&
+					item.type !== '/alienMeta';
+			} )
+		} ),
 		cases = {
 			'changes a heading to a paragraph': {
 				args: [ doc, new ve.Range( 1, 4 ), [ { type: 'heading', attributes: { level: 1 } } ], [ { type: 'paragraph' } ], [], [] ],
@@ -1692,58 +1633,90 @@ QUnit.test( 'newFromWrap', function ( assert ) {
 				]
 			},
 			'metadata is preserved on wrap': {
-				args: [ metaDoc, new ve.Range( 1, 10 ), [ { type: 'paragraph' } ], [ { type: 'heading', level: 1 } ], [], [] ],
+				args: [
+					metaDoc,
+					new ve.Range( 4, 23 ),
+					[],
+					[ { type: 'list' } ],
+					[ { type: 'paragraph' } ],
+					[ { type: 'listItem' }, { type: 'heading', level: 1 } ]
+				],
 				ops: [
-					{ type: 'replace',
+					{ type: 'retain', length: 4 },
+					{
+						type: 'replace',
 						remove: [ { type: 'paragraph' } ],
-						insert: [ { type: 'heading', level: 1 } ],
-						insertMetadata: metaDoc.getMetadata().slice( 0, 1 ),
-						removeMetadata: metaDoc.getMetadata().slice( 0, 1 )
+						insert: [
+							{ type: 'list' },
+							{ type: 'listItem' },
+							{ type: 'heading', level: 1 }
+						]
 					},
-					{ type: 'retain', length: 9 },
-					{ type: 'replace',
+					{ type: 'retain', length: 3 },
+					{
+						type: 'replace',
 						remove: [ { type: '/paragraph' } ],
-						insert: [ { type: '/heading' } ]
+						insert: [
+							{ type: '/heading' },
+							{ type: '/listItem' }
+						]
 					},
-					{ type: 'retain', length: 2 }
+					{ type: 'retain', length: 2 },
+					{
+						type: 'replace',
+						remove: [ { type: 'paragraph' } ],
+						insert: [
+							{ type: 'listItem' },
+							{ type: 'heading', level: 1 }
+						]
+					},
+					{ type: 'retain', length: 3 },
+					{
+						type: 'replace',
+						remove: [ { type: '/paragraph' } ],
+						insert: [
+							{ type: '/heading' },
+							{ type: '/listItem' }
+						]
+					},
+					{ type: 'retain', length: 2 },
+					{
+						type: 'replace',
+						remove: [ { type: 'paragraph' } ],
+						insert: [
+							{ type: 'listItem' },
+							{ type: 'heading', level: 1 }
+						]
+					},
+					{ type: 'retain', length: 3 },
+					{
+						type: 'replace',
+						remove: [ { type: '/paragraph' } ],
+						insert: [
+							{ type: '/heading' },
+							{ type: '/listItem' },
+							{ type: '/list' }
+						]
+					},
+					{ type: 'retain', length: 12 }
 				]
 			},
 			'metadata is preserved on unwrap': {
-				args: [ listMetaDoc, new ve.Range( 1, 11 ), [ { type: 'list' } ], [], [ { type: 'listItem', attributes: { styles: [ 'bullet' ] } } ], [] ],
+				args: [ listMetaDoc, new ve.Range( 3, 35 ), [ { type: 'list' } ], [], [ { type: 'listItem', attributes: { styles: [ 'bullet' ] } } ], [] ],
 				ops: [
-					{ type: 'replace',
-						remove: [ { type: 'list' }, { type: 'listItem', attributes: { styles: [ 'bullet' ] } } ],
-						insert: [],
-						insertMetadata: [],
-						removeMetadata: listMetaDoc.getMetadata().slice( 0, 2 )
-					},
-					{ type: 'replaceMetadata',
-						insert: ve.dm.MetaLinearData.static.merge( listMetaDoc.getMetadata().slice( 0, 2 ) )[ 0 ],
-						remove: []
-					},
-					{ type: 'retain', length: 3 },
-					{ type: 'replace',
-						remove: [ { type: '/listItem' }, { type: 'listItem', attributes: { styles: [ 'bullet' ] } } ],
-						insert: [],
-						insertMetadata: [],
-						removeMetadata: listMetaDoc.getMetadata().slice( 5, 7 )
-					},
-					{ type: 'replaceMetadata',
-						insert: ve.dm.MetaLinearData.static.merge( listMetaDoc.getMetadata().slice( 5, 7 ) )[ 0 ],
-						remove: []
-					},
-					{ type: 'retain', length: 3 },
-					{ type: 'replace',
-						remove: [ { type: '/listItem' }, { type: '/list' } ],
-						insert: [],
-						insertMetadata: [],
-						removeMetadata: listMetaDoc.getMetadata().slice( 10, 12 )
-					},
-					{ type: 'replaceMetadata',
-						insert: ve.dm.MetaLinearData.static.merge( listMetaDoc.getMetadata().slice( 10, 12 ) )[ 0 ],
-						remove: []
-					},
-					{ type: 'retain', length: 2 }
+					{ type: 'retain', length: 2 },
+					{ type: 'replace', remove: [ { type: 'list' } ], insert: [] },
+					{ type: 'retain', length: 2 },
+					{ type: 'replace', remove: [ { type: 'listItem', attributes: { styles: [ 'bullet' ] } } ], insert: [] },
+					{ type: 'retain', length: 11 },
+					{ type: 'replace', remove: [ { type: '/listItem' } ], insert: [] },
+					{ type: 'retain', length: 2 },
+					{ type: 'replace', remove: [ { type: 'listItem', attributes: { styles: [ 'bullet' ] } } ], insert: [] },
+					{ type: 'retain', length: 11 },
+					{ type: 'replace', remove: [ { type: '/listItem' } ], insert: [] },
+					{ type: 'retain', length: 2 },
+					{ type: 'replace', remove: [ { type: '/list' } ], insert: [] },
+					{ type: 'retain', length: 4 }
 				]
 			},
 			'checks integrity of unwrapOuter parameter': {
@@ -1793,13 +1766,13 @@ QUnit.test( 'pushRetain', function ( assert ) {
 	ve.test.utils.runTransactionBuilderTests( assert, cases );
 } );
 
-QUnit.test( 'pushReplace', function ( assert ) {
+QUnit.test( 'pushReplacement', function ( assert ) {
 	var doc = new ve.dm.Document( [ { type: 'paragraph' }, 'a', 'b', 'c', { type: '/paragraph' } ] ),
 		doc2 = new ve.dm.Document( [ { type: 'paragraph' }, 'a', 'b', 'c', 'g', 'h', 'i', { type: '/paragraph' } ] ),
 		cases = {
 			insert: {
 				calls: [
-					[ 'pushReplace', doc, 0, 0, [ { type: 'paragraph' }, 'a', 'b', 'c', { type: '/paragraph' } ] ]
+					[ 'pushReplacement', doc, 0, 0, [ { type: 'paragraph' }, 'a', 'b', 'c', { type: '/paragraph' } ] ]
 				],
 				ops: [
 					{
@@ -1812,8 +1785,8 @@ QUnit.test( 'pushReplace', function ( assert ) {
 			},
 			'multiple insert': {
 				calls: [
-					[ 'pushReplace', doc, 0, 0, [ { type: 'paragraph' }, 'a', 'b' ] ],
-					[ 'pushReplace', doc, 0, 0, [ 'c', { type: '/paragraph' } ] ]
+					[ 'pushReplacement', doc, 0, 0, [ { type: 'paragraph' }, 'a', 'b' ] ],
+					[ 'pushReplacement', doc, 0, 0, [ 'c', { type: '/paragraph' } ] ]
 				],
 				ops: [
 					{
@@ -1827,7 +1800,7 @@ QUnit.test( 'pushReplace', function ( assert ) {
 			'insert and retain': {
 				calls: [
 					[ 'pushRetain', 1 ],
-					[ 'pushReplace', doc, 0, 0, [ 'a', 'b', 'c' ] ]
+					[ 'pushReplacement', doc, 0, 0, [ 'a', 'b', 'c' ] ]
 				],
 				ops: [
 					{ type: 'retain', length: 1 },
@@ -1837,7 +1810,7 @@ QUnit.test( 'pushReplace', function ( assert ) {
 			},
 			remove: {
 				calls: [
-					[ 'pushReplace', doc, 0, 5, [] ]
+					[ 'pushReplacement', doc, 0, 5, [] ]
 				],
 				ops: [
 					{
@@ -1850,8 +1823,8 @@ QUnit.test( 'pushReplace', function ( assert ) {
 			},
 			'multiple remove': {
 				calls: [
-					[ 'pushReplace', doc, 0, 3, [] ],
-					[ 'pushReplace', doc, 3, 2, [] ]
+					[ 'pushReplacement', doc, 0, 3, [] ],
+					[ 'pushReplacement', doc, 3, 2, [] ]
 				],
 				ops: [
 					{
@@ -1865,7 +1838,7 @@ QUnit.test( 'pushReplace', function ( assert ) {
 			'retain and remove': {
 				calls: [
 					[ 'pushRetain', 1 ],
-					[ 'pushReplace', doc, 1, 3, [] ]
+					[ 'pushReplacement', doc, 1, 3, [] ]
 				],
 				ops: [
 					{ type: 'retain', length: 1 },
@@ -1875,7 +1848,7 @@ QUnit.test( 'pushReplace', function ( assert ) {
 			},
 			replace: {
 				calls: [
-					[ 'pushReplace', doc, 1, 3, [ 'd', 'e', 'f' ] ]
+					[ 'pushReplacement', doc, 1, 3, [ 'd', 'e', 'f' ] ]
 				],
 				ops: [
 					{
@@ -1888,8 +1861,8 @@ QUnit.test( 'pushReplace', function ( assert ) {
 			},
 			'multiple replace': {
 				calls: [
-					[ 'pushReplace', doc2, 1, 3, [ 'd', 'e', 'f' ] ],
-					[ 'pushReplace', doc2, 4, 3, [ 'j', 'k', 'l' ] ]
+					[ 'pushReplacement', doc2, 1, 3, [ 'd', 'e', 'f' ] ],
+					[ 'pushReplacement', doc2, 4, 3, [ 'j', 'k', 'l' ] ]
 				],
 				ops: [
 					{
@@ -1951,70 +1924,70 @@ QUnit.test( 'push*Annotating', function ( assert ) {
 	var cases = {
 		'start annotating': {
 			calls: [
-				[ 'pushStartAnnotating', 'set', 0 ]
+				[ 'pushStartAnnotating', 'set', 'h000' ]
 			],
 			ops: [
 				{
 					type: 'annotate',
 					method: 'set',
 					bias: 'start',
-					index: 0
+					index: 'h000'
 				}
 			],
 			diff: 0
 		},
 		'stop annotating': {
 			calls: [
-				[ 'pushStopAnnotating', 'set', 0 ]
+				[ 'pushStopAnnotating', 'set', 'h000' ]
 			],
 			ops: [
 				{
 					type: 'annotate',
 					method: 'set',
 					bias: 'stop',
-					index: 0
+					index: 'h000'
 				}
 			],
 			diff: 0
 		},
 		'start multiple annotations': {
 			calls: [
-				[ 'pushStartAnnotating', 'set', 0 ],
-				[ 'pushStartAnnotating', 'set', 1 ]
+				[ 'pushStartAnnotating', 'set', 'h000' ],
+				[ 'pushStartAnnotating', 'set', 'h111' ]
 			],
 			ops: [
 				{
 					type: 'annotate',
 					method: 'set',
 					bias: 'start',
-					index: 0
+					index: 'h000'
 				},
 				{
 					type: 'annotate',
 					method: 'set',
 					bias: 'start',
-					index: 1
+					index: 'h111'
 				}
 			],
 			diff: 0
 		},
 		'stop multiple annotations': {
 			calls: [
-				[ 'pushStopAnnotating', 'set', 0 ],
-				[ 'pushStopAnnotating', 'set', 1 ]
+				[ 'pushStopAnnotating', 'set', 'h000' ],
+				[ 'pushStopAnnotating', 'set', 'h111' ]
 			],
 			ops: [
 				{
 					type: 'annotate',
 					method: 'set',
 					bias: 'stop',
-					index: 0
+					index: 'h000'
 				},
 				{
 					type: 'annotate',
 					method: 'set',
 					bias: 'stop',
-					index: 1
+					index: 'h111'
 				}
 			],
 			diff: 0
@@ -2024,195 +1997,15 @@ QUnit.test( 'push*Annotating', function ( assert ) {
 	ve.test.utils.runTransactionBuilderTests( assert, cases );
 } );
 
-QUnit.test( 'newFromMetadataInsertion', function ( assert ) {
-	var doc = ve.dm.example.createExampleDocument( 'withMeta' ),
-		listWithMetaDoc = ve.dm.example.createExampleDocument( 'listWithMeta' ),
-		element = {
-			type: 'alienMeta',
-			attributes: {
-				style: 'comment',
-				text: ' inline '
-			}
-		},
-		cases = {
-			'inserting metadata element into existing element list': {
-				args: [ doc, 11, 2, [ element ] ],
-				ops: [
-					{ type: 'retain', length: 11 },
-					{ type: 'retainMetadata', length: 2 },
-					{
-						type: 'replaceMetadata',
-						remove: [],
-						insert: [ element ]
-					},
-					{ type: 'retainMetadata', length: 2 },
-					{ type: 'retain', length: 2 }
-				]
-			},
-			'inserting metadata element into empty list': {
-				args: [ doc, 3, 0, [ element ] ],
-				ops: [
-					{ type: 'retain', length: 3 },
-					{
-						type: 'replaceMetadata',
-						remove: [],
-						insert: [ element ]
-					},
-					{ type: 'retain', length: 10 }
-				]
-			},
-			'inserting trailing metadata (1)': {
-				args: [ listWithMetaDoc, 12, 0, [ element ] ],
-				ops: [
-					{ type: 'retain', length: 12 },
-					{
-						type: 'replaceMetadata',
-						remove: [],
-						insert: [ element ]
-					},
-					{ type: 'retainMetadata', length: 1 },
-					{ type: 'retain', length: 2 }
-				]
-			},
-			'inserting trailing metadata (2)': {
-				args: [ listWithMetaDoc, 12, 1, [ element ] ],
-				ops: [
-					{ type: 'retain', length: 12 },
-					{ type: 'retainMetadata', length: 1 },
-					{
-						type: 'replaceMetadata',
-						remove: [],
-						insert: [ element ]
-					},
-					{ type: 'retain', length: 2 }
-				]
-			}
-		};
-
-	ve.test.utils.runTransactionConstructorTests( assert, ve.dm.TransactionBuilder.static.newFromMetadataInsertion, cases );
-} );
-
-QUnit.test( 'newFromMetadataRemoval', function ( assert ) {
-	var doc = ve.dm.example.createExampleDocument( 'withMeta' ),
-		listWithMetaDoc = ve.dm.example.createExampleDocument( 'listWithMeta' ),
-		allElements = ve.dm.example.withMetaMetaData[ 11 ],
-		someElements = allElements.slice( 1, 3 ),
-		cases = {
-			'removing all metadata elements from metadata list': {
-				args: [ doc, 11, new ve.Range( 0, 4 ) ],
-				ops: [
-					{ type: 'retain', length: 11 },
-					{
-						type: 'replaceMetadata',
-						remove: allElements,
-						insert: []
-					},
-					{ type: 'retain', length: 2 }
-				]
-			},
-			'removing some metadata elements from metadata list': {
-				args: [ doc, 11, new ve.Range( 1, 3 ) ],
-				ops: [
-					{ type: 'retain', length: 11 },
-					{ type: 'retainMetadata', length: 1 },
-					{
-						type: 'replaceMetadata',
-						remove: someElements,
-						insert: []
-					},
-					{ type: 'retainMetadata', length: 1 },
-					{ type: 'retain', length: 2 }
-				]
-			},
-			'removing trailing metadata': {
-				args: [ listWithMetaDoc, 12, new ve.Range( 0, 1 ) ],
-				ops: [
-					{ type: 'retain', length: 12 },
-					{
-						type: 'replaceMetadata',
-						remove: [
-							{
-								type: 'alienMeta',
-								originalDomElements: $( '<meta property="thirteen" />' ).toArray()
-							}
-						],
-						insert: []
-					},
-					{ type: 'retain', length: 2 }
-				]
-			},
-			'checks metadata at offset is non-empty': {
-				args: [ doc, 5, new ve.Range( 1, 3 ) ],
-				exception: Error
-			},
-			'checks range is valid for metadata at offset': {
-				args: [ doc, 11, new ve.Range( 1, 5 ) ],
-				exception: Error
-			}
-		};
-
-	ve.test.utils.runTransactionConstructorTests( assert, ve.dm.TransactionBuilder.static.newFromMetadataRemoval, cases );
-} );
-
-QUnit.test( 'newFromMetadataElementReplacement', function ( assert ) {
-	var doc = ve.dm.example.createExampleDocument( 'withMeta' ),
-		listWithMetaDoc = ve.dm.example.createExampleDocument( 'listWithMeta' ),
-		newElement = {
-			type: 'alienMeta',
-			attributes: {
-				style: 'comment',
-				text: ' inline '
-			}
-		},
-		oldElement = ve.dm.example.withMetaMetaData[ 11 ][ 3 ],
-		cases = {
-			'replacing metadata at end of list': {
-				args: [ doc, 11, 3, newElement ],
-				ops: [
-					{ type: 'retain', length: 11 },
-					{ type: 'retainMetadata', length: 3 },
-					{
-						type: 'replaceMetadata',
-						remove: [ oldElement ],
-						insert: [ newElement ]
-					},
-					{ type: 'retain', length: 2 }
-				]
-			},
-			'replacing trailing metadata': {
-				args: [ listWithMetaDoc, 12, 0, newElement ],
-				ops: [
-					{ type: 'retain', length: 12 },
-					{
-						type: 'replaceMetadata',
-						remove: [ listWithMetaDoc.metadata.getData( 12 )[ 0 ] ],
-						insert: [ newElement ]
-					},
-					{ type: 'retain', length: 2 }
-				]
-			},
-			'checks offset is in bounds': {
-				args: [ doc, 15, 0, newElement ],
-				exception: Error
-			},
-			'checks metadata index is in bounds': {
-				args: [ doc, 11, 5, newElement ],
-				exception: Error
-			}
-		};
-
-	ve.test.utils.runTransactionConstructorTests( assert, ve.dm.TransactionBuilder.static.newFromMetadataElementReplacement, cases );
-} );
-
 QUnit.test( 'isNoOp', function ( assert ) {
 	var tx,
 		doc = ve.dm.example.createExampleDocument(),
 		metaDoc = ve.dm.example.createExampleDocument( 'withMeta' ),
 		listMetaDoc = ve.dm.example.createExampleDocument( 'listWithMeta' );
 
+	assert.expect( 3 * 6 - 1 );
 	[ doc, metaDoc, listMetaDoc ].forEach( function ( d, i ) {
-		var isDoc = ( i === 0 ),
-			isListMetaDoc = ( i === 2 );
+		var isListMetaDoc = ( i === 2 );
 
 		tx = ve.dm.TransactionBuilder.static.newFromReplacement(
 			d, new ve.Range( 1 ), [], false
@@ -2238,7 +2031,7 @@ QUnit.test( 'isNoOp', function ( assert ) {
 		}
 
 		tx = ve.dm.TransactionBuilder.static.newFromAttributeChanges(
-			d, isListMetaDoc ? 1 : 0, {}
+			d, isListMetaDoc ? 5 : 0, {}
 		);
 		assert.strictEqual( tx.isNoOp(), true );
 
@@ -2246,20 +2039,6 @@ QUnit.test( 'isNoOp', function ( assert ) {
 			d, new ve.Range( 1 ), 'set', new ve.dm.ItalicAnnotation()
 		);
 		assert.strictEqual( tx.isNoOp(), true );
-
-		tx = ve.dm.TransactionBuilder.static.newFromMetadataInsertion(
-			d, 1, 0, []
-		);
-		assert.strictEqual( tx.isNoOp(), true );
-
-		if ( !isDoc ) {
-			tx = ve.dm.TransactionBuilder.static.newFromMetadataRemoval(
-				d, 0, new ve.Range( 1 )
-			);
-			assert.strictEqual( tx.isNoOp(), true );
-		}
-
-		// metadata replacement never creates no-op
 	} );
 } );
 
@@ -2277,10 +2056,8 @@ QUnit.test( 'operations/build from operations', function ( assert ) {
 					{ type: 'retain', length: 1 },
 					{
 						type: 'replace',
-						remove: [ 'a', [ 'b', [ ve.dm.example.boldIndex ] ], [ 'c', [ ve.dm.example.italicIndex ] ] ],
-						insert: [ 'F', 'o', 'o' ],
-						insertedDataOffset: 0,
-						insertedDataLength: 3
+						remove: [ 'a', [ 'b', [ ve.dm.example.boldHash ] ], [ 'c', [ ve.dm.example.italicHash ] ] ],
+						insert: [ 'F', 'o', 'o' ]
 					},
 					{ type: 'retain', length: 59 }
 				]
@@ -2294,9 +2071,7 @@ QUnit.test( 'operations/build from operations', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ { type: 'paragraph' }, { type: '/paragraph' } ],
-						insertedDataOffset: 0,
-						insertedDataLength: 2
+						insert: [ { type: 'paragraph' }, { type: '/paragraph' } ]
 					},
 					{ type: 'retain', length: 63 }
 				]
@@ -2309,9 +2084,7 @@ QUnit.test( 'operations/build from operations', function ( assert ) {
 					{
 						type: 'replace',
 						remove: [],
-						insert: [ { type: 'alienBlock' }, { type: '/alienBlock' } ],
-						insertedDataOffset: 0,
-						insertedDataLength: 2
+						insert: [ { type: 'alienBlock' }, { type: '/alienBlock' } ]
 					},
 					{ type: 'retain', length: 63 }
 				]
@@ -2326,14 +2099,14 @@ QUnit.test( 'operations/build from operations', function ( assert ) {
 						type: 'annotate',
 						method: 'set',
 						bias: 'start',
-						index: ve.dm.example.underlineIndex
+						index: ve.dm.example.underlineHash
 					},
 					{ type: 'retain', length: 3 },
 					{
 						type: 'annotate',
 						method: 'set',
 						bias: 'stop',
-						index: ve.dm.example.underlineIndex
+						index: ve.dm.example.underlineHash
 					},
 					{ type: 'retain', length: 59 }
 				]
@@ -2350,5 +2123,139 @@ QUnit.test( 'operations/build from operations', function ( assert ) {
 		}
 		assert.deepEqual( new ve.dm.Transaction( ops ), tx, cases[ i ].msg + ': build from operations' );
 
+	}
+} );
+
+QUnit.test( 'newFromRemoval preserving metadata', function ( assert ) {
+	var cases, i, len, doc, tx;
+
+	function removeBoringProperties( operations ) {
+		return operations.map( function ( op ) {
+			if ( !op.insert ) {
+				return op;
+			}
+			op = ve.copy( op );
+			[].concat( op.insert, op.remove ).forEach( function ( item ) {
+				delete item.originalDomElementsHash;
+				delete item.internal;
+			} );
+			return op;
+		} );
+	}
+	cases = [
+		{
+			msg: 'Removal ending at meta',
+			html: '<p>foo</p><meta><p>bar</p>',
+			range: new ve.Range( 0, 7 ),
+			ops: [
+				{ type: 'replace', insert: [
+					{ type: 'alienMeta' },
+					{ type: '/alienMeta' }
+				], remove: [
+					{ type: 'paragraph' },
+					'f',
+					'o',
+					'o',
+					{ type: '/paragraph' },
+					{ type: 'alienMeta' },
+					{ type: '/alienMeta' }
+				] },
+				{ type: 'retain', length: 7 }
+			]
+		},
+		{
+			msg: 'Removal beginning at meta',
+			html: '<p>foo</p><meta><p>bar</p>',
+			range: new ve.Range( 5, 13 ),
+			ops: [
+				{ type: 'retain', length: 5 },
+				{ type: 'replace', insert: [
+					{ type: 'alienMeta' },
+					{ type: '/alienMeta' }
+				], remove: [
+					{ type: 'alienMeta' },
+					{ type: '/alienMeta' },
+					{ type: 'paragraph' },
+					'b',
+					'a',
+					'r',
+					{ type: '/paragraph' }
+				] },
+				{ type: 'retain', length: 2 }
+			]
+		},
+		{
+			msg: 'Removal across meta',
+			html: '<p>foo</p><meta><p>bar</p><p>baz</p>',
+			range: new ve.Range( 0, 12 ),
+			ops: [
+				{ type: 'replace', insert: [
+					{ type: 'alienMeta' },
+					{ type: '/alienMeta' }
+				], remove: [
+					{ type: 'paragraph' },
+					'f',
+					'o',
+					'o',
+					{ type: '/paragraph' },
+					{ type: 'alienMeta' },
+					{ type: '/alienMeta' },
+					{ type: 'paragraph' },
+					'b',
+					'a',
+					'r',
+					{ type: '/paragraph' }
+				] },
+				{ type: 'retain', length: 7 }
+			]
+		},
+		{
+			msg: 'Merge /ul/li/p nodes across meta',
+			html: '<ul><li><p>foo</p></li><li><p></p></li></ul><p></p><div><div><meta></div></div><ul><li><p>bar</p></li></ul>',
+			range: new ve.Range( 4, 25 ),
+			ops: [
+				{ type: 'retain', length: 2 },
+				{ type: 'replace', remove: [], insert: [
+					{ type: 'alienMeta' },
+					{ type: '/alienMeta' }
+				] },
+				{ type: 'retain', length: 2 },
+				{ type: 'replace', insert: [], remove: [
+					'o',
+					'o',
+					{ type: '/paragraph' },
+					{ type: '/listItem' },
+					{ type: 'listItem' },
+					{ type: 'paragraph' },
+					{ type: '/paragraph' },
+					{ type: '/listItem' },
+					{ type: '/list' },
+					{ type: 'paragraph' },
+					{ type: '/paragraph' },
+					{ type: 'div' },
+					{ type: 'div' },
+					{ type: 'alienMeta' },
+					{ type: '/alienMeta' },
+					{ type: '/div' },
+					{ type: '/div' },
+					{ type: 'list', attributes: { style: 'bullet' } },
+					{ type: 'listItem' },
+					{ type: 'paragraph' },
+					'b'
+				] },
+				{ type: 'retain', length: 7 }
+			]
+		}
+	];
+	assert.expect( cases.length );
+
+	for ( i = 0, len = cases.length; i < len; i++ ) {
+		doc = ve.dm.converter.getModelFromDom( ve.createDocumentFromHtml( cases[ i ].html ) );
+		tx = ve.dm.TransactionBuilder.static.newFromRemoval( doc, cases[ i ].range );
+		assert.deepEqual(
+			cases[ i ].ops,
+			removeBoringProperties( tx.operations ),
+			cases[ i ].msg
+		);
 	}
 } );

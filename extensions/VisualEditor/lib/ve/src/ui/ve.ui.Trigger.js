@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface Trigger class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -184,8 +184,8 @@ ve.ui.Trigger.static.platformMapping = {
 		'delete': '⌦',
 		down: '↓',
 		end: '↗',
-		// technically enter is ⌤, but JS doesn't distinguish enter and
-		// return, and the return-arrow is better known
+		// Technically 'enter' is ⌤, but JS doesn't distinguish between 'enter' and
+		// 'return', and the return-arrow is better known
 		enter: '⏎',
 		escape: '⎋',
 		home: '↖',

@@ -1,7 +1,7 @@
 /*!
  * VisualEditor plugin for QUnit.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /* global difflib,diffview */
@@ -202,13 +202,34 @@
 		} );
 	};
 
+	/**
+	 * @method
+	 * @static
+	 * @param {HTMLElement} actual
+	 * @param {HTMLElement} expected
+	 * @param {string} message
+	 */
+	QUnit.assert.notEqualDomElement = function ( actual, expected, message ) {
+		var actualSummary = ve.getDomElementSummary( actual ),
+			expectedSummary = ve.getDomElementSummary( expected ),
+			actualSummaryHtml = ve.getDomElementSummary( actual, true ),
+			expectedSummaryHtml = ve.getDomElementSummary( expected, true );
+
+		this.pushResult( {
+			result: !QUnit.equiv( actualSummary, expectedSummary ),
+			actual: actualSummaryHtml,
+			expected: 'Not: ' + expectedSummaryHtml,
+			message: message
+		} );
+	};
+
 	QUnit.assert.equalLinearData = function ( actual, expected, message ) {
 		function removeOriginalDomElements( val ) {
-			if ( val && val.originalDomElementsIndex !== undefined ) {
-				delete val.originalDomElementsIndex;
-			}
-			if ( val && val.originalDomElements !== undefined ) {
-				delete val.originalDomElements;
+			if ( val && val.type ) {
+				ve.deleteProp( val, 'originalDomElementsHash' );
+				ve.deleteProp( val, 'originalDomElements' );
+				ve.deleteProp( val, 'internal', 'changesSinceLoad' );
+				ve.deleteProp( val, 'internal', 'metaItems' );
 			}
 		}
 
@@ -227,9 +248,9 @@
 
 	QUnit.assert.equalLinearDataWithDom = function ( store, actual, expected, message ) {
 		function addOriginalDomElements( val ) {
-			if ( val && val.originalDomElementsIndex !== undefined ) {
-				val.originalDomElements = store.value( val.originalDomElementsIndex );
-				delete val.originalDomElementsIndex;
+			if ( val && val.originalDomElementsHash !== undefined ) {
+				val.originalDomElements = store.value( val.originalDomElementsHash );
+				delete val.originalDomElementsHash;
 			}
 		}
 
@@ -324,9 +345,7 @@
 		var oLines = difflib.stringAsLines( unescapeText( o ) ),
 			nLines = difflib.stringAsLines( unescapeText( n ) ),
 			sm = new difflib.SequenceMatcher( oLines, nLines ),
-			// jscs:disable requireCamelCaseOrUpperCaseIdentifiers (awaiting eslint replacement; T149261)
 			opcodes = sm.get_opcodes(),
-			// jscs:enable requireCamelCaseOrUpperCaseIdentifiers
 			$div = $( '<div>' );
 
 		$div.append( diffview.buildView( {

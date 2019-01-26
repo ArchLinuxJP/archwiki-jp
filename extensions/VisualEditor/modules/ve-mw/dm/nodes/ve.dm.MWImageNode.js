@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel MWImageNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see AUTHORS.txt
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -66,6 +66,14 @@ ve.dm.MWImageNode.static.rdfaToTypes = ( function () {
 	return rdfaToType;
 }() );
 
+/**
+ * Get RDFa type
+ *
+ * @static
+ * @param {string} mediaClass Media class, one of 'Image', 'Video' or 'Audio'
+ * @param {string} frameType Frame type, one of 'none', 'frameless', 'thumb' or 'frame'
+ * @return {string} RDFa type
+ */
 ve.dm.MWImageNode.static.getRdfa = function ( mediaClass, frameType ) {
 	return 'mw:' + mediaClass + {
 		none: '',
@@ -76,9 +84,14 @@ ve.dm.MWImageNode.static.getRdfa = function ( mediaClass, frameType ) {
 	}[ frameType ];
 };
 
-ve.dm.MWImageNode.static.getHashObject = function ( dataElement ) {
+/**
+ * @inheritdoc ve.dm.GeneratedContentNode
+ */
+ve.dm.MWImageNode.static.getHashObjectForRendering = function ( dataElement ) {
+	// "Rendering" is just the URL of the thumbnail, so we only
+	// care about src & dimensions
 	return {
-		type: dataElement.type,
+		type: 'mwImage',
 		resource: dataElement.attributes.resource,
 		width: dataElement.attributes.width,
 		height: dataElement.attributes.height
@@ -291,14 +304,10 @@ ve.dm.MWImageNode.prototype.onAttributeChange = function ( key, from, to ) {
 /**
  * Get the normalised filename of the image
  *
- * @return {string} Filename
+ * @return {string} Filename (including namespace)
  */
 ve.dm.MWImageNode.prototype.getFilename = function () {
-	// Strip ./ stuff and decode URI encoding
-	var resource = this.getAttribute( 'resource' ) || '',
-		filename = resource.replace( /^(\.\.?\/)*/, '' );
-
-	return ve.decodeURIComponentIntoArticleTitle( filename, true );
+	return ve.normalizeParsoidResourceName( this.getAttribute( 'resource' ) || '' );
 };
 
 /**

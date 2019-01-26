@@ -4,14 +4,13 @@
 			"Cedric31"
 		]
 	},
-	"cite-desc": "Apond las balisas <nowiki><ref[ name=id]></nowiki> e <nowiki><references/></nowiki>, per las citacions.",
+	"cite-desc": "Apond las balisas <code><nowiki><ref[ name=id]></nowiki></code> e <code><nowiki><references/></nowiki></code>, per las citacions.",
 	"cite_error": "Error de citacion : $1",
 	"cite_error_ref_numeric_key": "Ampèl invalid ; clau non-integrala esperada",
 	"cite_error_ref_no_key": "La balisa dobrenta <code>&lt;ref&gt;</code> es malformada o a un marrit nom.",
 	"cite_error_ref_too_many_keys": "Ampèl invalid ; claus invalidas, per exemple, tròp de claus especificadas o clau erronèa",
 	"cite_error_ref_no_input": "Ampèl invalid ; cap de dintrada pas especificada",
 	"cite_error_references_invalid_parameters": "Arguments invalids ; argument esperat",
-	"cite_error_references_invalid_parameters_group": "Balisa <code>&lt;references&gt;</code> incorrècta ;\n\nsol lo paramètre « group » es autorizat.\n\nUtilizatz <code>&lt;references /&gt;</code>, o alara <code>&lt;references group=\"...\" /&gt;</code>.",
 	"cite_error_references_no_backlink_label": "Execucion en defòra de las etiquetas personalizadas, definissetz mai dins lo messatge <nowiki>[[MediaWiki:Cite references link many format backlink labels]]</nowiki>",
 	"cite_error_references_no_text": "Balisa  <code>&lt;ref&gt;</code> incorrècta ;\n\npas de tèxte per las referéncias nomenadas <code>$1</code>.",
 	"cite_error_included_ref": "Clausura <code>&lt;/ref&gt;</code> omesa per la balisa <code>&lt;ref&gt;</code>",

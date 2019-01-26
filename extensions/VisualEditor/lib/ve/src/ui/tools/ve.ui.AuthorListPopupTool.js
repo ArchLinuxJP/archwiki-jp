@@ -1,7 +1,7 @@
 /*!
  * VisualEditor UserInterface AuthorListPopupTool class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see AUTHORS.txt
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  * @license The MIT License (MIT); see LICENSE.txt
  */
 
@@ -50,7 +50,8 @@ ve.ui.AuthorListPopupTool.prototype.onSurfaceChange = function ( oldSurface, new
  * @param {ve.ui.Surface} surface Surface
  */
 ve.ui.AuthorListPopupTool.prototype.setup = function ( surface ) {
-	var tool = this,
+	var debounceSynchronizerChangeName,
+		tool = this,
 		synchronizer = surface.getView().synchronizer,
 		updatingName = false,
 		oldName = '',
@@ -60,17 +61,21 @@ ve.ui.AuthorListPopupTool.prototype.setup = function ( surface ) {
 
 	function updateName() {
 		if ( !updatingName ) {
-			synchronizer.changeName( tool.selfItem.input.getValue() );
+			debounceSynchronizerChangeName();
 		}
 	}
+
+	debounceSynchronizerChangeName = ve.debounce( function () {
+		synchronizer.changeName( tool.selfItem.input.getValue() );
+	}, 250 );
 
 	function updateListCount() {
 		tool.setTitle( ( Object.keys( authorItems ).length + 1 ).toString() );
 	}
 
-	this.selfItem = new ve.ui.AuthorItemWidget( synchronizer, { editable: true } );
+	this.selfItem = new ve.ui.AuthorItemWidget( synchronizer, this.popup.$element, { editable: true } );
 	this.$authorList.prepend( this.selfItem.$element );
-	this.selfItem.input.on( 'change', ve.debounce( updateName, 250 ) );
+	this.selfItem.input.on( 'change', updateName );
 
 	synchronizer.on( 'authorNameChange', function ( authorId ) {
 		var authorItem = authorItems[ authorId ],
@@ -78,7 +83,7 @@ ve.ui.AuthorListPopupTool.prototype.setup = function ( surface ) {
 
 		if ( authorId !== synchronizer.getAuthorId() ) {
 			if ( !authorItem ) {
-				authorItem = new ve.ui.AuthorItemWidget( synchronizer, { authorId: authorId } );
+				authorItem = new ve.ui.AuthorItemWidget( synchronizer, tool.popup.$element, { authorId: authorId } );
 				authorItems[ authorId ] = authorItem;
 				updateListCount();
 				tool.$authorList.append( authorItem.$element );
@@ -90,9 +95,12 @@ ve.ui.AuthorListPopupTool.prototype.setup = function ( surface ) {
 			if ( tool.selfItem.input.getValue() === oldName ) {
 				// Don't send this "new" name back to the server
 				updatingName = true;
-				tool.selfItem.setAuthorId( synchronizer.getAuthorId() );
-				tool.selfItem.update();
-				updatingName = false;
+				try {
+					tool.selfItem.setAuthorId( synchronizer.getAuthorId() );
+					tool.selfItem.update();
+				} finally {
+					updatingName = false;
+				}
 			}
 		}
 		oldName = newName;

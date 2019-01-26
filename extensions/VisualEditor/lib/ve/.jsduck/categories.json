@@ -50,11 +50,10 @@
 					"ve.dm.ModelRegistry",
 					"ve.dm.ModelFactory",
 					"ve.dm.AnnotationFactory",
-					"ve.dm.MetaItemFactory",
 					"ve.dm.NodeFactory",
 					"ve.dm.Converter",
 					"ve.dm.DataString",
-					"ve.dm.IndexValueStore",
+					"ve.dm.HashValueStore",
 					"ve.dm.Scalable",
 					"ve.dm.APIResultsProvider",
 					"ve.dm.APIResultsQueue",
@@ -133,6 +132,10 @@
 			{
 				"name": "Annotations",
 				"classes": ["ve.ce.*Annotation"]
+			},
+			{
+				"name": "Meta items",
+				"classes": ["ve.ce.MetaItem"]
 			},
 			{
 				"name": "Factories",

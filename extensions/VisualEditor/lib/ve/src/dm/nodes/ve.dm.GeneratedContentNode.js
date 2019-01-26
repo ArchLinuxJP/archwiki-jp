@@ -1,7 +1,7 @@
 /*!
  * VisualEditor DataModel GeneratedContentNode class.
  *
- * @copyright 2011-2017 VisualEditor Team and others; see http://ve.mit-license.org
+ * @copyright 2011-2018 VisualEditor Team and others; see http://ve.mit-license.org
  */
 
 /**
@@ -34,12 +34,12 @@ OO.initClass( ve.dm.GeneratedContentNode );
  * @static
  * @param {Object} dataElement Data element
  * @param {Object|string|Array} generatedContents Generated contents
- * @param {ve.dm.IndexValueStore} store Index-value store
- * @return {number} Index of stored data
+ * @param {ve.dm.HashValueStore} store Hash-value store
+ * @return {string} Hash of stored data
  */
 ve.dm.GeneratedContentNode.static.storeGeneratedContents = function ( dataElement, generatedContents, store ) {
 	var hash = OO.getHash( [ this.getHashObjectForRendering( dataElement ), undefined ] );
-	return store.index( generatedContents, hash );
+	return store.hash( generatedContents, hash );
 };
 
 /**
