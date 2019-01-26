@@ -19,6 +19,8 @@ cscope.out
 nbproject*
 project.index
 static*
+sitemap/
+sitemap.xml
 tags
 cache/*.cdb
 images
