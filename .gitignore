@@ -5,6 +5,7 @@
 *.kate-swp
 *.br
 *.gz
+**/Gemfile.lock
 .classpath
 .idea
 .metadata*
